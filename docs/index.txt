@@ -12,7 +12,7 @@ Testing Applications with Paste
 Status & License
 ================
 
-WSGITest is an extraction of ``paste.fixture.TestApp``, rewriting
+WebTest is an extraction of ``paste.fixture.TestApp``, rewriting
 portions to use `WebOb <http://pythonpaste.org/webob/>`_.  It is under
 active development as part of the Paste cloud of packages.
 
@@ -25,7 +25,7 @@ This library is licensed under an `MIT-style license <license.html>`_.
 What This Does
 ==============
 
-WSGITest helps you test your WSGI-based web applications.  This can be
+WebTest helps you test your WSGI-based web applications.  This can be
 any application that has a WSGI interface, including an application
 written in a framework that supports WSGI (which includes most
 actively developed Python web frameworks -- almost anything that even
@@ -33,10 +33,10 @@ nominally supports WSGI should be testable).
 
 With this you can test your web applications without starting an HTTP
 server, and without poking into the web framework shortcutting
-pieces of your application that need to be tested.  The tests WSGITest
+pieces of your application that need to be tested.  The tests WebTest
 runs are entirely equivalent to how a WSGI HTTP server would call an
 application.  By testing the full stack of your application, the
-WSGITest testing model is sometimes called a *functional test*,
+WebTest testing model is sometimes called a *functional test*,
 *integration test*, or *acceptance test* (though the latter two are
 not particularly good descriptions).  This is in contrast to a *unit
 test* which tests a particular piece of functionality in your
@@ -46,20 +46,20 @@ done with functional tests; and regardless of the presence of unit
 tests, no testing strategy is complete without high-level tests to
 ensure the entire programming system works together.
 
-WSGITest helps you create tests by providing a convenient interface to
+WebTest helps you create tests by providing a convenient interface to
 run WSGI applications and verify the output.
 
 TestApp
 =======
 
-The most important object in WSGITest is ``wsgitest.TestApp``, the
+The most important object in WebTest is ``webtest.TestApp``, the
 wrapper for WSGI applications.  To use it, you simply instantiate it
 with your WSGI application.  (Note: if your WSGI application requires
 any configuration, you must set that up manually in your tests.)
 
 .. code-block::
 
-    >>> from wsgitest import TestApp
+    >>> from webtest import TestApp
     >>> from webob import Request, Response
     >>> from paste.urlmap import URLMap
     >>> map_app = URLMap()
@@ -74,7 +74,7 @@ any configuration, you must set that up manually in your tests.)
     >>> res.status
     '200 OK'
     >>> res.form
-    <wsgitest.Form object at ...>
+    <webtest.Form object at ...>
 
 Making Requests
 ---------------
@@ -133,7 +133,7 @@ If you want *all* your requests to have this key, do:
 What Is Tested By Default
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A key concept behind WSGITest is that there's lots of things you
+A key concept behind WebTest is that there's lots of things you
 shouldn't have to check everytime you do a request.  It is assumed
 that the response will either be a 2xx or 3xx response; if it isn't an
 exception will be raised (you can override this for a request, of
@@ -200,7 +200,7 @@ The added methods:
 
 ``response.click(description=None, linkid=None, href=None, anchor=None, index=None, verbose=False)``: 
     Clicks the described link (`see docstring for more
-    <./class-wsgitest.TestResponse.html#click>`_)
+    <./class-webtest.TestResponse.html#click>`_)
 
 ``response.forms``:
     Return a dictionary of forms; you can use both indexes (refer to
@@ -232,7 +232,7 @@ Then you fill it in fields:
     >>> form.method
     'POST'
     >>> form.fields
-    {'name': [<wsgitest.Text object at ...>], 'submit': [<wsgitest.Submit object at ...>]}
+    {'name': [<webtest.Text object at ...>], 'submit': [<webtest.Submit object at ...>]}
     >>> form['name'] = 'Bob'
     >>> # When names don't point to a single field:
     >>> form.set('name', 'Bob', index=0)
@@ -242,7 +242,7 @@ the response:
 
 .. code-block::
 
-    >>> from wsgitest.debugapp import debug_app
+    >>> from webtest.debugapp import debug_app
     >>> map_app['/form-submit'] = debug_app
     >>> # Submit with no particular submit button pressed:
     >>> res = form.submit()

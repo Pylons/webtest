@@ -3,7 +3,7 @@ import sys, os
 
 version = '0.9'
 
-setup(name='WSGITest',
+setup(name='WebTest',
       version=version,
       description="Helper to test WSGI applications",
       long_description="""\
@@ -26,7 +26,7 @@ This is based on ``paste.fixture.TestApp``.
       keywords='wsgi test unit tests web',
       author='Ian Bicking',
       author_email='ianb@colorstudy.com',
-      url='http://pythonpaste.org/wsgitest/',
+      url='http://pythonpaste.org/webtest/',
       license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
@@ -40,6 +40,6 @@ This is based on ``paste.fixture.TestApp``.
       ],
       entry_points="""
       [paste.app_factory]
-      debug = wsgitest.debugapp:make_debug_app
+      debug = webtest.debugapp:make_debug_app
       """,
       )

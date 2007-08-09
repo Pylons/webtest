@@ -3,7 +3,7 @@
 """
 Routines for testing WSGI applications.
 
-Most interesting is the `TestApp <wsgitest.__init__.TestApp.html>`_
+Most interesting is TestApp
 """
 
 import sys
@@ -693,7 +693,7 @@ class TestResponse(Response):
         Show this response in a browser window (for debugging purposes,
         when it's hard to read the HTML).
         """
-        fn = tempnam_no_warning(None, 'wsgitest-page') + '.html'
+        fn = tempnam_no_warning(None, 'webtest-page') + '.html'
         f = open(fn, 'wb')
         f.write(self.body)
         f.close()
