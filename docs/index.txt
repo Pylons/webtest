@@ -1,5 +1,5 @@
-Testing Applications with Paste
-+++++++++++++++++++++++++++++++
+Testing Applications with WebTest
++++++++++++++++++++++++++++++++++
 
 :author: Ian Bicking <ianb@colorstudy.com>
 
