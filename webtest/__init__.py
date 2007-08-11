@@ -688,6 +688,25 @@ class TestResponse(Response):
             '\n'.join(['%s: %s' % (n, v) for n, v in self.headerlist]),
             simple_body)
 
+    def __repr__(self):
+        # Specifically intended for doctests
+        if self.content_type:
+            ct = ' %s' % self.content_type
+        else:
+            ct = ''
+        if self.body:
+            br = repr(self.body)
+            if len(br) > 18:
+                br = br[:10]+'...'+br[-5:]
+            body = ' body=%s/%s' % (br, len(self.body))
+        else:
+            body = ' no body'
+        if self.location:
+            location = ' location: %s' % self.location
+        else:
+            location = ''
+        return ('<' + self.status + ct + location + body + '>')
+
     def showbrowser(self):
         """
         Show this response in a browser window (for debugging purposes,
