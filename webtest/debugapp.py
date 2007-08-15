@@ -12,7 +12,7 @@ def debug_app(environ, start_response):
         if name.upper() != name:
             value = repr(value)
         parts.append('%s: %s\n' % (name, value))
-    req_body = req.read_body()
+    req_body = req.body
     if req_body:
         parts.append('-- Body ----------\n')
         parts.append(req_body)
