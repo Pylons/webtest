@@ -22,6 +22,13 @@ Feedback and discussion should take place on the `Paste list
 
 This library is licensed under an `MIT-style license <license.html>`_.
 
+WebTest is in an svn repository at
+`http://svn.pythonpaste.org/Paste/WebTest/trunk
+<http://svn.pythonpaste.org/Paste/WebTest/trunk#egg=WebTest-dev>`_.  You
+can check it out with::
+
+    $ svn co http://svn.pythonpaste.org/Paste/WebTest/trunk WebTest
+
 What This Does
 ==============
 
