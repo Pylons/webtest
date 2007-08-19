@@ -262,6 +262,72 @@ the response:
     -- Body ----------
     submit=Submit%21&name=Bob
 
+Parsing the Body
+================
+
+There are several ways to get parsed versions of the response.  These
+are the attributes:
+
+``response.html``:
+    Return a `BeautifulSoup
+    <http://www.crummy.com/software/BeautifulSoup/>`_ version of the
+    response body.
+
+``response.xml``:
+    Return an `ElementTree
+    <http://python.org/doc/current/lib/module-xml.etree.ElementTree.html>`_
+    version of the response body.
+
+``response.lxml``:
+    Return an `lxml <http://codespeak.net/lxml/>`_ version of the
+    response body.
+
+``response.json``:
+    Return the parsed JSON (parsed with `simplejson
+    <http://svn.red-bean.com/bob/simplejson/tags/simplejson-1.7/docs/index.html>`_).
+
+In each case the content-type must be correct or an AttributeError is
+raised.  If you do not have the necessary library installed (none of
+them are required by WebTest), you will get an ImportError.
+
+Examples:
+
+.. code-block::
+
+    >>> from webtest import TestResponse
+    >>> res = TestResponse(content_type='text/html', body='''
+    ... <html><body><div id="content">hey!</div></body>''')
+    >>> res.html
+    <BLANKLINE>
+    <html><body><div id="content">hey!</div></body></html>
+    >>> res.html.__class__
+    <class BeautifulSoup.BeautifulSoup at ...>
+    >>> res.html.body.div.string
+    u'hey!'
+    >>> res.lxml
+    <Element html at ...>
+    >>> res.lxml.xpath('//body/div')[0].text
+    'hey!'
+    >>> res = TestResponse(content_type='application/json',
+    ...                    body='{"a":1,"b":2}')
+    >>> res.json
+    {u'a': 1, u'b': 2}
+    >>> res = TestResponse(content_type='application/xml',
+    ...                    body='<xml><message>hey!</message></xml>')
+    >>> res.xml
+    <Element xml at ...>
+    >>> res.xml[0].tag
+    'message'
+    >>> res.xml[0].text
+    'hey!'
+    >>> res.lxml
+    <Element xml at ...>
+    >>> res.lxml[0].tag
+    'message'
+    >>> res.lxml[0].text
+    'hey!'
+
+
 Framework Hooks
 ===============
 

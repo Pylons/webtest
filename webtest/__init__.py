@@ -707,6 +707,112 @@ class TestResponse(Response):
             location = ''
         return ('<' + self.status + ct + location + body + '>')
 
+    def html(self):
+        """
+        Returns the response as a `BeautifulSoup
+        <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        object.
+
+        Only works with HTML responses; other content-types raise
+        AttributeError.
+        """
+        if 'html' not in self.content_type:
+            raise AttributeError(
+                "Not an HTML response body (content-type: %s)"
+                % self.content_Type)
+        try:
+            from BeautifulSoup import BeautifulSoup
+        except ImportError:
+            raise ImportError(
+                "You must have BeautifulSoup installed to use response.html")
+        soup = BeautifulSoup(self.body)
+        return soup
+
+    html = property(html, doc=html.__doc__)
+
+    def xml(self):
+        """
+        Returns the response as an `ElementTree
+        <http://python.org/doc/current/lib/module-xml.etree.ElementTree.html>`_
+        object.
+
+        Only works with XML responses; other content-types raise
+        AttributeError
+        """
+        if 'xml' not in self.content_type:
+            raise AttributeError(
+                "Not an XML response body (content-type: %s)"
+                % self.content_type)
+        try:
+            from xml.etree import ElementTree
+        except ImportError:
+            try:
+                import ElementTree
+            except ImportError:
+                try:
+                    from elementtree import ElementTree
+                except ImportError:
+                    raise ImportError(
+                        "You must have ElementTree installed (or use Python 2.5) to use response.xml")
+        return ElementTree.XML(self.body)
+
+    xml = property(xml, doc=xml.__doc__)
+
+    def lxml(self):
+        """
+        Returns the response as an `lxml object
+        <http://codespeak.net/lxml/>`_.  You must have lxml installed
+        to use this.
+
+        If this is an HTML response and you have lxml 2.x installed,
+        then an ``lxml.html.HTML`` object will be returned; if you
+        have an earlier version of lxml then a ``lxml.HTML`` object
+        will be returned.
+        """
+        if ('html' not in self.content_type
+            and 'xml' not in self.content_type):
+            raise AttributeError(
+                "Not an XML or HTML response body (content-type: %s)"
+                % self.content_type)
+        try:
+            from lxml import etree
+        except ImportError:
+            raise ImportError(
+                "You must have lxml installed to use response.lxml")
+        try:
+            from lxml.html import HTML
+        except ImportError:
+            HTML = etree.HTML
+        ## FIXME: would be nice to set xml:base, in some fashion
+        if self.content_type == 'text/html':
+            return HTML(self.body)
+        else:
+            return etree.XML(self.body)
+
+    lxml = property(lxml, doc=lxml.__doc__)
+
+    def json(self):
+        """
+        Return the response as a JSON response.  You must have
+        `simplejson
+        <http://svn.red-bean.com/bob/simplejson/tags/simplejson-1.7/docs/index.html>`_
+        installed to use this.
+
+        The content type must be application/json to use this.
+        """
+        if self.content_type != 'application/json':
+            raise AttributeError(
+                "Not a JSON response body (content-type: %s)"
+                % self.content_type)
+        try:
+            from simplejson import loads
+        except ImportError:
+            raise ImportError(
+                "You must have simplejson installed to use response.json")
+        return loads(self.body)
+
+    json = property(json, doc=json.__doc__)
+
     def showbrowser(self):
         """
         Show this response in a browser window (for debugging purposes,
