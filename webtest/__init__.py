@@ -162,6 +162,8 @@ class TestApp(object):
             content_type, params = self.encode_multipart(
                 params, upload_files)
             environ['CONTENT_TYPE'] = content_type
+        elif params:
+            environ.setdefault('CONTENT_TYPE', 'application/x-www-form-urlencoded')
         if '?' in url:
             url, environ['QUERY_STRING'] = url.split('?', 1)
         else:
@@ -412,7 +414,7 @@ class TestResponse(Response):
                     page.
                     """)
 
-    _tag_re = re.compile(r'<(/?)([a-z0-9_\-]*)(.*?)>', re.S|re.I)
+    _tag_re = re.compile(r'<(/?)([:a-z0-9_\-]*)(.*?)>', re.S|re.I)
 
     def _parse_forms(self):
         forms = self._forms_indexed = {}
