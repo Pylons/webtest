@@ -295,7 +295,8 @@ class TestApp(object):
         try:
             sys.stdout = out
             start_time = time.time()
-            res = req.get_response(app)
+            ## FIXME: should it be an option to not catch exc_info?
+            res = req.get_response(app, catch_exc_info=True)
             end_time = time.time()
         finally:
             sys.stdout = old_stdout
