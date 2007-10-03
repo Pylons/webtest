@@ -4,9 +4,9 @@ __all__ = ['debug_app']
 
 def debug_app(environ, start_response):
     req = Request(environ)
-    if 'error' in req.queryvars:
+    if 'error' in req.GET:
         raise Exception('Exception requested')
-    status = req.queryvars.get('status', '200 OK')
+    status = req.GET.get('status', '200 OK')
     parts = []
     for name, value in sorted(environ.items()):
         if name.upper() != name:
@@ -20,7 +20,7 @@ def debug_app(environ, start_response):
     headers = [
         ('Content-Type', 'text/plain'),
         ('Content-Length', str(len(body)))]
-    for name, value in req.queryvars.items():
+    for name, value in req.GET.items():
         if name.startswith('header-'):
             header_name = name[len('header-'):]
             headers.append((header_name, value))
