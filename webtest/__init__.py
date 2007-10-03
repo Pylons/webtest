@@ -638,7 +638,18 @@ class TestResponse(Response):
     normal_body = property(normal_body__get,
                            doc="""
                            Return the whitespace-normalized body
-                           """)
+                           """.strip())
+
+    def unicode_normal_body__get(self):
+        if not self.charset:
+            raise AttributeError(
+                "You cannot access Response.unicode_normal_body unless charset is set")
+        return self.normal_body.decode(self.charset)
+
+    unicode_normal_body = property(
+        unicode_normal_body__get, doc="""
+        Return the whitespace-normalized body, as unicode
+        """.strip())
 
     def __contains__(self, s):
         """
@@ -646,10 +657,18 @@ class TestResponse(Response):
         of the response.  Whitespace is normalized when searching
         for a string.
         """
-        if not isinstance(s, (str, unicode)):
-            s = str(s)
-        return (self.body.find(s) != -1
-                or self.normal_body.find(s) != -1)
+        if not isinstance(s, basestring):
+            if hasattr(s, '__unicode__'):
+                s = unicode(s)
+            else:
+                s = str(s)
+        if isinstance(s, unicode):
+            body = self.unicode_body
+            normal_body = self.unicode_normal_body
+        else:
+            body = self.body
+            normal_body = self.normal_body
+        return s not in body and s not in normal_body
 
     def mustcontain(self, *strings, **kw):
         """
