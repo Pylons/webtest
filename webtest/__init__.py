@@ -670,7 +670,7 @@ class TestResponse(Response):
         else:
             body = self.body
             normal_body = self.normal_body
-        return s not in body and s not in normal_body
+        return s in body or s in normal_body
 
     def mustcontain(self, *strings, **kw):
         """
