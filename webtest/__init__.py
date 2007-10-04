@@ -629,6 +629,8 @@ class TestResponse(Response):
 
     _normal_body_regex = re.compile(r'[ \n\r\t]+')
 
+    _normal_body = None
+    
     def normal_body__get(self):
         if self._normal_body is None:
             self._normal_body = self._normal_body_regex.sub(
