@@ -743,7 +743,7 @@ class TestResponse(Response):
         if 'html' not in self.content_type:
             raise AttributeError(
                 "Not an HTML response body (content-type: %s)"
-                % self.content_Type)
+                % self.content_type)
         try:
             from BeautifulSoup import BeautifulSoup
         except ImportError:
