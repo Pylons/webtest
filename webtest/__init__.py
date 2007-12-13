@@ -804,12 +804,12 @@ class TestResponse(Response):
             raise ImportError(
                 "You must have lxml installed to use response.lxml")
         try:
-            from lxml.html import HTML
+            from lxml.html import fromstring
         except ImportError:
-            HTML = etree.HTML
+            fromstring = etree.HTML
         ## FIXME: would be nice to set xml:base, in some fashion
         if self.content_type == 'text/html':
-            return HTML(self.body)
+            return fromstring(self.body)
         else:
             return etree.XML(self.body)
 
