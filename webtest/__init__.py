@@ -853,15 +853,6 @@ class TestRequest(Request):
 
     # for py.test
     disabled = True
-
-    def blank(cls, path_info, *args, **kw):
-        scheme, netloc, path, query, fragment = urlparse.urlsplit(path_info)
-        path_info = path + query
-        return super(TestRequest, cls).blank(
-            path_info, *args, **kw)
-
-    blank = classmethod(blank)
-
     ResponseClass = TestResponse
 
 ########################################
