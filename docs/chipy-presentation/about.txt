@@ -1,0 +1,7 @@
+WebTest
+-------
+
+* Functional testing for applications
+* Doesn't require an HTTP server
+* Integrates well with any test runner (unittest, doctest, py.test,
+  nose)
