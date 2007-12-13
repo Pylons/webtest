@@ -347,3 +347,15 @@ values put into that dictionary will become attributes of the response
 object.  So if you do ``env["paste.testing_variables"]['template'] =
 template_name`` in your framework, then ``response.template`` will be
 ``template_name``.
+
+News
+====
+
+svn trunk
+---------
+
+* Keep URLs in-tact in cases such as
+  ``app.get('http://www.python.org')`` (so HTTP_HOST=www.python.org,
+  etc).
+* Fix ``lxml.html`` import, so lxml 2.0 users can get HTML lxml
+  objects from ``resp.lxml``

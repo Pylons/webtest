@@ -1,10 +1,10 @@
     >>> from wsgiproxy.exactproxy import proxy_exact_request
     >>> from webtest import TestApp
     >>> app = TestApp(proxy_exact_request)
-    >>> res = app.get('http://python.org')
-    >>> res
+    >>> resp = app.get('http://python.org')
+    >>> resp
     <200 OK text/html body='<!DOCTYPE...\n\n'/15978>
-    >>> print res
+    >>> print resp
     Response: 200 OK
     Date: ...
     Server: Apache/2.2.3 (Debian) DAV/2 SVN/1.4.2 mod_ssl/2.2.3 OpenSSL/0.9.8c
@@ -29,10 +29,10 @@
       Content-Type: text/html
     <200 OK text/html body='<!DOCTYPE...\n\n'/15978>
     >>> app = TestApp(proxy_exact_request)
-    >>> res = app.get('http://python.org')
-    >>> res.lxml
+    >>> resp = app.get('http://python.org')
+    >>> resp.lxml
     <Element html at ...>
-    >>> for a in res.lxml.xpath('//a'):
+    >>> for a in resp.lxml.xpath('//a'):
     ...     if a.get('href').startswith('http:'):
     ...         continue
     ...     print a.get('href'), a.text_content()
@@ -78,15 +78,15 @@
     /about/website Website maintained by the Python community
     /psf Python Software Foundation
     /about/legal Legal Statements
-    >>> res = res.click('Legal Statements')
-    >>> res.request.url
+    >>> resp = resp.click('Legal Statements')
+    >>> resp.request.url
     'http://python.org/about/legal'
-    >>> res.status
+    >>> resp.status
     '301 Moved Permanently'
-    >>> res = res.follow()
-    >>> #res.showbrowser()
-    >>> res.html.html.head.title
+    >>> resp = resp.follow()
+    >>> #resp.showbrowser()
+    >>> resp.html.html.head.title
     <title>Legal Statements</title>
     >>> import re
-    >>> re.search(r'<title>(.*?)</title>', res.body).group(1)
+    >>> re.search(r'<title>(.*?)</title>', resp.body).group(1)
     'Legal Statements'
