@@ -360,3 +360,5 @@ svn trunk
 * Fix ``lxml.html`` import, so lxml 2.0 users can get HTML lxml
   objects from ``resp.lxml``
 * Treat ``<input type="image">`` like a submit button.
+* Use ``BaseCookie`` instead of ``SimpleCookie`` for storing cookies
+  (avoids quoting cookie values).

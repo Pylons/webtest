@@ -15,7 +15,7 @@ import time
 import cgi
 import os
 import webbrowser
-from Cookie import SimpleCookie
+from Cookie import BaseCookie
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -283,7 +283,7 @@ class TestApp(object):
         errors = StringIO()
         req.environ['wsgi.errors'] = errors
         if self.cookies:
-            c = SimpleCookie()
+            c = BaseCookie()
             for name, value in self.cookies.items():
                 c[name] = value
             req.environ['HTTP_COOKIE'] = str(c).split(': ', 1)[1]
@@ -319,7 +319,7 @@ class TestApp(object):
             self._check_errors(res)
         res.cookies_set = {}
         for header in res.headers.getall('set-cookie'):
-            c = SimpleCookie(header)
+            c = BaseCookie(header)
             for key, morsel in c.items():
                 self.cookies[key] = morsel.value
                 res.cookies_set[key] = morsel.value
