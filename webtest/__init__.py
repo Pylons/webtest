@@ -1246,6 +1246,8 @@ Field.classes['submit'] = Submit
 
 Field.classes['button'] = Submit
 
+Field.classes['image'] = Submit
+
 ########################################
 ## Utility functions
 ########################################
