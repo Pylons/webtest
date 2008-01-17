@@ -1,5 +1,8 @@
 from webob import Request
-from webtest import sorted
+try:
+    sorted
+except NameError:
+    from webtest import sorted
 
 __all__ = ['debug_app']
 
