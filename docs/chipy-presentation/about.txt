@@ -5,3 +5,10 @@ WebTest
 * Doesn't require an HTTP server
 * Integrates well with any test runner (unittest, doctest, py.test,
   nose)
+
+
+Principles:
+-----------
+
+* Demand successful response unless told otherwise
+* 

@@ -351,8 +351,8 @@ template_name`` in your framework, then ``response.template`` will be
 News
 ====
 
-svn trunk
----------
+1.0
+---
 
 * Keep URLs in-tact in cases such as
   ``app.get('http://www.python.org')`` (so HTTP_HOST=www.python.org,
@@ -364,3 +364,8 @@ svn trunk
   (avoids quoting cookie values).
 * Accept any ``params`` argument that has an ``items`` method (like
   MultiDict)
+
+0.9
+---
+
+Initial release
