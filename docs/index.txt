@@ -362,3 +362,5 @@ svn trunk
 * Treat ``<input type="image">`` like a submit button.
 * Use ``BaseCookie`` instead of ``SimpleCookie`` for storing cookies
   (avoids quoting cookie values).
+* Accept any ``params`` argument that has an ``items`` method (like
+  MultiDict)

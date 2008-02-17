@@ -28,4 +28,7 @@ def test_testing():
     assert res.headers['location'] == '/foo'
     res = res.follow()
     assert res.request.url == 'http://localhost/foo'
-    
+    class FakeDict(object):
+        def items(self):
+            return [('a', '10'), ('a', '20')]
+    res = app.post('/params', params=FakeDict())
