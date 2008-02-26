@@ -14,7 +14,6 @@ import mimetypes
 import time
 import cgi
 import os
-import webbrowser
 from Cookie import BaseCookie
 try:
     from cStringIO import StringIO
@@ -844,6 +843,7 @@ class TestResponse(Response):
         Show this response in a browser window (for debugging purposes,
         when it's hard to read the HTML).
         """
+        import webbrowser
         fn = tempnam_no_warning(None, 'webtest-page') + '.html'
         f = open(fn, 'wb')
         f.write(self.body)
