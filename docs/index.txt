@@ -351,6 +351,12 @@ template_name`` in your framework, then ``response.template`` will be
 News
 ====
 
+1.0.1
+---
+
+* Fix the ``TestApp`` validator's InputWrapper lacking support for
+  readline with an argument as needed by the cgi module.
+
 1.0
 ---
 

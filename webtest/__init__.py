@@ -21,7 +21,7 @@ except ImportError:
     from StringIO import StringIO
 import re
 from webob import Response, Request
-from wsgiref.validate import validator
+from webtest import lint
 
 __all__ = ['TestApp']
 
@@ -290,7 +290,7 @@ class TestApp(object):
             req.environ['HTTP_COOKIE'] = str(c).split(': ', 1)[1]
         req.environ['paste.testing'] = True
         req.environ['paste.testing_variables'] = {}
-        app = validator(self.app)
+        app = lint.middleware(self.app)
         old_stdout = sys.stdout
         out = CaptureStdout(old_stdout)
         try:
