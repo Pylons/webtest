@@ -32,7 +32,6 @@ This is based on ``paste.fixture.TestApp``.
       include_package_data=True,
       zip_safe=True,
       install_requires=[
-        'wsgiref',
         'WebOb',
       ],
       dependency_links=[
