@@ -14,7 +14,7 @@ import mimetypes
 import time
 import cgi
 import os
-from Cookie import BaseCookie
+from Cookie import BaseCookie, CookieError
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -320,7 +320,11 @@ class TestApp(object):
             self._check_errors(res)
         res.cookies_set = {}
         for header in res.headers.getall('set-cookie'):
-            c = BaseCookie(header)
+            try:
+                c = BaseCookie(header)
+            except CookieError, e:
+                raise CookieError(
+                    "Could not parse cookie header %r: %s" % (header, e))
             for key, morsel in c.items():
                 self.cookies[key] = morsel.value
                 res.cookies_set[key] = morsel.value
@@ -1071,6 +1075,8 @@ class Form(object):
             field = self.get(name, index=index)
             submit.append((field.name, field.value_if_submitted()))
         for name, fields in self.fields.items():
+            if name is None:
+                continue
             for field in fields:
                 value = field.value
                 if value is None:
