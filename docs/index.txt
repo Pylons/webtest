@@ -357,6 +357,9 @@ svn trunk
 
 * Don't submit unnamed form fields.
 
+* Checkboxes with no explicit ``value`` send ``on`` (previously they
+  sent ``checked``, which isn't what browsers send).
+
 1.0.1
 ---
 
@@ -369,11 +372,15 @@ svn trunk
 * Keep URLs in-tact in cases such as
   ``app.get('http://www.python.org')`` (so HTTP_HOST=www.python.org,
   etc).
+
 * Fix ``lxml.html`` import, so lxml 2.0 users can get HTML lxml
   objects from ``resp.lxml``
+
 * Treat ``<input type="image">`` like a submit button.
+
 * Use ``BaseCookie`` instead of ``SimpleCookie`` for storing cookies
   (avoids quoting cookie values).
+
 * Accept any ``params`` argument that has an ``items`` method (like
   MultiDict)
 
