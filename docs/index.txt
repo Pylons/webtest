@@ -3,6 +3,12 @@ Testing Applications with WebTest
 
 :author: Ian Bicking <ianb@colorstudy.com>
 
+.. toctree::
+   :maxdepth: 3
+
+   license
+   modules/webtest
+
 .. contents::
 
 .. comment:
@@ -64,7 +70,7 @@ wrapper for WSGI applications.  To use it, you simply instantiate it
 with your WSGI application.  (Note: if your WSGI application requires
 any configuration, you must set that up manually in your tests.)
 
-.. code-block::
+.. code-block:: python
 
     >>> from webtest import TestApp
     >>> from webob import Request, Response
@@ -88,7 +94,7 @@ Making Requests
 
 To make a request, use:
 
-.. code-block::
+.. code-block:: python
 
     app.get('/path', [headers], [extra_environ], ...)
 
@@ -99,7 +105,7 @@ It has some additional methods to make it easier to test.
 
 If you want to do a POST request, use:
 
-.. code-block::
+.. code-block:: python
 
     app.post('/path', {'vars': 'values'}, [headers], [extra_environ],
              [upload_files], ...)
@@ -127,13 +133,13 @@ The best way to simulate authentication is if your application looks
 in ``environ['REMOTE_USER']`` to see if someone is authenticated.
 Then you can simply set that value, like:
 
-.. code-block::
+.. code-block:: python
 
     app.get('/secret', extra_environ=dict(REMOTE_USER='bob'))
 
 If you want *all* your requests to have this key, do:
 
-.. code-block::
+.. code-block:: python
 
     app = TestApp(my_app, extra_environ=dict(REMOTE_USER='bob'))
 
@@ -226,14 +232,14 @@ Form Submissions
 You can fill out and submit forms from your tests.  First you get the
 form:
 
-.. code-block::
+.. code-block:: python
 
     >>> res = app.get('/form.html')
     >>> form = res.form
 
 Then you fill it in fields:
 
-.. code-block::
+.. code-block:: python
 
     >>> form.action
     '/form-submit'
@@ -248,7 +254,7 @@ Then you fill it in fields:
 Then you can submit.  First we'll put up a simple test app to catch
 the response:
 
-.. code-block::
+.. code-block:: python
 
     >>> from webtest.debugapp import debug_app
     >>> map_app['/form-submit'] = debug_app
@@ -293,7 +299,7 @@ them are required by WebTest), you will get an ImportError.
 
 Examples:
 
-.. code-block::
+.. code-block:: python
 
     >>> from webtest import TestResponse
     >>> res = TestResponse(content_type='text/html', body='''
