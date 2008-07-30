@@ -366,6 +366,8 @@ svn trunk
 * Checkboxes with no explicit ``value`` send ``on`` (previously they
   sent ``checked``, which isn't what browsers send).
 
+* Support for ``<select multiple>`` fields (from Matthew Desmarais)
+
 1.0.1
 ---
 

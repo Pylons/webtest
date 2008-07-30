@@ -946,7 +946,10 @@ class Form(object):
             tag_type = tag
             if tag == 'input':
                 tag_type = attrs.get('type', 'text').lower()
-            FieldClass = Field.classes.get(tag_type, Field)
+            if tag_type == "select" and attrs.get("multiple"):
+                FieldClass = Field.classes.get("multiple_select", Field)
+            else:
+                FieldClass = Field.classes.get(tag_type, Field)
             field = FieldClass(self, tag, name, match.start(), **attrs)
             if tag == 'textarea':
                 assert not in_textarea, (
@@ -1081,7 +1084,11 @@ class Form(object):
                 value = field.value
                 if value is None:
                     continue
-                submit.append((name, value))
+                if isinstance(value, list):
+                    for item in value:
+                        submit.append((name, item))
+                else:
+                    submit.append((name, value))
         return submit
 
 
@@ -1145,9 +1152,6 @@ class Select(Field):
     def __init__(self, *args, **attrs):
         super(Select, self).__init__(*args, **attrs)
         self.options = []
-        self.multiple = attrs.get('multiple')
-        assert not self.multiple, (
-            "<select multiple> not yet supported")
         # Undetermined yet:
         self.selectedIndex = None
 
@@ -1178,6 +1182,49 @@ class Select(Field):
     value = property(value__get, value__set)
 
 Field.classes['select'] = Select
+
+class MultipleSelect(Field):
+
+    """
+    Field representing ``<select multiple="multiple">``
+    """
+
+    def __init__(self, *args, **attrs):
+        super(MultipleSelect, self).__init__(*args, **attrs)
+        self.options = []
+        # Undetermined yet:
+        self.selectedIndices = []
+
+    def value__set(self, values):
+        str_values = [str(value) for value in values]
+        self.selectedIndicies = []
+        for i, (option, checked) in enumerate(self.options):
+            if option in str_values:
+                self.selectedIndices.append(i)
+                str_values.remove(option)
+        if str_values:
+            raise ValueError(
+                "Option(s) %r not found (from %s)"
+                % (', '.join(str_values),
+                   ', '.join(
+                        [repr(o) for o, c in self.options])))
+
+    def value__get(self):
+        if self.selectedIndices:
+            return [self.options[i][0] for i in self.selectedIndices]
+        else:
+            selected_values = []
+            for option, checked in self.options:
+                if checked:
+                    selected_values.append(option)
+                
+            if self.options and (not selected_values):
+                selected_values = None
+            return selected_values
+    
+    value = property(value__get, value__set)
+
+Field.classes['multiple_select'] = MultipleSelect
 
 class Radio(Select):
 
