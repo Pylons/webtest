@@ -358,8 +358,8 @@ template_name`` in your framework, then ``response.template`` will be
 News
 ====
 
-svn trunk
----------
+1.0.2
+-----
 
 * Don't submit unnamed form fields.
 
