@@ -358,6 +358,11 @@ template_name`` in your framework, then ``response.template`` will be
 News
 ====
 
+svn trunk
+---------
+
+* Fixed exception in the ``.delete`` method.
+
 1.0.2
 -----
 

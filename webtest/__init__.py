@@ -222,7 +222,7 @@ class TestApp(object):
 
         Returns a ``webob.Response`` object.
         """
-        return self._gen_request('DELETE', url, params=params, headers=headers,
+        return self._gen_request('DELETE', url, headers=headers,
                                  extra_environ=extra_environ,status=status,
                                  upload_files=None, expect_errors=expect_errors)
 
