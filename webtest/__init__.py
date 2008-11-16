@@ -148,8 +148,7 @@ class TestApp(object):
                                expect_errors=expect_errors)
 
     def _gen_request(self, method, url, params='', headers=None, extra_environ=None,
-                     status=None, upload_files=None, expect_errors=False,
-                     content_type=None):
+             status=None, upload_files=None, expect_errors=False):
         """
         Do a generic request.  
         """
@@ -170,8 +169,6 @@ class TestApp(object):
             url, environ['QUERY_STRING'] = url.split('?', 1)
         else:
             environ['QUERY_STRING'] = ''
-        if content_type is not None:
-            environ['CONTENT_TYPE'] = content_type
         environ['CONTENT_LENGTH'] = str(len(params))
         environ['REQUEST_METHOD'] = method
         environ['wsgi.input'] = StringIO(params)
@@ -182,8 +179,7 @@ class TestApp(object):
                                expect_errors=expect_errors)
 
     def post(self, url, params='', headers=None, extra_environ=None,
-             status=None, upload_files=None, expect_errors=False,
-             content_type=None):
+             status=None, upload_files=None, expect_errors=False):
         """
         Do a POST request.  Very like the ``.get()`` method.
         ``params`` are put in the body of the request.
@@ -198,12 +194,10 @@ class TestApp(object):
         return self._gen_request('POST', url, params=params, headers=headers,
                                  extra_environ=extra_environ,status=status,
                                  upload_files=upload_files,
-                                 expect_errors=expect_errors, 
-                                 content_type=content_type)
+                                 expect_errors=expect_errors)
 
     def put(self, url, params='', headers=None, extra_environ=None,
-            status=None, upload_files=None, expect_errors=False,
-            content_type=None):
+             status=None, upload_files=None, expect_errors=False):
         """
         Do a PUT request.  Very like the ``.get()`` method.
         ``params`` are put in the body of the request.
@@ -218,8 +212,7 @@ class TestApp(object):
         return self._gen_request('PUT', url, params=params, headers=headers,
                                  extra_environ=extra_environ,status=status,
                                  upload_files=upload_files,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type)
+                                 expect_errors=expect_errors)
 
     def delete(self, url, headers=None, extra_environ=None,
                status=None, expect_errors=False):
@@ -229,7 +222,7 @@ class TestApp(object):
 
         Returns a ``webob.Response`` object.
         """
-        return self._gen_request('DELETE', url, headers=headers,
+        return self._gen_request('DELETE', url, params=params, headers=headers,
                                  extra_environ=extra_environ,status=status,
                                  upload_files=None, expect_errors=expect_errors)
 
@@ -711,7 +704,7 @@ class TestResponse(Response):
                     "Body does not contain string %r" % s)
         for no_s in no:
             if no_s in self:
-                print >> sys.stderr, "Actual response (has %r)" % no_s
+                print >> sys.stderr, "Actual response (has %r)" % s
                 print >> sys.stderr, self
                 raise IndexError(
                     "Body contains string %r" % s)
@@ -719,18 +712,10 @@ class TestResponse(Response):
     def __str__(self):
         simple_body = '\n'.join([l for l in self.body.splitlines()
                                  if l.strip()])
-        headers = [(self._normalize_header_name(n), v)
-                   for n, v in self.headerlist
-                   if n.lower() != 'content-length']
-        headers.sort()
         return 'Response: %s\n%s\n%s' % (
             self.status,
-            '\n'.join(['%s: %s' % (n, v) for n, v in headers]),
+            '\n'.join(['%s: %s' % (n, v) for n, v in self.headerlist]),
             simple_body)
-
-    def _normalize_header_name(self, name):
-        name = name.replace('-', ' ').title().replace(' ', '-')
-        return name
 
     def __repr__(self):
         # Specifically intended for doctests
@@ -742,8 +727,7 @@ class TestResponse(Response):
             br = repr(self.body)
             if len(br) > 18:
                 br = br[:10]+'...'+br[-5:]
-                br += '/%s' % len(body)
-            body = ' body=%s' % br
+            body = ' body=%s/%s' % (br, len(self.body))
         else:
             body = ' no body'
         if self.location:
