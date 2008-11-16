@@ -361,7 +361,24 @@ News
 svn trunk
 ---------
 
+* Changed the ``__str__`` of responses to make them more doctest
+  friendly:
+
+  - All headers are displayed capitalized, like Content-Type
+  - Headers are sorted alphabetically
+
+* Changed ``__repr__`` to only show the body length if the complete
+  body is not shown (for short bodies the complete body is in the
+  repr)
+
+* Note: **these are backward incompatible changes** if you are using
+  doctest.
+
 * Fixed exception in the ``.delete`` method.
+
+* Added a ``content_type`` argument to ``app.post`` and ``app.put``,
+  which sets the ``Content-Type`` of the request.  This is more
+  convenient when testing REST APIs.
 
 1.0.2
 -----
