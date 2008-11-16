@@ -372,7 +372,7 @@ svn trunk
   repr)
 
 * Note: **these are backward incompatible changes** if you are using
-  doctest.
+  doctest (you'll have to update your doctests with the new format).
 
 * Fixed exception in the ``.delete`` method.
 
