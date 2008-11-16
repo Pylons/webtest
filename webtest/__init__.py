@@ -704,7 +704,7 @@ class TestResponse(Response):
                     "Body does not contain string %r" % s)
         for no_s in no:
             if no_s in self:
-                print >> sys.stderr, "Actual response (has %r)" % s
+                print >> sys.stderr, "Actual response (has %r)" % no_s
                 print >> sys.stderr, self
                 raise IndexError(
                     "Body contains string %r" % s)
