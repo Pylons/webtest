@@ -37,6 +37,8 @@ This is based on ``paste.fixture.TestApp``.
       dependency_links=[
         'http://svn.pythonpaste.org/Paste/WebOb/trunk#egg=WebOb-dev',
       ],
+      test_suite='nose.collector',
+      tests_require=['dtopt', 'nose'],
       entry_points="""
       [paste.app_factory]
       debug = webtest.debugapp:make_debug_app
