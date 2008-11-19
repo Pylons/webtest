@@ -742,7 +742,7 @@ class TestResponse(Response):
             br = repr(self.body)
             if len(br) > 18:
                 br = br[:10]+'...'+br[-5:]
-                br += '/%s' % len(body)
+                br += '/%s' % len(self.body)
             body = ' body=%s' % br
         else:
             body = ' no body'

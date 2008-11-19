@@ -28,6 +28,8 @@ def test_testing():
     assert res.headers['location'] == '/foo'
     res = res.follow()
     assert res.request.url == 'http://localhost/foo'
+    assert 'Response: 200 OK' in str(res)
+    assert '200 OK' in repr(res)
     class FakeDict(object):
         def items(self):
             return [('a', '10'), ('a', '20')]
