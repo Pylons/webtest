@@ -245,8 +245,9 @@ Then you fill it in fields:
     '/form-submit'
     >>> form.method
     'POST'
-    >>> form.fields
-    {'name': [<webtest.Text object at ...>], 'submit': [<webtest.Submit object at ...>]}
+    >>> # dict of fields
+    >>> fields = form.fields.items(); fields.sort(); fields
+    [('name', [<webtest.Text object at ...>]), ('submit', [<webtest.Submit object at ...>])]
     >>> form['name'] = 'Bob'
     >>> # When names don't point to a single field:
     >>> form.set('name', 'Bob', index=0)
