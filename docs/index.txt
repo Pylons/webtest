@@ -359,8 +359,8 @@ template_name`` in your framework, then ``response.template`` will be
 News
 ====
 
-svn trunk
----------
+1.1
+---
 
 * Changed the ``__str__`` of responses to make them more doctest
   friendly:
