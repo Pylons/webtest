@@ -225,7 +225,6 @@ class TestApp(object):
                status=None, expect_errors=False):
         """
         Do a DELETE request.  Very like the ``.get()`` method.
-        ``params`` are put in the body of the request.
 
         Returns a ``webob.Response`` object.
         """
