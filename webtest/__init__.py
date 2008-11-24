@@ -550,6 +550,10 @@ class TestResponse(Response):
 
         _tag_re = re.compile(r'<%s\s+(.*?)>(.*?)</%s>' % (tag, tag),
                              re.I+re.S)
+        _script_re = re.compile(r'<script.*?>.*?</script>', re.I|re.S)
+        bad_spans = []
+        for match in _script_re.finditer(self.body):
+            bad_spans.append((match.start(), match.end()))
 
         def printlog(s):
             if verbose:
@@ -558,6 +562,14 @@ class TestResponse(Response):
         found_links = []
         total_links = 0
         for match in _tag_re.finditer(self.body):
+            found_bad = False
+            for bad_start, bad_end in bad_spans:
+                if (match.start() > bad_start 
+                    and match.end() < bad_end):
+                    found_bad = True
+                    break
+            if found_bad:
+                continue
             el_html = match.group(0)
             el_attr = match.group(1)
             el_content = match.group(2)

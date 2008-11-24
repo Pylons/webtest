@@ -381,6 +381,9 @@ svn trunk
   which sets the ``Content-Type`` of the request.  This is more
   convenient when testing REST APIs.
 
+* Skip links in ``<script>...</script>`` tags (since that's not real
+  markup).
+
 1.0.2
 -----
 
