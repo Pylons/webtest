@@ -1259,6 +1259,19 @@ class Radio(Select):
     Field representing ``<input type="radio">``
     """
 
+    def value__get(self):
+        if self.selectedIndex is not None:
+            return self.options[self.selectedIndex][0]
+        else:
+            for option, checked in self.options:
+                if checked:
+                    return option
+            else:
+                return None
+
+    value = property(value__get, Select.value__set)
+
+
 Field.classes['radio'] = Radio
 
 class Checkbox(Field):
@@ -1291,6 +1304,14 @@ class Text(Field):
     """
     Field representing ``<input type="text">``
     """
+
+    def value__get(self):
+        if self._value is None:
+            return ''
+        else:
+            return self._value
+
+    value = property(value__get, Field.value__set)
 
 Field.classes['text'] = Text
 

@@ -359,6 +359,13 @@ template_name`` in your framework, then ``response.template`` will be
 News
 ====
 
+svn trunk
+---------
+
+* Fix form inputs; text inputs always default to the empty string, and
+  unselected radio inputs default to nothing at all.  From Daniele
+  Paolella.
+
 1.1
 ---
 
