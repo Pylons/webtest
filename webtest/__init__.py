@@ -1315,6 +1315,21 @@ class Text(Field):
 
 Field.classes['text'] = Text
 
+
+class File(Field):
+    """
+    Field representing ``<input type="file">``
+    """
+
+    ## FIXME: This doesn't actually handle file uploads and enctype
+    def value__get(self):
+        if self._value is None:
+            return ''
+        else:
+            return self._value
+
+Field.classes['file'] = File
+
 class Textarea(Text):
     """
     Field representing ``<textarea>``
