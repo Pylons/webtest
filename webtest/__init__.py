@@ -93,7 +93,11 @@ class TestApp(object):
         if extra_environ:
             environ.update(extra_environ)
         return environ
-
+    
+    def _remove_fragment(self, url):
+        scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+        return urlparse.urlunsplit((scheme, netloc, path, query, ""))
+    
     def get(self, url, params=None, headers=None, extra_environ=None,
             status=None, expect_errors=False):
         """
@@ -141,6 +145,7 @@ class TestApp(object):
             url, environ['QUERY_STRING'] = url.split('?', 1)
         else:
             environ['QUERY_STRING'] = ''
+        url = self._remove_fragment(url)
         req = TestRequest.blank(url, environ)
         if headers:
             req.headers.update(headers)
@@ -175,6 +180,7 @@ class TestApp(object):
         environ['CONTENT_LENGTH'] = str(len(params))
         environ['REQUEST_METHOD'] = method
         environ['wsgi.input'] = StringIO(params)
+        url = self._remove_fragment(url)
         req = TestRequest.blank(url, environ)
         if headers:
             req.headers.update(headers)

@@ -366,6 +366,9 @@ svn trunk
   unselected radio inputs default to nothing at all.  From Daniele
   Paolella.
 
+* Fix following links with fragments (these fragments should not be
+  sent to the WSGI application).  From desmaj.
+
 1.1
 ---
 
