@@ -381,7 +381,8 @@ svn trunk
 
 * Added ``force_value`` to select fields, like
   ``res.form['select'].force_value("new_value")``.  This makes it
-  possible to simulate forms that are dynamically updated.
+  possible to simulate forms that are dynamically updated.  From
+  Matthew Desmarais.
 
 1.1
 ---
