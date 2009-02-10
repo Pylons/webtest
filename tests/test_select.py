@@ -131,6 +131,25 @@ def test_single_select():
     display = single_form.submit("button")
     assert "<p>You selected 6</p>" in display, display
 
+def test_single_select_forced_value():
+    app = webtest.TestApp(select_app)
+    res = app.get('/')
+    assert res.status_int == 200
+    assert res.headers['content-type'] == 'text/html'
+    assert res.content_type == 'text/html'
+    
+    single_form = res.forms["single_select_form"]
+    assert single_form["single"].value == "5"
+    try:
+        single_form.set("single", "984")
+        assert False, "not-an-option value error should have been raised"
+    except ValueError, exc:
+        pass
+    single_form["single"].force_value("984")
+    assert single_form["single"].value == "984"
+    display = single_form.submit("button")
+    assert "<p>You selected 984</p>" in display, display
+
 def test_single_select_no_default():
     app = webtest.TestApp(select_app_without_default)
     res = app.get('/')
@@ -181,6 +200,27 @@ def test_multiple_select():
         multiple_form["multiple"].value
     display = multiple_form.submit("button")
     assert "<p>You selected 9</p>" in display, display
+
+def test_multiple_select_forced_values():
+    app = webtest.TestApp(select_app)
+    res = app.get('/')
+    assert res.status_int == 200
+    assert res.headers['content-type'] == 'text/html'
+    assert res.content_type == 'text/html'
+    
+    multiple_form = res.forms["multiple_select_form"]
+    assert multiple_form["multiple"].value == ["8", "11"],\
+        multiple_form["multiple"].value
+    try:
+        multiple_form.set("multiple", ["24", "88"])
+        assert False, "not-an-option value error should have been raised"
+    except ValueError, exc:
+        pass
+    multiple_form["multiple"].force_value(["24", "88"])
+    assert multiple_form["multiple"].value == ["24", "88"],\
+        multiple_form["multiple"].value
+    display = multiple_form.submit("button")
+    assert "<p>You selected 24, 88</p>" in display, display
 
 def test_multiple_select_no_default():
     app = webtest.TestApp(select_app_without_default)

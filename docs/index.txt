@@ -259,6 +259,11 @@ the response:
 
     >>> from webtest.debugapp import debug_app
     >>> map_app['/form-submit'] = debug_app
+
+Then submit:
+
+.. code-block:: python
+
     >>> # Submit with no particular submit button pressed:
     >>> res = form.submit()
     >>> # Or submit a button:
@@ -269,6 +274,11 @@ the response:
     ...
     -- Body ----------
     submit=Submit%21&name=Bob
+
+Select fields can only be set to valid values (i.e., values in an
+``<option>``) but you can also use
+``form['select-field'].force_value('value')`` to enter values not
+present in an option.
 
 Parsing the Body
 ================
@@ -368,6 +378,10 @@ svn trunk
 
 * Fix following links with fragments (these fragments should not be
   sent to the WSGI application).  From desmaj.
+
+* Added ``force_value`` to select fields, like
+  ``res.form['select'].force_value("new_value")``.  This makes it
+  possible to simulate forms that are dynamically updated.
 
 1.1
 ---

@@ -1176,6 +1176,9 @@ class Field(object):
 
     value = property(value__get, value__set)
 
+class NoValue(object):
+    pass
+
 class Select(Field):
 
     """
@@ -1187,8 +1190,15 @@ class Select(Field):
         self.options = []
         # Undetermined yet:
         self.selectedIndex = None
-
+        # we have no forced value
+        self._forced_value = NoValue
+    
+    def force_value(self, value):
+        self._forced_value = value
+    
     def value__set(self, value):
+        if self._forced_value is not NoValue:
+            self._forced_value = NoValue
         for i, (option, checked) in enumerate(self.options):
             if option == str(value):
                 self.selectedIndex = i
@@ -1200,7 +1210,9 @@ class Select(Field):
                 [repr(o) for o, c in self.options])))
 
     def value__get(self):
-        if self.selectedIndex is not None:
+        if self._forced_value is not NoValue:
+            return self._forced_value
+        elif self.selectedIndex is not None:
             return self.options[self.selectedIndex][0]
         else:
             for option, checked in self.options:
@@ -1227,7 +1239,12 @@ class MultipleSelect(Field):
         self.options = []
         # Undetermined yet:
         self.selectedIndices = []
-
+        self._forced_values = []
+    
+    def force_value(self, values):
+        self._forced_values = values
+        self.selectedIndices = []
+    
     def value__set(self, values):
         str_values = [str(value) for value in values]
         self.selectedIndicies = []
@@ -1243,18 +1260,20 @@ class MultipleSelect(Field):
                         [repr(o) for o, c in self.options])))
 
     def value__get(self):
+        selected_values = []
         if self.selectedIndices:
-            return [self.options[i][0] for i in self.selectedIndices]
-        else:
+            selected_values = [self.options[i][0] for i in self.selectedIndices]
+        elif not self._forced_values:
             selected_values = []
             for option, checked in self.options:
                 if checked:
                     selected_values.append(option)
-                
-            if self.options and (not selected_values):
-                selected_values = None
-            return selected_values
-    
+        if self._forced_values:
+            selected_values += self._forced_values
+        
+        if self.options and (not selected_values):
+            selected_values = None
+        return selected_values
     value = property(value__get, value__set)
 
 Field.classes['multiple_select'] = MultipleSelect
