@@ -731,7 +731,7 @@ class TestResponse(Response):
                 print >> sys.stderr, "Actual response (has %r)" % no_s
                 print >> sys.stderr, self
                 raise IndexError(
-                    "Body contains string %r" % s)
+                    "Body contains bad string %r" % no_s)
 
     def __str__(self):
         simple_body = '\n'.join([l for l in self.body.splitlines()

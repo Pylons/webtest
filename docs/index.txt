@@ -384,6 +384,9 @@ svn trunk
   possible to simulate forms that are dynamically updated.  From
   Matthew Desmarais.
 
+* Fixed :method:`webtest.Response.mustcontain` when you pass in a
+  ``no=[strings]`` argument.
+
 1.1
 ---
 
