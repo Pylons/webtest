@@ -211,13 +211,11 @@ class TestApp(object):
             status=None, upload_files=None, expect_errors=False,
             content_type=None):
         """
-        Do a PUT request.  Very like the ``.get()`` method.
-        ``params`` are put in the body of the request.
-
-        ``upload_files`` is for file uploads.  It should be a list of
-        ``[(fieldname, filename, file_content)]``.  You can also use
-        just ``[(fieldname, filename)]`` and the file content will be
-        read from disk.
+        Do a PUT request.  Very like the ``.put()`` method.
+        ``params`` are put in the body of the request, if params is a
+        tuple, dictionary, list, or iterator it will be urlencoded and
+        placed in the body as with a POST, if it is string it will not
+        be encoded, but placed in the body directly.
 
         Returns a ``webob.Response`` object.
         """
