@@ -289,6 +289,15 @@ class TestApp(object):
         Executes the given request (``req``), with the expected
         ``status``.  Generally ``.get()`` and ``.post()`` are used
         instead.
+
+        To use this::
+
+            resp = app.do_request(webtest.TestRequest.blank(
+                'url', ...args...))
+
+        Note you can pass any keyword arguments to
+        ``TestRequest.blank()``, which will be set on the request.
+        These can be arguments like ``content_type``, ``accept``, etc.
         """
         __tracebackhide__ = True
         errors = StringIO()
