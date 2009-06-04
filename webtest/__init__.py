@@ -23,7 +23,7 @@ import re
 from webob import Response, Request
 from webtest import lint
 
-__all__ = ['TestApp']
+__all__ = ['TestApp', 'TestRequest']
 
 def tempnam_no_warning(*args):
     """
