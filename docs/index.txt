@@ -369,6 +369,11 @@ template_name`` in your framework, then ``response.template`` will be
 News
 ====
 
+svn trunk
+---------
+
+* Removed the copying of stdout to stderr during requests.
+
 1.2
 ---
 
