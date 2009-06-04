@@ -311,7 +311,6 @@ class TestApp(object):
             end_time = time.time()
         finally:
             sys.stdout = old_stdout
-            sys.stderr.write(out.getvalue())
         res.app = app
         res.test_app = self
         # We do this to make sure the app_iter is exausted:
