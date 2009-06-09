@@ -284,6 +284,40 @@ class TestApp(object):
                 "you gave: %r"
                 % repr(file_info)[:100])
 
+
+    def request(self, url_or_req, status=None, expect_errors=False,
+                **req_params):
+        """
+        Creates and executes a request.  You may either pass in an
+        instantiated :class:`TestRequest` object, or you may pass in a
+        URL and keyword arguments to be passed to
+        :method:`TestRequest.blank`.
+
+        You can use this to run a request without the intermediary
+        functioning of :method:`TestApp.get` etc.  For instance, to
+        test a WebDAV method::
+
+            resp = app.request('/new-col', method='MKCOL')
+
+        Note that the request won't have a body unless you specify it,
+        like::
+
+            resp = app.request('/test.txt', method='PUT', body='test')
+
+        You can use ``POST={args}`` to set the request body to the
+        serialized arguments, and simultaneously set the request
+        method to ``POST``
+        """
+        if isinstance(url_or_req, basestring):
+            req = TestRequest.blank(url_or_req, **req_params)
+        else:
+            req = req.copy()
+            for name, value in req_params.iteritems():
+                setattr(req, name, value)
+        req.environ['paste.throw_errors'] = True
+        req.environ.update(self.extra_environ)
+        return self.do_request(req, status=status, expect_errors=expect_errors)
+
     def do_request(self, req, status, expect_errors):
         """
         Executes the given request (``req``), with the expected

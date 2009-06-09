@@ -372,6 +372,14 @@ News
 svn trunk
 ---------
 
+* Added method :method:`TestApp.request`, which can be used for
+  sending requests with different methods (e.g., ``MKCOL``).  This
+  method sends all its keyword arguments to
+  :method:`webtest.TestRequest.blank` and then executes the request.
+  The parameters are somewhat different than other methods (like
+  :method:`webtest.TestApp.get`), as they match WebOb's attribute
+  names exactly (the other methods were written before WebOb existed).
+
 * Removed the copying of stdout to stderr during requests.
 
 1.2

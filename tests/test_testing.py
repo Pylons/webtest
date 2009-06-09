@@ -17,6 +17,10 @@ def test_testing():
     assert res.status_int == 200
     assert res.headers['content-type'] == 'text/plain'
     assert res.content_type == 'text/plain'
+    res = app.request('/', method='GET')
+    assert res.status_int == 200
+    assert res.headers['content-type'] == 'text/plain'
+    assert res.content_type == 'text/plain'
     raises(Exception, app.get, '/?error=t')
     raises(webtest.AppError, app.get, '/?status=404%20Not%20Found')
     app.get('/?status=404%20Not%20Found', status=404)
