@@ -1139,9 +1139,26 @@ class Form(object):
         ``.post()`` method.
         """
         fields = self.submit_fields(name, index=index)
+        uploads = self.upload_fields()
+        if uploads:
+            args["upload_files"] = uploads
         return self.response.goto(self.action, method=self.method,
                                   params=fields, **args)
-
+    
+    def upload_fields(self):
+        """
+        Return a list of file field tuples of the form:
+            (field name, file name)
+        or
+            (field name, file name, file contents).
+        """
+        uploads = []
+        for name, fields in self.fields.items():
+            for field in fields:
+                if isinstance(field, File):
+                    uploads.append([name] + list(field.value))
+        return uploads
+    
     def submit_fields(self, name=None, index=None):
         """
         Return a list of ``[(name, value), ...]`` for the current
@@ -1157,6 +1174,10 @@ class Form(object):
             for field in fields:
                 value = field.value
                 if value is None:
+                    continue
+                if isinstance(field, File):
+                    # skip file uploads; they need to be accounted
+                    # for differently
                     continue
                 if isinstance(value, list):
                     for item in value:
