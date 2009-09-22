@@ -15,6 +15,7 @@ import time
 import cgi
 import os
 from Cookie import BaseCookie, CookieError
+from Cookie import _quote as cookie_quote
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -337,10 +338,10 @@ class TestApp(object):
         errors = StringIO()
         req.environ['wsgi.errors'] = errors
         if self.cookies:
-            c = BaseCookie()
-            for name, value in self.cookies.items():
-                c[name] = value
-            req.environ['HTTP_COOKIE'] = str(c).split(': ', 1)[1]
+            cookie_header = ''.join([
+                '%s="%s"; ' % (name, cookie_quote(value))
+                for name, value in self.cookies.items()])
+            req.environ['HTTP_COOKIE'] = cookie_header
         req.environ['paste.testing'] = True
         req.environ['paste.testing_variables'] = {}
         app = lint.middleware(self.app)
