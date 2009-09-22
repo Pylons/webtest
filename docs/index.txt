@@ -385,8 +385,8 @@ svn trunk
 * Fix file upload fields in forms (`#340
   <http://trac.pythonpaste.org/pythonpaste/ticket/340>`_) -- you could
   upload files with :method:`webtest.TestApp.post`, but if you use
-  ``resp.form`` file upload fields would not work (from Matthew
-  Desmarais).
+  ``resp.form`` file upload fields would not work (from rcs-comp.com
+  and Matthew Desmarais).
 
 1.2
 ---
