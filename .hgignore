@@ -3,3 +3,7 @@ WebTest.egg-info/
 build/
 dist/
 docs/_build/
+*.pyc
+.project
+.pydevproject
+.settings/
