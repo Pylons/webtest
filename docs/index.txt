@@ -212,7 +212,7 @@ The added methods:
     compacted to remove newlines, making it easier to use with
     `doctest <http://python.org/doc/current/lib/module-doctest.html>`_
 
-``response.click(description=None, linkid=None, href=None, anchor=None, index=None, verbose=False)``: 
+``response.click(description=None, linkid=None, href=None, anchor=None, index=None, verbose=False)``:
     Clicks the described link (`see docstring for more
     <./class-webtest.TestResponse.html#click>`_)
 
@@ -369,8 +369,8 @@ template_name`` in your framework, then ``response.template`` will be
 News
 ====
 
-svn trunk
----------
+1.2.1
+-----
 
 * Added method :method:`TestApp.request`, which can be used for
   sending requests with different methods (e.g., ``MKCOL``).  This
