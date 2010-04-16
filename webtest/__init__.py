@@ -94,11 +94,11 @@ class TestApp(object):
         if extra_environ:
             environ.update(extra_environ)
         return environ
-    
+
     def _remove_fragment(self, url):
         scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
         return urlparse.urlunsplit((scheme, netloc, path, query, ""))
-    
+
     def get(self, url, params=None, headers=None, extra_environ=None,
             status=None, expect_errors=False):
         """
@@ -157,7 +157,7 @@ class TestApp(object):
                      status=None, upload_files=None, expect_errors=False,
                      content_type=None):
         """
-        Do a generic request.  
+        Do a generic request.
         """
         environ = self._make_environ(extra_environ)
         # @@: Should this be all non-strings?
@@ -205,7 +205,7 @@ class TestApp(object):
         return self._gen_request('POST', url, params=params, headers=headers,
                                  extra_environ=extra_environ,status=status,
                                  upload_files=upload_files,
-                                 expect_errors=expect_errors, 
+                                 expect_errors=expect_errors,
                                  content_type=content_type)
 
     def put(self, url, params='', headers=None, extra_environ=None,
@@ -560,7 +560,7 @@ class TestResponse(Response):
             tag='a', href_attr='href',
             href_extract=None,
             content=description,
-            id=linkid, 
+            id=linkid,
             href_pattern=href,
             html_pattern=anchor,
             index=index, verbose=verbose)
@@ -610,7 +610,7 @@ class TestResponse(Response):
         for match in _tag_re.finditer(self.body):
             found_bad = False
             for bad_start, bad_end in bad_spans:
-                if (match.start() > bad_start 
+                if (match.start() > bad_start
                     and match.end() < bad_end):
                     found_bad = True
                     break
@@ -700,7 +700,7 @@ class TestResponse(Response):
     _normal_body_regex = re.compile(r'[ \n\r\t]+')
 
     _normal_body = None
-    
+
     def normal_body__get(self):
         if self._normal_body is None:
             self._normal_body = self._normal_body_regex.sub(
@@ -937,7 +937,7 @@ class TestRequest(Request):
 
 ########################################
 ## Form objects
-######################################## 
+########################################
 
 class Form(object):
 
@@ -1144,7 +1144,7 @@ class Form(object):
             args["upload_files"] = uploads
         return self.response.goto(self.action, method=self.method,
                                   params=fields, **args)
-    
+
     def upload_fields(self):
         """
         Return a list of file field tuples of the form:
@@ -1158,7 +1158,7 @@ class Form(object):
                 if isinstance(field, File):
                     uploads.append([name] + list(field.value))
         return uploads
-    
+
     def submit_fields(self, name=None, index=None):
         """
         Return a list of ``[(name, value), ...]`` for the current
@@ -1254,10 +1254,10 @@ class Select(Field):
         self.selectedIndex = None
         # we have no forced value
         self._forced_value = NoValue
-    
+
     def force_value(self, value):
         self._forced_value = value
-    
+
     def value__set(self, value):
         if self._forced_value is not NoValue:
             self._forced_value = NoValue
@@ -1302,11 +1302,11 @@ class MultipleSelect(Field):
         # Undetermined yet:
         self.selectedIndices = []
         self._forced_values = []
-    
+
     def force_value(self, values):
         self._forced_values = values
         self.selectedIndices = []
-    
+
     def value__set(self, values):
         str_values = [str(value) for value in values]
         self.selectedIndicies = []
@@ -1332,7 +1332,7 @@ class MultipleSelect(Field):
                     selected_values.append(option)
         if self._forced_values:
             selected_values += self._forced_values
-        
+
         if self.options and (not selected_values):
             selected_values = None
         return selected_values
@@ -1435,7 +1435,7 @@ class Submit(Field):
     """
     Field representing ``<input type="submit">`` and ``<button>``
     """
-    
+
     settable = False
 
     def value__get(self):
