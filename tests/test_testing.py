@@ -28,12 +28,13 @@ def test_testing():
     res = app.get('/?status=303%20Redirect&header-location=/foo')
     assert res.status_int == 303
     print res.location
-    assert res.location == 'http://localhost/foo'
+    assert res.location == '/foo'
     assert res.headers['location'] == '/foo'
     res = res.follow()
     assert res.request.url == 'http://localhost/foo'
     assert 'Response: 200 OK' in str(res)
     assert '200 OK' in repr(res)
+
     class FakeDict(object):
         def items(self):
             return [('a', '10'), ('a', '20')]

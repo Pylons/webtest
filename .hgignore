@@ -1,0 +1,4 @@
+syntax: glob
+WebTest.egg-info/
+build/
+dist/
