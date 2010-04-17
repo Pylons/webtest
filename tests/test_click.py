@@ -112,11 +112,12 @@ def test_click_unicode():
     assert 'This is baz.' in resp.click(anchor=u".*title='Поэт'.*")
 
 
-
 def test_parse_attrs():
     assert _parse_attrs("href='foo'") == {'href': 'foo'}
     assert _parse_attrs('href="foo"') == {'href': 'foo'}
+    assert _parse_attrs('href=""') == {'href': ''}
     assert _parse_attrs('href="foo" id="bar"') == {'href': 'foo', 'id': 'bar'}
     assert _parse_attrs('href="foo" id="bar"') == {'href': 'foo', 'id': 'bar'}
     assert _parse_attrs("href='foo' id=\"bar\" ") == {'href': 'foo', 'id': 'bar'}
     assert _parse_attrs("href='foo' id='bar' ") == {'href': 'foo', 'id': 'bar'}
+    assert _parse_attrs("tag='foo\"'") == {'tag': 'foo"'}
