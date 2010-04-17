@@ -53,7 +53,7 @@ class TestApp(object):
     # for py.test
     disabled = True
 
-    def __init__(self, app, extra_environ=None, relative_to=None):
+    def __init__(self, app, extra_environ=None, relative_to=None, use_unicode=True):
         """
         Wraps a WSGI application in a more convenient interface for
         testing.
@@ -79,6 +79,7 @@ class TestApp(object):
         if extra_environ is None:
             extra_environ = {}
         self.extra_environ = extra_environ
+        self.use_unicode = use_unicode
         self.reset()
 
     def reset(self):
@@ -352,6 +353,7 @@ class TestApp(object):
             start_time = time.time()
             ## FIXME: should it be an option to not catch exc_info?
             res = req.get_response(app, catch_exc_info=True)
+            res._use_unicode = self.use_unicode
             end_time = time.time()
         finally:
             sys.stdout = old_stdout
@@ -473,13 +475,19 @@ class TestResponse(Response):
                     page.
                     """)
 
+    @property
+    def testbody(self):
+        if getattr(self, '_use_unicode', True) and self.charset:
+            return self.unicode_body
+        return self.body
+
     _tag_re = re.compile(r'<(/?)([:a-z0-9_\-]*)(.*?)>', re.S|re.I)
 
     def _parse_forms(self):
         forms = self._forms_indexed = {}
         form_texts = []
         started = None
-        for match in self._tag_re.finditer(self.body):
+        for match in self._tag_re.finditer(self.testbody):
             end = match.group(1) == '/'
             tag = match.group(2).lower()
             if tag != 'form':
@@ -487,14 +495,14 @@ class TestResponse(Response):
             if end:
                 assert started, (
                     "</form> unexpected at %s" % match.start())
-                form_texts.append(self.body[started:match.end()])
+                form_texts.append(self.testbody[started:match.end()])
                 started = None
             else:
                 assert not started, (
                     "Nested form tags at %s" % match.start())
                 started = match.start()
         assert not started, (
-            "Danging form: %r" % self.body[started:])
+            "Danging form: %r" % self.testbody[started:])
         for i, text in enumerate(form_texts):
             form = Form(self, text)
             forms[i] = form
@@ -598,7 +606,7 @@ class TestResponse(Response):
                              re.I+re.S)
         _script_re = re.compile(r'<script.*?>.*?</script>', re.I|re.S)
         bad_spans = []
-        for match in _script_re.finditer(self.body):
+        for match in _script_re.finditer(self.testbody):
             bad_spans.append((match.start(), match.end()))
 
         def printlog(s):
@@ -607,7 +615,7 @@ class TestResponse(Response):
 
         found_links = []
         total_links = 0
-        for match in _tag_re.finditer(self.body):
+        for match in _tag_re.finditer(self.testbody):
             found_bad = False
             for bad_start, bad_end in bad_spans:
                 if (match.start() > bad_start
@@ -828,7 +836,7 @@ class TestResponse(Response):
         except ImportError:
             raise ImportError(
                 "You must have BeautifulSoup installed to use response.html")
-        soup = BeautifulSoup(self.body)
+        soup = BeautifulSoup(self.testbody)
         return soup
 
     html = property(html, doc=html.__doc__)
@@ -857,6 +865,7 @@ class TestResponse(Response):
                 except ImportError:
                     raise ImportError(
                         "You must have ElementTree installed (or use Python 2.5) to use response.xml")
+        # ElementTree can't parse unicode => use `body` instead of `testbody`
         return ElementTree.XML(self.body)
 
     xml = property(xml, doc=xml.__doc__)
@@ -888,9 +897,9 @@ class TestResponse(Response):
             fromstring = etree.HTML
         ## FIXME: would be nice to set xml:base, in some fashion
         if self.content_type == 'text/html':
-            return fromstring(self.body)
+            return fromstring(self.testbody)
         else:
-            return etree.XML(self.body)
+            return etree.XML(self.testbody)
 
     lxml = property(lxml, doc=lxml.__doc__)
 
@@ -912,7 +921,7 @@ class TestResponse(Response):
         except ImportError:
             raise ImportError(
                 "You must have simplejson installed to use response.json")
-        return loads(self.body)
+        return loads(self.testbody)
 
     json = property(json, doc=json.__doc__)
 
@@ -934,6 +943,7 @@ class TestRequest(Request):
     # for py.test
     disabled = True
     ResponseClass = TestResponse
+
 
 ########################################
 ## Form objects

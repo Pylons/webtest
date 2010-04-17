@@ -91,7 +91,7 @@ def test_click():
 
 
 def test_click_utf8():
-    app = webtest.TestApp(links_app)
+    app = webtest.TestApp(links_app, use_unicode=False)
     resp = app.get('/utf8/')
     assert resp.charset == 'utf-8'
     assert u"Тестовая страница".encode('utf8') in resp
@@ -103,13 +103,13 @@ def test_click_utf8():
     assert 'This is baz.' in resp.click(anchor=anchor_re)
 
 
-#def test_click_unicode():
-#    app = webtest.TestApp(links_app)
-#    resp = app.get('/utf8/')
-#
-#    assert u"Тестовая страница" in resp
-#    assert 'This is foo.' in resp.click(u'Менделеев')
-#    assert 'This is baz.' in resp.click(anchor=u".*title='Поэт'.*")
+def test_click_unicode():
+    app = webtest.TestApp(links_app)
+    resp = app.get('/utf8/')
+
+    assert u"Тестовая страница" in resp
+    assert 'This is foo.' in resp.click(u'Менделеев')
+    assert 'This is baz.' in resp.click(anchor=u".*title='Поэт'.*")
 
 
 
