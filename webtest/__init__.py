@@ -699,6 +699,20 @@ class TestResponse(Response):
         assert method in ('get', 'post'), (
             'Only "get" or "post" are allowed for method (you gave %r)'
             % method)
+
+        # encode unicode strings for the outside world
+        if getattr(self, '_use_unicode', False):
+            def to_str(s):
+                if isinstance(s, unicode):
+                    return s.encode(self.charset)
+                return s
+
+            if 'params' in args:
+                args['params'] = [tuple(map(to_str, p)) for p in args['params']]
+
+            if 'upload_files' in args:
+                args['upload_files'] = [map(to_str, f) for f in args['upload_files']]
+
         if method == 'get':
             method = self.test_app.get
         else:
