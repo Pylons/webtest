@@ -1197,7 +1197,7 @@ class Form(object):
         return submit
 
 
-_attr_re = re.compile(r'([^= \n\r\t]+)[ \n\r\t]*(?:=[ \n\r\t]*(?:"([^"]*)"|\'([^\']*)\'|([^"][^ \n\r\t>]*)))?', re.S)
+_attr_re = re.compile(r'([^= \n\r\t]+)[ \n\r\t]*(?:=[ \n\r\t]*(?:"([^"]*)"|\'([^\']*)\'|([^"\'][^ \n\r\t>]*)))?', re.S)
 
 def _parse_attrs(text):
     attrs = {}
