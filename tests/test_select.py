@@ -47,9 +47,9 @@ def select_app(environ, start_response):
     </body>
 </html>
 """ % locals()
-    
+
     headers = [
-        ('Content-Type', 'text/html'),
+        ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
     start_response(status, headers)
     return [body]
@@ -100,9 +100,9 @@ def select_app_without_default(environ, start_response):
     </body>
 </html>
 """ % locals()
-    
+
     headers = [
-        ('Content-Type', 'text/html'),
+        ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
     start_response(status, headers)
     return [body]
@@ -111,19 +111,19 @@ def test_single_select():
     app = webtest.TestApp(select_app)
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     single_form = res.forms["single_select_form"]
     assert single_form["single"].value == "5"
     display = single_form.submit("button")
     assert "<p>You selected 5</p>" in display, display
-    
+
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     single_form = res.forms["single_select_form"]
     assert single_form["single"].value == "5"
     single_form.set("single", "6")
@@ -135,9 +135,9 @@ def test_single_select_forced_value():
     app = webtest.TestApp(select_app)
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     single_form = res.forms["single_select_form"]
     assert single_form["single"].value == "5"
     try:
@@ -154,19 +154,19 @@ def test_single_select_no_default():
     app = webtest.TestApp(select_app_without_default)
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     single_form = res.forms["single_select_form"]
     assert single_form["single"].value == "4"
     display = single_form.submit("button")
     assert "<p>You selected 4</p>" in display, display
-    
+
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     single_form = res.forms["single_select_form"]
     assert single_form["single"].value == "4"
     single_form.set("single", "6")
@@ -178,20 +178,20 @@ def test_multiple_select():
     app = webtest.TestApp(select_app)
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     multiple_form = res.forms["multiple_select_form"]
     assert multiple_form["multiple"].value == ['8', '11'],\
         multiple_form["multiple"].value
     display = multiple_form.submit("button")
     assert "<p>You selected 8, 11</p>" in display, display
-    
+
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     multiple_form = res.forms["multiple_select_form"]
     assert multiple_form["multiple"].value == ["8", "11"],\
         multiple_form["multiple"].value
@@ -205,9 +205,9 @@ def test_multiple_select_forced_values():
     app = webtest.TestApp(select_app)
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     multiple_form = res.forms["multiple_select_form"]
     assert multiple_form["multiple"].value == ["8", "11"],\
         multiple_form["multiple"].value
@@ -226,20 +226,20 @@ def test_multiple_select_no_default():
     app = webtest.TestApp(select_app_without_default)
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     multiple_form = res.forms["multiple_select_form"]
     assert multiple_form["multiple"].value is None,\
         repr(multiple_form["multiple"].value)
     display = multiple_form.submit("button")
     assert "<p>You selected </p>" in display, display
-    
+
     res = app.get('/')
     assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html'
+    assert res.headers['content-type'] == 'text/html; charset=utf-8'
     assert res.content_type == 'text/html'
-    
+
     multiple_form = res.forms["multiple_select_form"]
     assert multiple_form["multiple"].value is None,\
         multiple_form["multiple"].value
