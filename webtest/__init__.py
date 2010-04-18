@@ -707,6 +707,8 @@ class TestResponse(Response):
                     return s.encode(self.charset)
                 return s
 
+            href = to_str(href)
+
             if 'params' in args:
                 args['params'] = [tuple(map(to_str, p)) for p in args['params']]
 
