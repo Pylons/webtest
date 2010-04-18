@@ -1221,7 +1221,10 @@ def _parse_attrs(text):
         attr_name = match.group(1).lower()
         attr_body = match.group(2) or match.group(3)
         attr_body = html_unquote(attr_body or '')
-        attrs[attr_name] = attr_body
+        # python <= 2.5 doesn't like **dict when the keys are unicode
+        # so cast str on them. Unicode field attributes are not
+        # supported now (actually they have never been supported).
+        attrs[str(attr_name)] = attr_body
     return attrs
 
 class Field(object):
