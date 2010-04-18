@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from webob import Request
 import webtest
 
@@ -169,7 +170,7 @@ def test_single_select_no_default():
 
     single_form = res.forms["single_select_form"]
     assert single_form["single"].value == "4"
-    single_form.set("single", "6")
+    single_form.set("single", 6)
     assert single_form["single"].value == "6"
     display = single_form.submit("button")
     assert "<p>You selected 6</p>" in display, display

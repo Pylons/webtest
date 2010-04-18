@@ -1286,7 +1286,7 @@ class Select(Field):
         if self._forced_value is not NoValue:
             self._forced_value = NoValue
         for i, (option, checked) in enumerate(self.options):
-            if option == str(value):
+            if option == _stringify(value):
                 self.selectedIndex = i
                 break
         else:
@@ -1332,7 +1332,7 @@ class MultipleSelect(Field):
         self.selectedIndices = []
 
     def value__set(self, values):
-        str_values = [str(value) for value in values]
+        str_values = [_stringify(value) for value in values]
         self.selectedIndicies = []
         for i, (option, checked) in enumerate(self.options):
             if option in str_values:
@@ -1479,6 +1479,11 @@ Field.classes['image'] = Submit
 ########################################
 ## Utility functions
 ########################################
+
+def _stringify(value):
+    if isinstance(value, unicode):
+        return value
+    return str(value)
 
 def _popget(d, key, default=None):
     """
