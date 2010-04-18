@@ -108,6 +108,80 @@ def select_app_without_default(environ, start_response):
     start_response(status, headers)
     return [body]
 
+
+def select_app_unicode(environ, start_response):
+    req = Request(environ)
+    status = "200 OK"
+    if req.method == "GET":
+        body =\
+u"""
+<html>
+    <head><title>form page</title></head>
+    <body>
+        <form method="POST" id="single_select_form">
+            <select id="single" name="single">
+                <option value="ЕКБ">Екатеринбург</option>
+                <option value="МСК" selected="selected">Москва</option>
+                <option value="СПБ">Санкт-Петербург</option>
+                <option value="САМ">Самара</option>
+            </select>
+            <input name="button" type="submit" value="single">
+        </form>
+        <form method="POST" id="multiple_select_form">
+            <select id="multiple" name="multiple" multiple="multiple">
+                <option value="8" selected="selected">Лондон</option>
+                <option value="9">Париж</option>
+                <option value="10">Пекин</option>
+                <option value="11" selected="selected">Бристоль</option>
+            </select>
+            <input name="button" type="submit" value="multiple">
+        </form>
+    </body>
+</html>
+""".encode('utf8')
+    else:
+        select_type = req.POST.get("button")
+        if select_type == "single":
+            selection = req.POST.get("single")
+        elif select_type == "multiple":
+            selection = ", ".join(req.POST.getall("multiple"))
+        body =\
+u"""
+<html>
+    <head><title>display page</title></head>
+    <body>
+        <p>You submitted the %(select_type)s </p>
+        <p>You selected %(selection)s</p>
+    </body>
+</html>
+""".encode('utf8') % locals()
+    headers = [
+        ('Content-Type', 'text/html; charset=utf-8'),
+        ('Content-Length', str(len(body)))]
+    start_response(status, headers)
+    return [body]
+
+
+
+def test_unicode_select():
+    app = webtest.TestApp(select_app_unicode)
+    res = app.get('/')
+    single_form = res.forms["single_select_form"]
+    assert single_form["single"].value == u"МСК"
+
+    display = single_form.submit("button")
+    assert u"<p>You selected МСК</p>" in display, display
+
+    res = app.get('/')
+    single_form = res.forms["single_select_form"]
+    assert single_form["single"].value == u"МСК"
+    single_form.set("single", u"СПБ")
+    assert single_form["single"].value == u"СПБ"
+    display = single_form.submit("button")
+    assert u"<p>You selected СПБ</p>" in display, display
+
+
+
 def test_single_select():
     app = webtest.TestApp(select_app)
     res = app.get('/')
