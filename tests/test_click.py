@@ -51,7 +51,7 @@ def links_app(environ, start_response):
     utf8_paths = ['/utf8/']
     body = responses[req.path_info]
     headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
+        ('Content-Type', 'text/html'),
         ('Content-Length', str(len(body)))
     ]
     if req.path_info in utf8_paths:
