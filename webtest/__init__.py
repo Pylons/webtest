@@ -1444,6 +1444,8 @@ class File(Field):
         else:
             return self._value
 
+    value = property(value__get, Field.value__set)
+
 Field.classes['file'] = File
 
 class Textarea(Text):

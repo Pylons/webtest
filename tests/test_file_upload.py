@@ -133,6 +133,12 @@ def multiple_upload_file_app(environ, start_response):
     start_response(status, headers)
     return [body]
 
+
+def test_no_uploads_error():
+    app = webtest.TestApp(single_upload_file_app)
+    uploads = app.get('/').forms["file_upload_form"].upload_fields()
+
+
 def test_file_upload_with_filename_only():
     uploaded_file_name = \
         os.path.join(os.path.dirname(__file__), "__init__.py")
