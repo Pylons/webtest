@@ -6,6 +6,7 @@ Testing Applications with WebTest
 .. toctree::
    :maxdepth: 3
 
+   news
    license
    modules/webtest
 
@@ -365,107 +366,3 @@ values put into that dictionary will become attributes of the response
 object.  So if you do ``env["paste.testing_variables"]['template'] =
 template_name`` in your framework, then ``response.template`` will be
 ``template_name``.
-
-News
-====
-
-1.2.1
------
-
-* Added method :method:`TestApp.request`, which can be used for
-  sending requests with different methods (e.g., ``MKCOL``).  This
-  method sends all its keyword arguments to
-  :method:`webtest.TestRequest.blank` and then executes the request.
-  The parameters are somewhat different than other methods (like
-  :method:`webtest.TestApp.get`), as they match WebOb's attribute
-  names exactly (the other methods were written before WebOb existed).
-
-* Removed the copying of stdout to stderr during requests.
-
-* Fix file upload fields in forms (`#340
-  <http://trac.pythonpaste.org/pythonpaste/ticket/340>`_) -- you could
-  upload files with :method:`webtest.TestApp.post`, but if you use
-  ``resp.form`` file upload fields would not work (from rcs-comp.com
-  and Matthew Desmarais).
-
-1.2
----
-
-* Fix form inputs; text inputs always default to the empty string, and
-  unselected radio inputs default to nothing at all.  From Daniele
-  Paolella.
-
-* Fix following links with fragments (these fragments should not be
-  sent to the WSGI application).  From desmaj.
-
-* Added ``force_value`` to select fields, like
-  ``res.form['select'].force_value("new_value")``.  This makes it
-  possible to simulate forms that are dynamically updated.  From
-  Matthew Desmarais.
-
-* Fixed :method:`webtest.Response.mustcontain` when you pass in a
-  ``no=[strings]`` argument.
-
-1.1
----
-
-* Changed the ``__str__`` of responses to make them more doctest
-  friendly:
-
-  - All headers are displayed capitalized, like Content-Type
-  - Headers are sorted alphabetically
-
-* Changed ``__repr__`` to only show the body length if the complete
-  body is not shown (for short bodies the complete body is in the
-  repr)
-
-* Note: **these are backward incompatible changes** if you are using
-  doctest (you'll have to update your doctests with the new format).
-
-* Fixed exception in the ``.delete`` method.
-
-* Added a ``content_type`` argument to ``app.post`` and ``app.put``,
-  which sets the ``Content-Type`` of the request.  This is more
-  convenient when testing REST APIs.
-
-* Skip links in ``<script>...</script>`` tags (since that's not real
-  markup).
-
-1.0.2
------
-
-* Don't submit unnamed form fields.
-
-* Checkboxes with no explicit ``value`` send ``on`` (previously they
-  sent ``checked``, which isn't what browsers send).
-
-* Support for ``<select multiple>`` fields (from Matthew Desmarais)
-
-1.0.1
----
-
-* Fix the ``TestApp`` validator's InputWrapper lacking support for
-  readline with an argument as needed by the cgi module.
-
-1.0
----
-
-* Keep URLs in-tact in cases such as
-  ``app.get('http://www.python.org')`` (so HTTP_HOST=www.python.org,
-  etc).
-
-* Fix ``lxml.html`` import, so lxml 2.0 users can get HTML lxml
-  objects from ``resp.lxml``
-
-* Treat ``<input type="image">`` like a submit button.
-
-* Use ``BaseCookie`` instead of ``SimpleCookie`` for storing cookies
-  (avoids quoting cookie values).
-
-* Accept any ``params`` argument that has an ``items`` method (like
-  MultiDict)
-
-0.9
----
-
-Initial release
