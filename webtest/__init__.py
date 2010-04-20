@@ -941,6 +941,27 @@ class TestResponse(Response):
 
     json = property(json, doc=json.__doc__)
 
+    def pyquery(self):
+        """
+        Returns the response as a `PyQuery <http://pyquery.org/>`_ object.
+
+        Only works with HTML and XML responses; other content-types raise
+        AttributeError.
+        """
+        if 'html' not in self.content_type and 'xml' not in self.content_type:
+            raise AttributeError(
+                "Not an HTML or XML response body (content-type: %s)"
+                % self.content_type)
+        try:
+            from pyquery import PyQuery
+        except ImportError:
+            raise ImportError(
+                "You must have PyQuery installed to use response.pyquery")
+        d = PyQuery(self.testbody)
+        return d
+
+    pyquery = property(pyquery, doc=pyquery.__doc__)
+
     def showbrowser(self):
         """
         Show this response in a browser window (for debugging purposes,
@@ -1546,4 +1567,3 @@ def html_unquote(v):
                       ('&amp;', '&')]:
         v = v.replace(ent, repl)
     return v
-

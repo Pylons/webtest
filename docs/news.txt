@@ -4,6 +4,9 @@ News
 hg tip
 ------
 
+* Added property :method:`webtest.Response.pyquery` which returns a
+  `PyQuery <http://pyquery.org/>`_ object.
+
 1.2.1
 -----
 
