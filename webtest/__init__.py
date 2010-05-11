@@ -913,9 +913,9 @@ class TestResponse(Response):
             fromstring = etree.HTML
         ## FIXME: would be nice to set xml:base, in some fashion
         if self.content_type == 'text/html':
-            return fromstring(self.testbody)
+            return fromstring(self.testbody, base_url=self.request.url)
         else:
-            return etree.XML(self.testbody)
+            return etree.XML(self.testbody, base_url=self.request.url)
 
     lxml = property(lxml, doc=lxml.__doc__)
 
