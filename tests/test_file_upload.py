@@ -139,6 +139,12 @@ def test_no_uploads_error():
     uploads = app.get('/').forms["file_upload_form"].upload_fields()
 
 
+def test_upload_without_file():
+    app = webtest.TestApp(single_upload_file_app)
+    upload_form = app.get('/').forms["file_upload_form"]
+    upload_form.submit()
+
+
 def test_file_upload_with_filename_only():
     uploaded_file_name = \
         os.path.join(os.path.dirname(__file__), "__init__.py")
