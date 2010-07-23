@@ -1204,7 +1204,7 @@ class Form(object):
         uploads = []
         for name, fields in self.fields.items():
             for field in fields:
-                if isinstance(field, File):
+                if isinstance(field, File) and field.value:
                     uploads.append([name] + list(field.value))
         return uploads
 
