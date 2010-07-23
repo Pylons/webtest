@@ -11,6 +11,10 @@ hg tip
 
 * Include tests and docs in tarball.
 
+* Fix sending in webob.Request (or webtest.TestRequest) objects.
+
+* Fix handling forms with file uploads, when no file is selected.
+
 1.2.1
 -----
 
