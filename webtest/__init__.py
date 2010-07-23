@@ -313,9 +313,11 @@ class TestApp(object):
         if isinstance(url_or_req, basestring):
             req = TestRequest.blank(url_or_req, **req_params)
         else:
-            req = req.copy()
+            req = url_or_req.copy()
             for name, value in req_params.iteritems():
                 setattr(req, name, value)
+            if req.content_length == -1:
+                req.content_length = len(req.body)
         req.environ['paste.throw_errors'] = True
         req.environ.update(self.extra_environ)
         return self.do_request(req, status=status, expect_errors=expect_errors)
