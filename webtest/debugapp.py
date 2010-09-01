@@ -29,6 +29,8 @@ def debug_app(environ, start_response):
             header_name = name[len('header-'):]
             headers.append((header_name, value))
     start_response(status, headers)
+    if req.method == 'HEAD':
+        return ['']
     return [body]
 
 def make_debug_app(global_conf):

@@ -237,6 +237,17 @@ class TestApp(object):
         return self._gen_request('DELETE', url, headers=headers,
                                  extra_environ=extra_environ,status=status,
                                  upload_files=None, expect_errors=expect_errors)
+    
+    def head(self, url, headers=None, extra_environ=None,
+               status=None, expect_errors=False):
+        """
+        Do a HEAD request.  Very like the ``.get()`` method.
+
+        Returns a ``webob.Response`` object.
+        """
+        return self._gen_request('HEAD', url, headers=headers,
+                                 extra_environ=extra_environ,status=status,
+                                 upload_files=None, expect_errors=expect_errors)
 
     def encode_multipart(self, params, files):
         """
