@@ -527,7 +527,8 @@ class TestResponse(Response):
         return self.test_app.get(location, **kw)
 
     def click(self, description=None, linkid=None, href=None,
-              anchor=None, index=None, verbose=False):
+              anchor=None, index=None, verbose=False,
+              extra_environ=None):
         """
         Click the link as described.  Each of ``description``,
         ``linkid``, and ``url`` are *patterns*, meaning that they are
@@ -574,7 +575,7 @@ class TestResponse(Response):
             href_pattern=href,
             html_pattern=anchor,
             index=index, verbose=verbose)
-        return self.goto(found_attrs['uri'])
+        return self.goto(found_attrs['uri'], extra_environ=extra_environ)
 
     def clickbutton(self, description=None, buttonid=None, href=None,
                     button=None, index=None, verbose=False):
