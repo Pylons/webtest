@@ -939,7 +939,8 @@ class TestResponse(Response):
         Return the response as a JSON response.  You must have
         `simplejson
         <http://svn.red-bean.com/bob/simplejson/tags/simplejson-1.7/docs/index.html>`_
-        installed to use this.
+        installed to use this, or be using a Python version with the
+        json module.
 
         The content type must be application/json to use this.
         """
@@ -950,8 +951,11 @@ class TestResponse(Response):
         try:
             from simplejson import loads
         except ImportError:
-            raise ImportError(
-                "You must have simplejson installed to use response.json")
+            try:
+                from json import loads
+            except ImportError:
+                raise ImportError(
+                    "You must have simplejson installed to use response.json")
         return loads(self.testbody)
 
     json = property(json, doc=json.__doc__)
