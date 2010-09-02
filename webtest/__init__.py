@@ -1203,6 +1203,8 @@ class Form(object):
 
         Any extra keyword arguments are passed to the ``.get()`` or
         ``.post()`` method.
+
+        Returns a response object.
         """
         fields = self.submit_fields(name, index=index)
         uploads = self.upload_fields()
