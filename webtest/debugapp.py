@@ -10,7 +10,7 @@ def debug_app(environ, start_response):
     req = Request(environ)
     if 'error' in req.GET:
         raise Exception('Exception requested')
-    status = req.GET.get('status', '200 OK')
+    status = str(req.GET.get('status', '200 OK'))
     parts = []
     for name, value in sorted(environ.items()):
         if name.upper() != name:

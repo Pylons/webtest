@@ -35,8 +35,8 @@ def single_upload_file_app(environ, start_response):
             file_parts.append(\
 """        <p>You selected '%(filename)s'</p>
         <p>with contents: '%(value)s'</p>
-""" % dict(filename=uploaded_file.filename,
-           value=uploaded_file.value))
+""" % dict(filename=str(uploaded_file.filename),
+           value=str(uploaded_file.value)))
 
         body_foot =\
 """    </body>
@@ -47,6 +47,7 @@ def single_upload_file_app(environ, start_response):
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
     start_response(status, headers)
+    assert isinstance(body, str)
     return [body]
 
 
@@ -116,11 +117,13 @@ def multiple_upload_file_app(environ, start_response):
 
         file_parts = []
         for uploaded_file in uploaded_files:
-            file_parts.append(\
-"""        <p>You selected '%(filename)s'</p>
+            print (str(uploaded_file.filename), type(uploaded_file.value))
+            file_parts.append(
+"""
+        <p>You selected '%(filename)s'</p>
         <p>with contents: '%(value)s'</p>
-""" % dict(filename=uploaded_file.filename,
-           value=uploaded_file.value))
+""" % dict(filename=str(uploaded_file.filename),
+           value=str(uploaded_file.value)))
 
         body_foot =\
 """    </body>

@@ -53,7 +53,7 @@ def select_app(environ, start_response):
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
     start_response(status, headers)
-    return [body]
+    return [body.encode('utf8')]
 
 def select_app_without_default(environ, start_response):
     req = Request(environ)
@@ -106,7 +106,7 @@ def select_app_without_default(environ, start_response):
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
     start_response(status, headers)
-    return [body]
+    return [body.encode('utf8')]
 
 
 def select_app_unicode(environ, start_response):
@@ -145,7 +145,7 @@ u"""
             selection = req.POST.get("single")
         elif select_type == "multiple":
             selection = ", ".join(req.POST.getall("multiple"))
-        body =\
+        body = (
 u"""
 <html>
     <head><title>display page</title></head>
@@ -154,11 +154,12 @@ u"""
         <p>You selected %(selection)s</p>
     </body>
 </html>
-""".encode('utf8') % locals()
+""" % locals()).encode('utf8')
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
     start_response(status, headers)
+    assert isinstance(body, str)
     return [body]
 
 
@@ -323,4 +324,3 @@ def test_multiple_select_no_default():
         multiple_form["multiple"].value
     display = multiple_form.submit("button")
     assert "<p>You selected 9</p>" in display, display
-

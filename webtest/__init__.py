@@ -237,7 +237,7 @@ class TestApp(object):
         return self._gen_request('DELETE', url, headers=headers,
                                  extra_environ=extra_environ,status=status,
                                  upload_files=None, expect_errors=expect_errors)
-    
+
     def head(self, url, headers=None, extra_environ=None,
                status=None, expect_errors=False):
         """
@@ -773,6 +773,7 @@ class TestResponse(Response):
             else:
                 s = str(s)
         if isinstance(s, unicode):
+            print (type(self.body), self.charset)
             body = self.unicode_body
             normal_body = self.unicode_normal_body
         else:

@@ -133,7 +133,7 @@ def middleware(application, global_conf=None):
     will be printed to stderr -- there's no way to throw an exception
     at that point).
     """
-    
+
     def lint_app(*args, **kw):
         assert len(args) == 2, "Two arguments required"
         assert not kw, "No keyword arguments allowed"
@@ -200,7 +200,7 @@ class InputWrapper(object):
         for line in lines:
             assert type(line) is type("")
         return lines
-    
+
     def __iter__(self):
         while 1:
             line = self.readline()
@@ -267,8 +267,11 @@ class IteratorWrapper(object):
             assert self.check_start_response, (
                 "The application returns and we started iterating over its body, but start_response has not yet been called")
             self.check_start_response = None
+        assert isinstance(v, str), (
+            "Iterator %r returned a non-str object: %r"
+            % (self.iterator, v))
         return v
-        
+
     def close(self):
         self.closed = True
         if hasattr(self.original_iterator, 'close'):
@@ -285,7 +288,7 @@ def check_environ(environ):
     assert type(environ) is DictType, (
         "Environment is not of the right type: %r (environment: %r)"
         % (type(environ), environ))
-    
+
     for key in ['REQUEST_METHOD', 'SERVER_NAME', 'SERVER_PORT',
                 'wsgi.version', 'wsgi.input', 'wsgi.errors',
                 'wsgi.multithread', 'wsgi.multiprocess',
@@ -312,7 +315,7 @@ def check_environ(environ):
         assert type(environ[key]) is StringType, (
             "Environmental variable %s is not a string: %r (value: %r)"
             % (key, type(environ[key]), environ[key]))
-        
+
     assert type(environ['wsgi.version']) is TupleType, (
         "wsgi.version should be a tuple (%r)" % environ['wsgi.version'])
     assert environ['wsgi.url_scheme'] in ('http', 'https'), (
