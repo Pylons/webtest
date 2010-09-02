@@ -39,6 +39,7 @@ def test_testing():
     assert res.request.url == 'http://localhost/foo'
     assert 'Response: 200 OK' in str(res)
     assert '200 OK' in repr(res)
+    res = app.get('/?status=303%20redirect', status='3*')
 
     class FakeDict(object):
         def items(self):

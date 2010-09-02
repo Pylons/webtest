@@ -21,6 +21,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 import re
+import fnmatch
 from webob import Response, Request
 from webtest import lint
 
@@ -402,6 +403,10 @@ class TestApp(object):
         __tracebackhide__ = True
         if status == '*':
             return
+        if (isinstance(status, basestring)
+            and '*' in status):
+            if re.match(fnmatch.translate(status), res.status, re.I):
+                return
         if isinstance(status, (list, tuple)):
             if res.status_int not in status:
                 raise AppError(

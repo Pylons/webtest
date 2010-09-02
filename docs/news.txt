@@ -17,6 +17,8 @@ hg tip
 
 * Added ``extra_environ`` argument to :method:`webtest.TestResponse.click`.
 
+* Fixed/added wildcard statuses, like ``status="4*"``
+
 1.2.1
 -----
 
