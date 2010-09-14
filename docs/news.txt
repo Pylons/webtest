@@ -4,6 +4,8 @@ News
 hg tip
 ------
 
+* Revert change to cookies that would add ``"`` around cookie values.
+
 * Added property :method:`webtest.Response.pyquery` which returns a
   `PyQuery <http://pyquery.org/>`_ object.
 

@@ -14,7 +14,7 @@ import mimetypes
 import time
 import cgi
 import os
-from Cookie import BaseCookie, CookieError
+from Cookie import SimpleCookie, CookieError
 from Cookie import _quote as cookie_quote
 try:
     from cStringIO import StringIO
@@ -354,7 +354,7 @@ class TestApp(object):
         req.environ['wsgi.errors'] = errors
         if self.cookies:
             cookie_header = ''.join([
-                '%s="%s"; ' % (name, cookie_quote(value))
+                '%s=%s; ' % (name, cookie_quote(value))
                 for name, value in self.cookies.items()])
             req.environ['HTTP_COOKIE'] = cookie_header
         req.environ['paste.testing'] = True
@@ -390,7 +390,7 @@ class TestApp(object):
         res.cookies_set = {}
         for header in res.headers.getall('set-cookie'):
             try:
-                c = BaseCookie(header)
+                c = SimpleCookie(header)
             except CookieError, e:
                 raise CookieError(
                     "Could not parse cookie header %r: %s" % (header, e))
