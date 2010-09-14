@@ -1,8 +1,8 @@
 News
 ====
 
-hg tip
-------
+1.2.2
+-----
 
 * Revert change to cookies that would add ``"`` around cookie values.
 
