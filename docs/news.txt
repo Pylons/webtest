@@ -21,6 +21,19 @@ News
 
 * Fixed/added wildcard statuses, like ``status="4*"``
 
+* Fix file upload fields in forms: allow upload field to be empty.
+
+* Added support for single-quoted html attributes.
+
+* `TestResponse` now has unicode support. It is turned on by default
+  for all responses with charset information. **This is backward
+  incompatible change** if you rely (e.g. in doctests) on parsed
+  form fields or responses returned by `json` and `lxml` methods
+  being encoded strings when charset header is in response. In order
+  to switch to old behaviour pass `use_unicode=False` flag to
+  `TestApp` constructor.
+
+
 1.2.1
 -----
 

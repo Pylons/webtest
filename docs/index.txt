@@ -184,6 +184,9 @@ The inherited attributes that are most interesting:
 ``response.body``:
     The text body of the response.
 
+``response.unicode_body``:
+    The unicode text body of the response.
+
 ``response.request``:
     The `webob.Request object
     <http://pythonpaste.org/webob/#request>`_ used to generate this
@@ -330,7 +333,7 @@ Examples:
     >>> res = TestResponse(content_type='application/json',
     ...                    body='{"a":1,"b":2}')
     >>> res.json
-    {u'a': 1, u'b': 2}
+    {'a': 1, 'b': 2}
     >>> res = TestResponse(content_type='application/xml',
     ...                    body='<xml><message>hey!</message></xml>')
     >>> res.xml
