@@ -778,7 +778,6 @@ class TestResponse(Response):
             else:
                 s = str(s)
         if isinstance(s, unicode):
-            print (type(self.body), self.charset)
             body = self.unicode_body
             normal_body = self.unicode_normal_body
         else:
