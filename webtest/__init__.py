@@ -331,7 +331,8 @@ class TestApp(object):
             if req.content_length == -1:
                 req.content_length = len(req.body)
         req.environ['paste.throw_errors'] = True
-        req.environ.update(self.extra_environ)
+        for name, value in self.extra_environ.iteritems():
+            req.environ.setdefault(name, value)
         return self.do_request(req, status=status, expect_errors=expect_errors)
 
     def do_request(self, req, status, expect_errors):
