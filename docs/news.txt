@@ -1,13 +1,15 @@
 News
 ====
 
-hg tip
-------
+1.2.3
+-----
 
 * Fix `#10
   <http://bitbucket.org/ianb/webtest/issue/10/testapprequest-method-overwrites-specifics-with-testapp-scoped>`_,
   now `TestApp.extra_environ` doesn't take precedence over a WSGI
   environment passed in through the request.
+
+* Removed stray print
 
 1.2.2
 -----
