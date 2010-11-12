@@ -164,9 +164,9 @@ class TestApp(object):
         environ = self._make_environ(extra_environ)
         # @@: Should this be all non-strings?
         if isinstance(params, (list, tuple, dict)):
-            params = urllib.urlencode(params)
+            params = urllib.urlencode(params, doseq=True)
         if hasattr(params, 'items'):
-            params = urllib.urlencode(params.items())
+            params = urllib.urlencode(params.items(), doseq=True)
         if upload_files:
             params = cgi.parse_qsl(params, keep_blank_values=True)
             content_type, params = self.encode_multipart(

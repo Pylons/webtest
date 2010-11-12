@@ -1,6 +1,11 @@
 News
 ====
 
+hg tip
+------
+
+* Accept lists for ``app.post(url, params=[...])``
+
 1.2.3
 -----
 
