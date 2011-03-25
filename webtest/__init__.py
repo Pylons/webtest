@@ -626,6 +626,7 @@ class TestApp(object):
 
     # for py.test
     disabled = True
+    RequestClass = TestRequest
 
     def __init__(self, app, extra_environ=None, relative_to=None, use_unicode=True):
         """
@@ -722,7 +723,7 @@ class TestApp(object):
         else:
             environ['QUERY_STRING'] = ''
         url = self._remove_fragment(url)
-        req = TestRequest.blank(url, environ)
+        req = self.RequestClass.blank(url, environ)
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,
@@ -757,7 +758,7 @@ class TestApp(object):
         environ['REQUEST_METHOD'] = method
         environ['wsgi.input'] = StringIO(params)
         url = self._remove_fragment(url)
-        req = TestRequest.blank(url, environ)
+        req = self.RequestClass.blank(url, environ)
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,
@@ -896,7 +897,7 @@ class TestApp(object):
         method to ``POST``
         """
         if isinstance(url_or_req, basestring):
-            req = TestRequest.blank(url_or_req, **req_params)
+            req = self.RequestClass.blank(url_or_req, **req_params)
         else:
             req = url_or_req.copy()
             for name, value in req_params.iteritems():
