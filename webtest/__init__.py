@@ -49,389 +49,6 @@ except NameError:
 class AppError(Exception):
     pass
 
-class TestApp(object):
-
-    # for py.test
-    disabled = True
-
-    def __init__(self, app, extra_environ=None, relative_to=None, use_unicode=True):
-        """
-        Wraps a WSGI application in a more convenient interface for
-        testing.
-
-        ``app`` may be an application, or a Paste Deploy app
-        URI, like ``'config:filename.ini#test'``.
-
-        ``extra_environ`` is a dictionary of values that should go
-        into the environment for each request.  These can provide a
-        communication channel with the application.
-
-        ``relative_to`` is a directory, and filenames used for file
-        uploads are calculated relative to this.  Also ``config:``
-        URIs that aren't absolute.
-        """
-        if isinstance(app, (str, unicode)):
-            from paste.deploy import loadapp
-            # @@: Should pick up relative_to from calling module's
-            # __file__
-            app = loadapp(app, relative_to=relative_to)
-        self.app = app
-        self.relative_to = relative_to
-        if extra_environ is None:
-            extra_environ = {}
-        self.extra_environ = extra_environ
-        self.use_unicode = use_unicode
-        self.reset()
-
-    def reset(self):
-        """
-        Resets the state of the application; currently just clears
-        saved cookies.
-        """
-        self.cookies = {}
-
-    def _make_environ(self, extra_environ=None):
-        environ = self.extra_environ.copy()
-        environ['paste.throw_errors'] = True
-        if extra_environ:
-            environ.update(extra_environ)
-        return environ
-
-    def _remove_fragment(self, url):
-        scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
-        return urlparse.urlunsplit((scheme, netloc, path, query, ""))
-
-    def get(self, url, params=None, headers=None, extra_environ=None,
-            status=None, expect_errors=False):
-        """
-        Get the given url (well, actually a path like
-        ``'/page.html'``).
-
-        ``params``:
-            A query string, or a dictionary that will be encoded
-            into a query string.  You may also include a query
-            string on the ``url``.
-
-        ``headers``:
-            A dictionary of extra headers to send.
-
-        ``extra_environ``:
-            A dictionary of environmental variables that should
-            be added to the request.
-
-        ``status``:
-            The integer status code you expect (if not 200 or 3xx).
-            If you expect a 404 response, for instance, you must give
-            ``status=404`` or it will be an error.  You can also give
-            a wildcard, like ``'3*'`` or ``'*'``.
-
-        ``expect_errors``:
-            If this is not true, then if anything is written to
-            ``wsgi.errors`` it will be an error.  If it is true, then
-            non-200/3xx responses are also okay.
-
-        Returns a ``webob.Response`` object.
-        """
-        environ = self._make_environ(extra_environ)
-        # Hide from py.test:
-        __tracebackhide__ = True
-        if params:
-            if not isinstance(params, (str, unicode)):
-                params = urllib.urlencode(params, doseq=True)
-            if '?' in url:
-                url += '&'
-            else:
-                url += '?'
-            url += params
-        url = str(url)
-        if '?' in url:
-            url, environ['QUERY_STRING'] = url.split('?', 1)
-        else:
-            environ['QUERY_STRING'] = ''
-        url = self._remove_fragment(url)
-        req = TestRequest.blank(url, environ)
-        if headers:
-            req.headers.update(headers)
-        return self.do_request(req, status=status,
-                               expect_errors=expect_errors)
-
-    def _gen_request(self, method, url, params='', headers=None, extra_environ=None,
-                     status=None, upload_files=None, expect_errors=False,
-                     content_type=None):
-        """
-        Do a generic request.
-        """
-        environ = self._make_environ(extra_environ)
-        # @@: Should this be all non-strings?
-        if isinstance(params, (list, tuple, dict)):
-            params = urllib.urlencode(params, doseq=True)
-        if hasattr(params, 'items'):
-            params = urllib.urlencode(params.items(), doseq=True)
-        if upload_files:
-            params = cgi.parse_qsl(params, keep_blank_values=True)
-            content_type, params = self.encode_multipart(
-                params, upload_files)
-            environ['CONTENT_TYPE'] = content_type
-        elif params:
-            environ.setdefault('CONTENT_TYPE', 'application/x-www-form-urlencoded')
-        if '?' in url:
-            url, environ['QUERY_STRING'] = url.split('?', 1)
-        else:
-            environ['QUERY_STRING'] = ''
-        if content_type is not None:
-            environ['CONTENT_TYPE'] = content_type
-        environ['CONTENT_LENGTH'] = str(len(params))
-        environ['REQUEST_METHOD'] = method
-        environ['wsgi.input'] = StringIO(params)
-        url = self._remove_fragment(url)
-        req = TestRequest.blank(url, environ)
-        if headers:
-            req.headers.update(headers)
-        return self.do_request(req, status=status,
-                               expect_errors=expect_errors)
-
-    def post(self, url, params='', headers=None, extra_environ=None,
-             status=None, upload_files=None, expect_errors=False,
-             content_type=None):
-        """
-        Do a POST request.  Very like the ``.get()`` method.
-        ``params`` are put in the body of the request.
-
-        ``upload_files`` is for file uploads.  It should be a list of
-        ``[(fieldname, filename, file_content)]``.  You can also use
-        just ``[(fieldname, filename)]`` and the file content will be
-        read from disk.
-
-        Returns a ``webob.Response`` object.
-        """
-        return self._gen_request('POST', url, params=params, headers=headers,
-                                 extra_environ=extra_environ,status=status,
-                                 upload_files=upload_files,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type)
-
-    def put(self, url, params='', headers=None, extra_environ=None,
-            status=None, upload_files=None, expect_errors=False,
-            content_type=None):
-        """
-        Do a PUT request.  Very like the ``.put()`` method.
-        ``params`` are put in the body of the request, if params is a
-        tuple, dictionary, list, or iterator it will be urlencoded and
-        placed in the body as with a POST, if it is string it will not
-        be encoded, but placed in the body directly.
-
-        Returns a ``webob.Response`` object.
-        """
-        return self._gen_request('PUT', url, params=params, headers=headers,
-                                 extra_environ=extra_environ,status=status,
-                                 upload_files=upload_files,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type)
-
-    def delete(self, url, headers=None, extra_environ=None,
-               status=None, expect_errors=False):
-        """
-        Do a DELETE request.  Very like the ``.get()`` method.
-
-        Returns a ``webob.Response`` object.
-        """
-        return self._gen_request('DELETE', url, headers=headers,
-                                 extra_environ=extra_environ,status=status,
-                                 upload_files=None, expect_errors=expect_errors)
-
-    def head(self, url, headers=None, extra_environ=None,
-               status=None, expect_errors=False):
-        """
-        Do a HEAD request.  Very like the ``.get()`` method.
-
-        Returns a ``webob.Response`` object.
-        """
-        return self._gen_request('HEAD', url, headers=headers,
-                                 extra_environ=extra_environ,status=status,
-                                 upload_files=None, expect_errors=expect_errors)
-
-    def encode_multipart(self, params, files):
-        """
-        Encodes a set of parameters (typically a name/value list) and
-        a set of files (a list of (name, filename, file_body)) into a
-        typical POST body, returning the (content_type, body).
-        """
-        boundary = '----------a_BoUnDaRy%s$' % random.random()
-        lines = []
-        for key, value in params:
-            lines.append('--'+boundary)
-            lines.append('Content-Disposition: form-data; name="%s"' % key)
-            lines.append('')
-            lines.append(value)
-        for file_info in files:
-            key, filename, value = self._get_file_info(file_info)
-            lines.append('--'+boundary)
-            lines.append('Content-Disposition: form-data; name="%s"; filename="%s"'
-                         % (key, filename))
-            fcontent = mimetypes.guess_type(filename)[0]
-            lines.append('Content-Type: %s' %
-                         fcontent or 'application/octet-stream')
-            lines.append('')
-            lines.append(value)
-        lines.append('--' + boundary + '--')
-        lines.append('')
-        body = '\r\n'.join(lines)
-        content_type = 'multipart/form-data; boundary=%s' % boundary
-        return content_type, body
-
-    def _get_file_info(self, file_info):
-        if len(file_info) == 2:
-            # It only has a filename
-            filename = file_info[1]
-            if self.relative_to:
-                filename = os.path.join(self.relative_to, filename)
-            f = open(filename, 'rb')
-            content = f.read()
-            f.close()
-            return (file_info[0], filename, content)
-        elif len(file_info) == 3:
-            return file_info
-        else:
-            raise ValueError(
-                "upload_files need to be a list of tuples of (fieldname, "
-                "filename, filecontent) or (fieldname, filename); "
-                "you gave: %r"
-                % repr(file_info)[:100])
-
-
-    def request(self, url_or_req, status=None, expect_errors=False,
-                **req_params):
-        """
-        Creates and executes a request.  You may either pass in an
-        instantiated :class:`TestRequest` object, or you may pass in a
-        URL and keyword arguments to be passed to
-        :method:`TestRequest.blank`.
-
-        You can use this to run a request without the intermediary
-        functioning of :method:`TestApp.get` etc.  For instance, to
-        test a WebDAV method::
-
-            resp = app.request('/new-col', method='MKCOL')
-
-        Note that the request won't have a body unless you specify it,
-        like::
-
-            resp = app.request('/test.txt', method='PUT', body='test')
-
-        You can use ``POST={args}`` to set the request body to the
-        serialized arguments, and simultaneously set the request
-        method to ``POST``
-        """
-        if isinstance(url_or_req, basestring):
-            req = TestRequest.blank(url_or_req, **req_params)
-        else:
-            req = url_or_req.copy()
-            for name, value in req_params.iteritems():
-                setattr(req, name, value)
-            if req.content_length == -1:
-                req.content_length = len(req.body)
-        req.environ['paste.throw_errors'] = True
-        for name, value in self.extra_environ.iteritems():
-            req.environ.setdefault(name, value)
-        return self.do_request(req, status=status, expect_errors=expect_errors)
-
-    def do_request(self, req, status, expect_errors):
-        """
-        Executes the given request (``req``), with the expected
-        ``status``.  Generally ``.get()`` and ``.post()`` are used
-        instead.
-
-        To use this::
-
-            resp = app.do_request(webtest.TestRequest.blank(
-                'url', ...args...))
-
-        Note you can pass any keyword arguments to
-        ``TestRequest.blank()``, which will be set on the request.
-        These can be arguments like ``content_type``, ``accept``, etc.
-        """
-        __tracebackhide__ = True
-        errors = StringIO()
-        req.environ['wsgi.errors'] = errors
-        if self.cookies:
-            cookie_header = ''.join([
-                '%s=%s; ' % (name, cookie_quote(value))
-                for name, value in self.cookies.items()])
-            req.environ['HTTP_COOKIE'] = cookie_header
-        req.environ['paste.testing'] = True
-        req.environ['paste.testing_variables'] = {}
-        app = lint.middleware(self.app)
-        old_stdout = sys.stdout
-        out = CaptureStdout(old_stdout)
-        try:
-            sys.stdout = out
-            start_time = time.time()
-            ## FIXME: should it be an option to not catch exc_info?
-            res = req.get_response(app, catch_exc_info=True)
-            res._use_unicode = self.use_unicode
-            end_time = time.time()
-        finally:
-            sys.stdout = old_stdout
-        res.app = app
-        res.test_app = self
-        # We do this to make sure the app_iter is exausted:
-        res.body
-        res.errors = errors.getvalue()
-        total_time = end_time - start_time
-        for name, value in req.environ['paste.testing_variables'].items():
-            if hasattr(res, name):
-                raise ValueError(
-                    "paste.testing_variables contains the variable %r, but "
-                    "the response object already has an attribute by that "
-                    "name" % name)
-            setattr(res, name, value)
-        if not expect_errors:
-            self._check_status(status, res)
-            self._check_errors(res)
-        res.cookies_set = {}
-        for header in res.headers.getall('set-cookie'):
-            try:
-                c = SimpleCookie(header)
-            except CookieError, e:
-                raise CookieError(
-                    "Could not parse cookie header %r: %s" % (header, e))
-            for key, morsel in c.items():
-                self.cookies[key] = morsel.value
-                res.cookies_set[key] = morsel.value
-        return res
-
-    def _check_status(self, status, res):
-        __tracebackhide__ = True
-        if status == '*':
-            return
-        if (isinstance(status, basestring)
-            and '*' in status):
-            if re.match(fnmatch.translate(status), res.status, re.I):
-                return
-        if isinstance(status, (list, tuple)):
-            if res.status_int not in status:
-                raise AppError(
-                    "Bad response: %s (not one of %s for %s)\n%s"
-                    % (res.status, ', '.join(map(str, status)),
-                       res.request.url, res.body))
-            return
-        if status is None:
-            if res.status_int >= 200 and res.status_int < 400:
-                return
-            raise AppError(
-                "Bad response: %s (not 200 OK or 3xx redirect for %s)\n%s"
-                % (res.status, res.request.url,
-                   res.body))
-        if status != res.status_int:
-            raise AppError(
-                "Bad response: %s (not %s)" % (res.status, status))
-
-    def _check_errors(self, res):
-        errors = res.errors
-        if errors:
-            raise AppError(
-                "Application had errors logged:\n%s" % errors)
-
 class CaptureStdout(object):
 
     def __init__(self, actual):
@@ -1004,6 +621,389 @@ class TestRequest(Request):
     # for py.test
     disabled = True
     ResponseClass = TestResponse
+
+class TestApp(object):
+
+    # for py.test
+    disabled = True
+
+    def __init__(self, app, extra_environ=None, relative_to=None, use_unicode=True):
+        """
+        Wraps a WSGI application in a more convenient interface for
+        testing.
+
+        ``app`` may be an application, or a Paste Deploy app
+        URI, like ``'config:filename.ini#test'``.
+
+        ``extra_environ`` is a dictionary of values that should go
+        into the environment for each request.  These can provide a
+        communication channel with the application.
+
+        ``relative_to`` is a directory, and filenames used for file
+        uploads are calculated relative to this.  Also ``config:``
+        URIs that aren't absolute.
+        """
+        if isinstance(app, (str, unicode)):
+            from paste.deploy import loadapp
+            # @@: Should pick up relative_to from calling module's
+            # __file__
+            app = loadapp(app, relative_to=relative_to)
+        self.app = app
+        self.relative_to = relative_to
+        if extra_environ is None:
+            extra_environ = {}
+        self.extra_environ = extra_environ
+        self.use_unicode = use_unicode
+        self.reset()
+
+    def reset(self):
+        """
+        Resets the state of the application; currently just clears
+        saved cookies.
+        """
+        self.cookies = {}
+
+    def _make_environ(self, extra_environ=None):
+        environ = self.extra_environ.copy()
+        environ['paste.throw_errors'] = True
+        if extra_environ:
+            environ.update(extra_environ)
+        return environ
+
+    def _remove_fragment(self, url):
+        scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+        return urlparse.urlunsplit((scheme, netloc, path, query, ""))
+
+    def get(self, url, params=None, headers=None, extra_environ=None,
+            status=None, expect_errors=False):
+        """
+        Get the given url (well, actually a path like
+        ``'/page.html'``).
+
+        ``params``:
+            A query string, or a dictionary that will be encoded
+            into a query string.  You may also include a query
+            string on the ``url``.
+
+        ``headers``:
+            A dictionary of extra headers to send.
+
+        ``extra_environ``:
+            A dictionary of environmental variables that should
+            be added to the request.
+
+        ``status``:
+            The integer status code you expect (if not 200 or 3xx).
+            If you expect a 404 response, for instance, you must give
+            ``status=404`` or it will be an error.  You can also give
+            a wildcard, like ``'3*'`` or ``'*'``.
+
+        ``expect_errors``:
+            If this is not true, then if anything is written to
+            ``wsgi.errors`` it will be an error.  If it is true, then
+            non-200/3xx responses are also okay.
+
+        Returns a ``webob.Response`` object.
+        """
+        environ = self._make_environ(extra_environ)
+        # Hide from py.test:
+        __tracebackhide__ = True
+        if params:
+            if not isinstance(params, (str, unicode)):
+                params = urllib.urlencode(params, doseq=True)
+            if '?' in url:
+                url += '&'
+            else:
+                url += '?'
+            url += params
+        url = str(url)
+        if '?' in url:
+            url, environ['QUERY_STRING'] = url.split('?', 1)
+        else:
+            environ['QUERY_STRING'] = ''
+        url = self._remove_fragment(url)
+        req = TestRequest.blank(url, environ)
+        if headers:
+            req.headers.update(headers)
+        return self.do_request(req, status=status,
+                               expect_errors=expect_errors)
+
+    def _gen_request(self, method, url, params='', headers=None, extra_environ=None,
+                     status=None, upload_files=None, expect_errors=False,
+                     content_type=None):
+        """
+        Do a generic request.
+        """
+        environ = self._make_environ(extra_environ)
+        # @@: Should this be all non-strings?
+        if isinstance(params, (list, tuple, dict)):
+            params = urllib.urlencode(params, doseq=True)
+        if hasattr(params, 'items'):
+            params = urllib.urlencode(params.items(), doseq=True)
+        if upload_files:
+            params = cgi.parse_qsl(params, keep_blank_values=True)
+            content_type, params = self.encode_multipart(
+                params, upload_files)
+            environ['CONTENT_TYPE'] = content_type
+        elif params:
+            environ.setdefault('CONTENT_TYPE', 'application/x-www-form-urlencoded')
+        if '?' in url:
+            url, environ['QUERY_STRING'] = url.split('?', 1)
+        else:
+            environ['QUERY_STRING'] = ''
+        if content_type is not None:
+            environ['CONTENT_TYPE'] = content_type
+        environ['CONTENT_LENGTH'] = str(len(params))
+        environ['REQUEST_METHOD'] = method
+        environ['wsgi.input'] = StringIO(params)
+        url = self._remove_fragment(url)
+        req = TestRequest.blank(url, environ)
+        if headers:
+            req.headers.update(headers)
+        return self.do_request(req, status=status,
+                               expect_errors=expect_errors)
+
+    def post(self, url, params='', headers=None, extra_environ=None,
+             status=None, upload_files=None, expect_errors=False,
+             content_type=None):
+        """
+        Do a POST request.  Very like the ``.get()`` method.
+        ``params`` are put in the body of the request.
+
+        ``upload_files`` is for file uploads.  It should be a list of
+        ``[(fieldname, filename, file_content)]``.  You can also use
+        just ``[(fieldname, filename)]`` and the file content will be
+        read from disk.
+
+        Returns a ``webob.Response`` object.
+        """
+        return self._gen_request('POST', url, params=params, headers=headers,
+                                 extra_environ=extra_environ,status=status,
+                                 upload_files=upload_files,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type)
+
+    def put(self, url, params='', headers=None, extra_environ=None,
+            status=None, upload_files=None, expect_errors=False,
+            content_type=None):
+        """
+        Do a PUT request.  Very like the ``.put()`` method.
+        ``params`` are put in the body of the request, if params is a
+        tuple, dictionary, list, or iterator it will be urlencoded and
+        placed in the body as with a POST, if it is string it will not
+        be encoded, but placed in the body directly.
+
+        Returns a ``webob.Response`` object.
+        """
+        return self._gen_request('PUT', url, params=params, headers=headers,
+                                 extra_environ=extra_environ,status=status,
+                                 upload_files=upload_files,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type)
+
+    def delete(self, url, headers=None, extra_environ=None,
+               status=None, expect_errors=False):
+        """
+        Do a DELETE request.  Very like the ``.get()`` method.
+
+        Returns a ``webob.Response`` object.
+        """
+        return self._gen_request('DELETE', url, headers=headers,
+                                 extra_environ=extra_environ,status=status,
+                                 upload_files=None, expect_errors=expect_errors)
+
+    def head(self, url, headers=None, extra_environ=None,
+               status=None, expect_errors=False):
+        """
+        Do a HEAD request.  Very like the ``.get()`` method.
+
+        Returns a ``webob.Response`` object.
+        """
+        return self._gen_request('HEAD', url, headers=headers,
+                                 extra_environ=extra_environ,status=status,
+                                 upload_files=None, expect_errors=expect_errors)
+
+    def encode_multipart(self, params, files):
+        """
+        Encodes a set of parameters (typically a name/value list) and
+        a set of files (a list of (name, filename, file_body)) into a
+        typical POST body, returning the (content_type, body).
+        """
+        boundary = '----------a_BoUnDaRy%s$' % random.random()
+        lines = []
+        for key, value in params:
+            lines.append('--'+boundary)
+            lines.append('Content-Disposition: form-data; name="%s"' % key)
+            lines.append('')
+            lines.append(value)
+        for file_info in files:
+            key, filename, value = self._get_file_info(file_info)
+            lines.append('--'+boundary)
+            lines.append('Content-Disposition: form-data; name="%s"; filename="%s"'
+                         % (key, filename))
+            fcontent = mimetypes.guess_type(filename)[0]
+            lines.append('Content-Type: %s' %
+                         fcontent or 'application/octet-stream')
+            lines.append('')
+            lines.append(value)
+        lines.append('--' + boundary + '--')
+        lines.append('')
+        body = '\r\n'.join(lines)
+        content_type = 'multipart/form-data; boundary=%s' % boundary
+        return content_type, body
+
+    def _get_file_info(self, file_info):
+        if len(file_info) == 2:
+            # It only has a filename
+            filename = file_info[1]
+            if self.relative_to:
+                filename = os.path.join(self.relative_to, filename)
+            f = open(filename, 'rb')
+            content = f.read()
+            f.close()
+            return (file_info[0], filename, content)
+        elif len(file_info) == 3:
+            return file_info
+        else:
+            raise ValueError(
+                "upload_files need to be a list of tuples of (fieldname, "
+                "filename, filecontent) or (fieldname, filename); "
+                "you gave: %r"
+                % repr(file_info)[:100])
+
+
+    def request(self, url_or_req, status=None, expect_errors=False,
+                **req_params):
+        """
+        Creates and executes a request.  You may either pass in an
+        instantiated :class:`TestRequest` object, or you may pass in a
+        URL and keyword arguments to be passed to
+        :method:`TestRequest.blank`.
+
+        You can use this to run a request without the intermediary
+        functioning of :method:`TestApp.get` etc.  For instance, to
+        test a WebDAV method::
+
+            resp = app.request('/new-col', method='MKCOL')
+
+        Note that the request won't have a body unless you specify it,
+        like::
+
+            resp = app.request('/test.txt', method='PUT', body='test')
+
+        You can use ``POST={args}`` to set the request body to the
+        serialized arguments, and simultaneously set the request
+        method to ``POST``
+        """
+        if isinstance(url_or_req, basestring):
+            req = TestRequest.blank(url_or_req, **req_params)
+        else:
+            req = url_or_req.copy()
+            for name, value in req_params.iteritems():
+                setattr(req, name, value)
+            if req.content_length == -1:
+                req.content_length = len(req.body)
+        req.environ['paste.throw_errors'] = True
+        for name, value in self.extra_environ.iteritems():
+            req.environ.setdefault(name, value)
+        return self.do_request(req, status=status, expect_errors=expect_errors)
+
+    def do_request(self, req, status, expect_errors):
+        """
+        Executes the given request (``req``), with the expected
+        ``status``.  Generally ``.get()`` and ``.post()`` are used
+        instead.
+
+        To use this::
+
+            resp = app.do_request(webtest.TestRequest.blank(
+                'url', ...args...))
+
+        Note you can pass any keyword arguments to
+        ``TestRequest.blank()``, which will be set on the request.
+        These can be arguments like ``content_type``, ``accept``, etc.
+        """
+        __tracebackhide__ = True
+        errors = StringIO()
+        req.environ['wsgi.errors'] = errors
+        if self.cookies:
+            cookie_header = ''.join([
+                '%s=%s; ' % (name, cookie_quote(value))
+                for name, value in self.cookies.items()])
+            req.environ['HTTP_COOKIE'] = cookie_header
+        req.environ['paste.testing'] = True
+        req.environ['paste.testing_variables'] = {}
+        app = lint.middleware(self.app)
+        old_stdout = sys.stdout
+        out = CaptureStdout(old_stdout)
+        try:
+            sys.stdout = out
+            start_time = time.time()
+            ## FIXME: should it be an option to not catch exc_info?
+            res = req.get_response(app, catch_exc_info=True)
+            res._use_unicode = self.use_unicode
+            end_time = time.time()
+        finally:
+            sys.stdout = old_stdout
+        res.app = app
+        res.test_app = self
+        # We do this to make sure the app_iter is exausted:
+        res.body
+        res.errors = errors.getvalue()
+        total_time = end_time - start_time
+        for name, value in req.environ['paste.testing_variables'].items():
+            if hasattr(res, name):
+                raise ValueError(
+                    "paste.testing_variables contains the variable %r, but "
+                    "the response object already has an attribute by that "
+                    "name" % name)
+            setattr(res, name, value)
+        if not expect_errors:
+            self._check_status(status, res)
+            self._check_errors(res)
+        res.cookies_set = {}
+        for header in res.headers.getall('set-cookie'):
+            try:
+                c = SimpleCookie(header)
+            except CookieError, e:
+                raise CookieError(
+                    "Could not parse cookie header %r: %s" % (header, e))
+            for key, morsel in c.items():
+                self.cookies[key] = morsel.value
+                res.cookies_set[key] = morsel.value
+        return res
+
+    def _check_status(self, status, res):
+        __tracebackhide__ = True
+        if status == '*':
+            return
+        if (isinstance(status, basestring)
+            and '*' in status):
+            if re.match(fnmatch.translate(status), res.status, re.I):
+                return
+        if isinstance(status, (list, tuple)):
+            if res.status_int not in status:
+                raise AppError(
+                    "Bad response: %s (not one of %s for %s)\n%s"
+                    % (res.status, ', '.join(map(str, status)),
+                       res.request.url, res.body))
+            return
+        if status is None:
+            if res.status_int >= 200 and res.status_int < 400:
+                return
+            raise AppError(
+                "Bad response: %s (not 200 OK or 3xx redirect for %s)\n%s"
+                % (res.status, res.request.url,
+                   res.body))
+        if status != res.status_int:
+            raise AppError(
+                "Bad response: %s (not %s)" % (res.status, status))
+
+    def _check_errors(self, res):
+        errors = res.errors
+        if errors:
+            raise AppError(
+                "Application had errors logged:\n%s" % errors)
 
 
 ########################################
