@@ -352,6 +352,9 @@ class TestResponse(Response):
             if 'upload_files' in args:
                 args['upload_files'] = [map(to_str, f) for f in args['upload_files']]
 
+            if 'content_type' in args:
+                args['content_type'] = to_str(args['content_type'])
+
         if method == 'get':
             method = self.test_app.get
         else:
@@ -741,10 +744,10 @@ class TestApp(object):
             params = urllib.urlencode(params, doseq=True)
         if hasattr(params, 'items'):
             params = urllib.urlencode(params.items(), doseq=True)
-        if upload_files:
+        if upload_files or (content_type and content_type.startswith('multipart')):
             params = cgi.parse_qsl(params, keep_blank_values=True)
             content_type, params = self.encode_multipart(
-                params, upload_files)
+                params, upload_files or ())
             environ['CONTENT_TYPE'] = content_type
         elif params:
             environ.setdefault('CONTENT_TYPE', 'application/x-www-form-urlencoded')
@@ -1123,7 +1126,7 @@ class Form(object):
             self.action = attrs.get('action', '')
             self.method = attrs.get('method', 'GET')
             self.id = attrs.get('id')
-            # @@: enctype?
+            self.enctype = attrs.get('enctype', 'application/x-www-form-urlencoded')
         else:
             assert 0, "No </form> tag found"
         assert self.action is not None, (
@@ -1216,6 +1219,8 @@ class Form(object):
         uploads = self.upload_fields()
         if uploads:
             args["upload_files"] = uploads
+        if self.method != "GET":
+            args.setdefault("content_type",  self.enctype)
         return self.response.goto(self.action, method=self.method,
                                   params=fields, **args)
 
