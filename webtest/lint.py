@@ -407,7 +407,7 @@ def check_content_type(status, headers):
     #     http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
     NO_MESSAGE_BODY = (201, 204, 304)
     NO_MESSAGE_TYPE = (204, 304)
-    Length = None
+    length = None
     for name, value in headers:
         if name.lower() == 'content-length' and value.isdigit():
             length = int(value)
