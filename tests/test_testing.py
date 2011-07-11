@@ -38,6 +38,10 @@ class TestTesting(unittest.TestCase):
         res = self.app.post('/', params=[('a','1')])
         res.mustcontain('a=1')
 
+    def test_delete_params(self):
+        res = self.app.delete('/', params=dict(a=1))
+        res.mustcontain('a=1')
+
     def test_exception(self):
         raises(Exception, self.app.get, '/?error=t')
         raises(webtest.AppError, self.app.get, '/?status=404%20Not%20Found')

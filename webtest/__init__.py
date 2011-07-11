@@ -10,6 +10,7 @@ import sys
 import random
 import urllib
 import urlparse
+import warnings
 import mimetypes
 import time
 import cgi
@@ -805,14 +806,18 @@ class TestApp(object):
                                  expect_errors=expect_errors,
                                  content_type=content_type)
 
-    def delete(self, url, headers=None, extra_environ=None,
+    def delete(self, url, params='', headers=None, extra_environ=None,
                status=None, expect_errors=False):
         """
         Do a DELETE request.  Very like the ``.get()`` method.
 
         Returns a ``webob.Response`` object.
         """
-        return self._gen_request('DELETE', url, headers=headers,
+        if params:
+            warnings.warn(('You are not supposed to send a body in a '
+                           'DELETE request. Most web servers will ignore it'),
+                           lint.WSGIWarning)
+        return self._gen_request('DELETE', url, params=params, headers=headers,
                                  extra_environ=extra_environ,status=status,
                                  upload_files=None, expect_errors=expect_errors)
 
