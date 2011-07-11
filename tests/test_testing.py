@@ -32,6 +32,12 @@ class TestTesting(unittest.TestCase):
         assert res.content_length
         assert res.body == ''
 
+    def test_get_params(self):
+        res = self.app.post('/', params=dict(a=1))
+        res.mustcontain('a=1')
+        res = self.app.post('/', params=[('a','1')])
+        res.mustcontain('a=1')
+
     def test_exception(self):
         raises(Exception, self.app.get, '/?error=t')
         raises(webtest.AppError, self.app.get, '/?status=404%20Not%20Found')
