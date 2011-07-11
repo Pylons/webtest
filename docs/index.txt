@@ -245,13 +245,13 @@ Then you fill it in fields:
 
 .. code-block:: python
 
-    >>> form.action
-    '/form-submit'
-    >>> form.method
-    'POST'
+    >>> print form.action
+    /form-submit
+    >>> print form.method
+    POST
     >>> # dict of fields
     >>> fields = form.fields.items(); fields.sort(); fields
-    [('name', [<webtest.Text object at ...>]), ('submit', [<webtest.Submit object at ...>])]
+    [(u'name', [<webtest.Text object at ...>]), (u'submit', [<webtest.Submit object at ...>])]
     >>> form['name'] = 'Bob'
     >>> # When names don't point to a single field:
     >>> form.set('name', 'Bob', index=0)
@@ -316,14 +316,16 @@ Examples:
 
 .. code-block:: python
 
+    >>> from webtest import TestRequest
     >>> from webtest import TestResponse
     >>> res = TestResponse(content_type='text/html', body='''
     ... <html><body><div id="content">hey!</div></body>''')
+    >>> res.request = TestRequest.blank('/')
     >>> res.html
     <BLANKLINE>
     <html><body><div id="content">hey!</div></body></html>
     >>> res.html.__class__
-    <class BeautifulSoup.BeautifulSoup at ...>
+    <class 'BeautifulSoup.BeautifulSoup'>
     >>> res.html.body.div.string
     u'hey!'
     >>> res.lxml
@@ -332,10 +334,12 @@ Examples:
     'hey!'
     >>> res = TestResponse(content_type='application/json',
     ...                    body='{"a":1,"b":2}')
+    >>> res.request = TestRequest.blank('/')
     >>> res.json
-    {'a': 1, 'b': 2}
+    {u'a': 1, u'b': 2}
     >>> res = TestResponse(content_type='application/xml',
     ...                    body='<xml><message>hey!</message></xml>')
+    >>> res.request = TestRequest.blank('/')
     >>> res.xml
     <Element xml at ...>
     >>> res.xml[0].tag

@@ -2,7 +2,14 @@ syntax: glob
 WebTest.egg-info/
 build/
 dist/
+bin/
+parts/
+develop-eggs/
 docs/_build/
+buildout.cfg
+bootstrap.py
+.installed.cfg
+*.swp
 *.pyc
 .project
 .pydevproject
