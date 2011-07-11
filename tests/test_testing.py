@@ -1,3 +1,4 @@
+import unittest
 import webtest
 from webtest.debugapp import debug_app
 
@@ -11,37 +12,52 @@ def raises(exc, func, *args, **kw):
             "Expected exception %s from %s"
             % (exc, func))
 
-def test_testing():
-    app = webtest.TestApp(debug_app)
-    res = app.get('/')
-    assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/plain'
-    assert res.content_type == 'text/plain'
-    res = app.request('/', method='GET')
-    assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/plain'
-    assert res.content_type == 'text/plain'
-    res = app.head('/')
-    assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/plain'
-    assert res.content_length
-    assert res.body == ''
-    raises(Exception, app.get, '/?error=t')
-    raises(webtest.AppError, app.get, '/?status=404%20Not%20Found')
-    app.get('/?status=404%20Not%20Found', status=404)
-    raises(webtest.AppError, app.get, '/', status=404)
-    res = app.get('/?status=303%20Redirect&header-location=/foo')
-    assert res.status_int == 303
-    print res.location
-    assert res.location == '/foo'
-    assert res.headers['location'] == '/foo'
-    res = res.follow()
-    assert res.request.url == 'http://localhost/foo'
-    assert 'Response: 200 OK' in str(res)
-    assert '200 OK' in repr(res)
-    res = app.get('/?status=303%20redirect', status='3*')
+class TestTesting(unittest.TestCase):
 
-    class FakeDict(object):
-        def items(self):
-            return [('a', '10'), ('a', '20')]
-    res = app.post('/params', params=FakeDict())
+    def setUp(self):
+        self.app = webtest.TestApp(debug_app)
+
+    def test_testing(self):
+        res = self.app.get('/')
+        assert res.status_int == 200
+        assert res.headers['content-type'] == 'text/plain'
+        assert res.content_type == 'text/plain'
+        res = self.app.request('/', method='GET')
+        assert res.status_int == 200
+        assert res.headers['content-type'] == 'text/plain'
+        assert res.content_type == 'text/plain'
+        res = self.app.head('/')
+        assert res.status_int == 200
+        assert res.headers['content-type'] == 'text/plain'
+        assert res.content_length
+        assert res.body == ''
+
+    def test_exception(self):
+        raises(Exception, self.app.get, '/?error=t')
+        raises(webtest.AppError, self.app.get, '/?status=404%20Not%20Found')
+
+    def test_303(self):
+        res = self.app.get('/?status=303%20Redirect&header-location=/foo')
+        assert res.status_int == 303
+        print res.location
+        assert res.location == '/foo'
+        assert res.headers['location'] == '/foo'
+        res = res.follow()
+        assert res.request.url == 'http://localhost/foo'
+        assert 'Response: 200 OK' in str(res)
+        assert '200 OK' in repr(res)
+        res = self.app.get('/?status=303%20redirect', status='3*')
+
+    def test_204(self):
+        res = self.app.post('/?status=204%20OK')
+
+    def test_404(self):
+        self.app.get('/?status=404%20Not%20Found', status=404)
+        raises(webtest.AppError, self.app.get, '/', status=404)
+
+    def test_fake_dict(self):
+        class FakeDict(object):
+            def items(self):
+                return [('a', '10'), ('a', '20')]
+        res = self.app.post('/params', params=FakeDict())
+
