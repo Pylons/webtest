@@ -847,7 +847,7 @@ class TestApp(object):
                          % (key, filename))
             fcontent = mimetypes.guess_type(filename)[0]
             lines.append('Content-Type: %s' %
-                         fcontent or 'application/octet-stream')
+                         (fcontent or 'application/octet-stream'))
             lines.append('')
             lines.append(value)
         lines.append('--' + boundary + '--')
