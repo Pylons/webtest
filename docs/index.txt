@@ -20,21 +20,20 @@ Status & License
 ================
 
 WebTest is an extraction of ``paste.fixture.TestApp``, rewriting
-portions to use `WebOb <http://pythonpaste.org/webob/>`_.  It is under
+portions to use `WebOb <http://docs.webob.org/>`_.  It is under
 active development as part of the Paste cloud of packages.
 
 Feedback and discussion should take place on the `Paste list
 <http://pythonpaste.org/community/>`_, and bugs should go into the
-`Paste Trac instance <http://trac.pythonpaste.org>`_.
+`Bitbucket tracker
+<https://bitbucket.org/ianb/webtest/issues?status=new&status=open>`_.
 
 This library is licensed under an `MIT-style license <license.html>`_.
 
-WebTest is in an svn repository at
-`http://svn.pythonpaste.org/Paste/WebTest/trunk
-<http://svn.pythonpaste.org/Paste/WebTest/trunk#egg=WebTest-dev>`_.  You
-can check it out with::
+WebTest is in an mercurial repository at `http://bitbucket.org/ianb/webtest
+<https://bitbucket.org/ianb/webtest>`_.  You can check it out with::
 
-    $ svn co http://svn.pythonpaste.org/Paste/WebTest/trunk WebTest
+    $ hg clone https://bitbucket.org/ianb/webtest WebTest
 
 What This Does
 ==============
@@ -101,8 +100,9 @@ To make a request, use:
 
 This does a request for ``/path``, with any extra headers or WSGI
 environment keys that you indicate.  This returns a response object,
-based on `webob.Response <http://pythonpaste.org/webob/#response>`_.
-It has some additional methods to make it easier to test.
+based on `webob.Response
+<http://docs.webob.org/en/latest/reference.html#response>`_.  It has some
+additional methods to make it easier to test.
 
 If you want to do a POST request, use:
 
@@ -170,8 +170,8 @@ The Response Object
 -------------------
 
 The response object is based on `webob.Response
-<http://pythonpaste.org/webob/#response>`_ with some additions to help
-with testing.
+<http://docs.webob.org/en/latest/reference.html#response>`_ with some additions
+to help with testing.
 
 The inherited attributes that are most interesting:
 
@@ -189,8 +189,8 @@ The inherited attributes that are most interesting:
 
 ``response.request``:
     The `webob.Request object
-    <http://pythonpaste.org/webob/#request>`_ used to generate this
-    response.
+    <http://docs.webob.org/en/latest/reference.html#request>`_ used to generate
+    this response.
 
 The added methods:
 
@@ -304,6 +304,10 @@ are the attributes:
     Return an `lxml <http://codespeak.net/lxml/>`_ version of the
     response body.
 
+``response.pyquery``:
+    Return an `PyQuery <http://pyquery.org/>`_ version of the
+    response body.
+
 ``response.json``:
     Return the parsed JSON (parsed with `simplejson
     <http://svn.red-bean.com/bob/simplejson/tags/simplejson-1.7/docs/index.html>`_).
@@ -351,6 +355,10 @@ Examples:
     >>> res.lxml[0].tag
     'message'
     >>> res.lxml[0].text
+    'hey!'
+    >>> res.pyquery('message')
+    [<message>]
+    >>> res.pyquery('message').text()
     'hey!'
 
 
