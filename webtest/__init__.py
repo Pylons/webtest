@@ -712,6 +712,7 @@ class TestApp(object):
         environ = self._make_environ(extra_environ)
         # Hide from py.test:
         __tracebackhide__ = True
+        url = self._remove_fragment(url)
         if params:
             if not isinstance(params, (str, unicode)):
                 params = urllib.urlencode(params, doseq=True)
@@ -725,7 +726,6 @@ class TestApp(object):
             url, environ['QUERY_STRING'] = url.split('?', 1)
         else:
             environ['QUERY_STRING'] = ''
-        url = self._remove_fragment(url)
         req = self.RequestClass.blank(url, environ)
         if headers:
             req.headers.update(headers)
