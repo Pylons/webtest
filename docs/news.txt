@@ -6,6 +6,8 @@ hg tip
 
 * Accept lists for ``app.post(url, params=[...])``
 
+* Allow to use url that starts with the SCRIPT_NAME found in extra_environ
+
 1.2.3
 -----
 

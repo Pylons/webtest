@@ -935,6 +935,9 @@ class TestApp(object):
         __tracebackhide__ = True
         errors = StringIO()
         req.environ['wsgi.errors'] = errors
+        script_name = req.environ.get('SCRIPT_NAME', '')
+        if script_name and req.path_info.startswith(script_name):
+            req.path_info = req.path_info[len(script_name):]
         if self.cookies:
             cookie_header = ''.join([
                 '%s=%s; ' % (name, cookie_quote(value))
