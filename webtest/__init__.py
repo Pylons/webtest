@@ -627,27 +627,27 @@ class TestRequest(Request):
     ResponseClass = TestResponse
 
 class TestApp(object):
+    """
+    Wraps a WSGI application in a more convenient interface for
+    testing.
+
+    ``app`` may be an application, or a Paste Deploy app
+    URI, like ``'config:filename.ini#test'``.
+
+    ``extra_environ`` is a dictionary of values that should go
+    into the environment for each request.  These can provide a
+    communication channel with the application.
+
+    ``relative_to`` is a directory, and filenames used for file
+    uploads are calculated relative to this.  Also ``config:``
+    URIs that aren't absolute.
+    """
 
     # for py.test
     disabled = True
     RequestClass = TestRequest
 
     def __init__(self, app, extra_environ=None, relative_to=None, use_unicode=True):
-        """
-        Wraps a WSGI application in a more convenient interface for
-        testing.
-
-        ``app`` may be an application, or a Paste Deploy app
-        URI, like ``'config:filename.ini#test'``.
-
-        ``extra_environ`` is a dictionary of values that should go
-        into the environment for each request.  These can provide a
-        communication channel with the application.
-
-        ``relative_to`` is a directory, and filenames used for file
-        uploads are calculated relative to this.  Also ``config:``
-        URIs that aren't absolute.
-        """
         if isinstance(app, (str, unicode)):
             from paste.deploy import loadapp
             # @@: Should pick up relative_to from calling module's
@@ -887,10 +887,10 @@ class TestApp(object):
         Creates and executes a request.  You may either pass in an
         instantiated :class:`TestRequest` object, or you may pass in a
         URL and keyword arguments to be passed to
-        :method:`TestRequest.blank`.
+        :meth:`TestRequest.blank`.
 
         You can use this to run a request without the intermediary
-        functioning of :method:`TestApp.get` etc.  For instance, to
+        functioning of :meth:`TestApp.get` etc.  For instance, to
         test a WebDAV method::
 
             resp = app.request('/new-col', method='MKCOL')
