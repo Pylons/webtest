@@ -26,8 +26,6 @@ This is based on ``paste.fixture.TestApp``.
       keywords='wsgi test unit tests web',
       author='Ian Bicking',
       author_email='ianb@colorstudy.com',
-      maintainer='Gael Pasgrimaud',
-      maintainer_email='gael@gawel.org',
       url='http://webtest.pythonpaste.org/',
       license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
