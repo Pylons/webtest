@@ -30,10 +30,22 @@ Feedback and discussion should take place on the `Paste list
 
 This library is licensed under an `MIT-style license <license.html>`_.
 
-WebTest is in an mercurial repository at `http://bitbucket.org/ianb/webtest
+WebTest is in a mercurial repository at `http://bitbucket.org/ianb/webtest
 <https://bitbucket.org/ianb/webtest>`_.  You can check it out with::
 
     $ hg clone https://bitbucket.org/ianb/webtest WebTest
+
+Installation
+============
+
+You can use pip or easy_install to get the latest stable release::
+
+    $ pip install WebTest
+    $ easy_install WebTest
+
+Or if you want the development version::
+
+    $ pip install "http://bitbucket.org/ianb/webtest/get/tip.tar.gz#egg=WebTest"
 
 What This Does
 ==============
