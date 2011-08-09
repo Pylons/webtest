@@ -12,9 +12,6 @@ Testing Applications with WebTest
 
 .. contents::
 
-.. comment:
-
-   >>> from dtopt import ELLIPSIS
 
 Status & License
 ================

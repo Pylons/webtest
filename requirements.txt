@@ -1,6 +1,6 @@
-dtopt
 lxml
 pyquery
 BeautifulSoup
 simplejson
 Sphinx
+Paste
