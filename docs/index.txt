@@ -248,9 +248,9 @@ Then you fill it in fields:
 
 .. code-block:: python
 
-    >>> print form.action
+    >>> print(form.action)
     /form-submit
-    >>> print form.method
+    >>> print(form.method)
     POST
     >>> # dict of fields
     >>> fields = form.fields.items(); fields.sort(); fields
@@ -267,7 +267,7 @@ Then you can submit:
     >>> res = form.submit()
     >>> # Or submit a button:
     >>> res = form.submit('submit')
-    >>> print res
+    >>> print(res)
     Response: 200 OK
     Content-Type: text/plain
     ...
