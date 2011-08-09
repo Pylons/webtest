@@ -21,20 +21,20 @@ def cookie_app(environ, start_response):
 
 def test_cookies():
     app = webtest.TestApp(cookie_app)
-    assert not app.cookies, 'App should initially contain no cookies'
+    assert(not app.cookies, 'App should initially contain no cookies')
     res = app.get('/')
     cookies = app.cookies
-    assert cookies, 'Response should have set cookies'
-    assert cookies['spam'] == 'eggs'
-    assert cookies['foo'] == 'bar;baz'
+    assert(cookies, 'Response should have set cookies')
+    assert(cookies['spam'] == 'eggs')
+    assert(cookies['foo'] == 'bar;baz')
 
 
 def test_preserve_cookies():
     app = webtest.TestApp(cookie_app)
     res = app.get('/')
-    assert app.cookies
+    assert(app.cookies)
     go_page = res.click('go')
-    assert app.cookies
+    assert(app.cookies)
 
 
 def cookie_app2(environ, start_response):
@@ -52,9 +52,9 @@ def cookie_app2(environ, start_response):
 
 def test_cookies2():
     app = webtest.TestApp(cookie_app)
-    assert not app.cookies, 'App should initially contain no cookies'
+    assert(not app.cookies, 'App should initially contain no cookies')
 
     res = app.get('/')
-    assert app.cookies, 'Response should have set cookies'
-    assert app.cookies['spam'] == 'eggs'
-    assert app.cookies['foo'] == 'bar;baz'
+    assert(app.cookies, 'Response should have set cookies')
+    assert(app.cookies['spam'] == 'eggs')
+    assert(app.cookies['foo'] == 'bar;baz')

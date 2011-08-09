@@ -16,9 +16,9 @@ def raises(exc, func, *args, **kw):
 def test_url_without_fragments():
     app = webtest.TestApp(debug_app)
     res = app.get('http://localhost/')
-    assert res.status_int == 200
+    assert(res.status_int == 200)
 
 def test_url_with_fragments():
     app = webtest.TestApp(debug_app)
     res = app.get('http://localhost/#ananchor')
-    assert res.status_int == 200
+    assert(res.status_int == 200)

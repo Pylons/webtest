@@ -47,7 +47,7 @@ def single_upload_file_app(environ, start_response):
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
     start_response(status, headers)
-    assert isinstance(body, str)
+    assert(isinstance(body, str))
     return [body]
 
 
@@ -155,17 +155,17 @@ def test_file_upload_with_filename_only():
 
     app = webtest.TestApp(single_upload_file_app)
     res = app.get('/')
-    assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html; charset=utf-8'
-    assert res.content_type == 'text/html'
-    assert res.charset == 'utf-8'
+    assert(res.status_int == 200)
+    assert(res.headers['content-type'] == 'text/html; charset=utf-8')
+    assert(res.content_type == 'text/html')
+    assert(res.charset == 'utf-8')
 
     single_form = res.forms["file_upload_form"]
     single_form.set("file-field", (uploaded_file_name,))
     display = single_form.submit("button")
-    assert "<p>You selected '%s'</p>" % uploaded_file_name in display, display
-    assert "<p>with contents: '%s'</p>" % uploaded_file_contents in display, \
-        display
+    assert("<p>You selected '%s'</p>" % uploaded_file_name in display, display)
+    assert("<p>with contents: '%s'</p>" % uploaded_file_contents in display, \
+        display)
 
 
 def test_file_upload_with_filename_and_contents():
@@ -175,17 +175,17 @@ def test_file_upload_with_filename_and_contents():
 
     app = webtest.TestApp(single_upload_file_app)
     res = app.get('/')
-    assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html; charset=utf-8'
-    assert res.content_type == 'text/html'
+    assert(res.status_int == 200)
+    assert(res.headers['content-type'] == 'text/html; charset=utf-8')
+    assert(res.content_type == 'text/html')
 
     single_form = res.forms["file_upload_form"]
     single_form.set("file-field",
                     (uploaded_file_name, uploaded_file_contents))
     display = single_form.submit("button")
-    assert "<p>You selected '%s'</p>" % uploaded_file_name in display, display
-    assert "<p>with contents: '%s'</p>" % uploaded_file_contents in display, \
-        display
+    assert("<p>You selected '%s'</p>" % uploaded_file_name in display, display)
+    assert("<p>with contents: '%s'</p>" % uploaded_file_contents in display, \
+        display)
 
 
 def test_file_upload_binary():
@@ -195,7 +195,7 @@ def test_file_upload_binary():
     single_form = res.forms["binary_upload_form"]
     single_form.set("binary-file-field", ('my_file.dat', binary_data))
     display = single_form.submit("button")
-    assert ','.join([str(n) for n in range(0,255)]) in display, display
+    assert(','.join([str(n) for n in range(0,255)]) in display, display)
 
 
 def test_multiple_file_uploads_with_filename_and_contents():
@@ -208,17 +208,17 @@ def test_multiple_file_uploads_with_filename_and_contents():
 
     app = webtest.TestApp(multiple_upload_file_app)
     res = app.get('/')
-    assert res.status_int == 200
-    assert res.headers['content-type'] == 'text/html; charset=utf-8'
-    assert res.content_type == 'text/html'
+    assert(res.status_int == 200)
+    assert(res.headers['content-type'] == 'text/html; charset=utf-8')
+    assert(res.content_type == 'text/html')
 
     single_form = res.forms["file_upload_form"]
     single_form.set("file-field-1", (uploaded_file1_name, uploaded_file1_contents))
     single_form.set("file-field-2", (uploaded_file2_name, uploaded_file2_contents))
     display = single_form.submit("button")
-    assert "<p>You selected '%s'</p>" % uploaded_file1_name in display, display
-    assert "<p>with contents: '%s'</p>" % uploaded_file1_contents in display, \
-        display
-    assert "<p>You selected '%s'</p>" % uploaded_file2_name in display, display
-    assert "<p>with contents: '%s'</p>" % uploaded_file2_contents in display, \
-        display
+    assert("<p>You selected '%s'</p>" % uploaded_file1_name in display, display)
+    assert("<p>with contents: '%s'</p>" % uploaded_file1_contents in display, \
+        display)
+    assert("<p>You selected '%s'</p>" % uploaded_file2_name in display, display)
+    assert("<p>with contents: '%s'</p>" % uploaded_file2_contents in display, \
+        display)

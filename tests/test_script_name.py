@@ -19,8 +19,8 @@ def test_script_name():
     resp.mustcontain('href="/script"')
 
     resp = app.get('/script/redirect', extra_environ={'SCRIPT_NAME':'/script'})
-    assert resp.status_int == 302
-    assert resp.location == 'http://localhost/script/path', resp.location
+    assert(resp.status_int == 302)
+    assert(resp.location == 'http://localhost/script/path', resp.location)
 
     resp = resp.follow(extra_environ={'SCRIPT_NAME':'/script'})
     resp.mustcontain('href="/script/path"')
@@ -30,8 +30,8 @@ def test_script_name():
 def test_app_script_name():
     app = webtest.TestApp(application, extra_environ={'SCRIPT_NAME':'/script'})
     resp = app.get('/script/redirect')
-    assert resp.status_int == 302
-    assert resp.location == 'http://localhost/script/path', resp.location
+    assert(resp.status_int == 302)
+    assert(resp.location == 'http://localhost/script/path', resp.location)
 
     resp = resp.follow()
     resp.mustcontain('href="/script/path"')

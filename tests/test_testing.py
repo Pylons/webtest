@@ -19,18 +19,18 @@ class TestTesting(unittest.TestCase):
 
     def test_testing(self):
         res = self.app.get('/')
-        assert res.status_int == 200
-        assert res.headers['content-type'] == 'text/plain'
-        assert res.content_type == 'text/plain'
+        assert(res.status_int == 200)
+        assert(res.headers['content-type'] == 'text/plain')
+        assert(res.content_type == 'text/plain')
         res = self.app.request('/', method='GET')
-        assert res.status_int == 200
-        assert res.headers['content-type'] == 'text/plain'
-        assert res.content_type == 'text/plain'
+        assert(res.status_int == 200)
+        assert(res.headers['content-type'] == 'text/plain')
+        assert(res.content_type == 'text/plain')
         res = self.app.head('/')
-        assert res.status_int == 200
-        assert res.headers['content-type'] == 'text/plain'
-        assert res.content_length
-        assert res.body == ''
+        assert(res.status_int == 200)
+        assert(res.headers['content-type'] == 'text/plain')
+        assert(res.content_length)
+        assert(res.body == '')
 
     def test_get_params(self):
         res = self.app.post('/', params=dict(a=1))
@@ -48,14 +48,14 @@ class TestTesting(unittest.TestCase):
 
     def test_303(self):
         res = self.app.get('/?status=303%20Redirect&header-location=/foo')
-        assert res.status_int == 303
-        print res.location
-        assert res.location == '/foo'
-        assert res.headers['location'] == '/foo'
+        assert(res.status_int == 303)
+        print(res.location)
+        assert(res.location == '/foo')
+        assert(res.headers['location'] == '/foo')
         res = res.follow()
-        assert res.request.url == 'http://localhost/foo'
-        assert 'Response: 200 OK' in str(res)
-        assert '200 OK' in repr(res)
+        assert(res.request.url == 'http://localhost/foo')
+        assert('Response: 200 OK' in str(res))
+        assert('200 OK' in repr(res))
         res = self.app.get('/?status=303%20redirect', status='3*')
 
     def test_204(self):
