@@ -82,16 +82,8 @@ any configuration, you must set that up manually in your tests.)
 .. code-block:: python
 
     >>> from webtest import TestApp
-    >>> from webob import Request, Response
-    >>> from paste.urlmap import URLMap
-    >>> map_app = URLMap()
-    >>> form_html = map_app['/form.html'] = Response(content_type='text/html')
-    >>> form_html.body = '''<html><body>
-    ... <form action="/form-submit" method="POST">
-    ...   <input type="text" name="name">
-    ...   <input type="submit" name="submit" value="Submit!">
-    ... </form></body></html>'''
-    >>> app = TestApp(map_app)
+    >>> from webtest.debugapp import debug_app
+    >>> app = TestApp(debug_app)
     >>> res = app.get('/form.html')
     >>> res.status
     '200 OK'
@@ -129,6 +121,8 @@ list of ``[(fieldname, filename, fild_content)]``.  File uploads use a
 different form submission data type to pass the structured data.
 
 For other verbs you can use:
+
+.. code-block:: python
 
     app.put(path, params, ...)
     app.delete(path, ...)
@@ -265,15 +259,7 @@ Then you fill it in fields:
     >>> # When names don't point to a single field:
     >>> form.set('name', 'Bob', index=0)
 
-Then you can submit.  First we'll put up a simple test app to catch
-the response:
-
-.. code-block:: python
-
-    >>> from webtest.debugapp import debug_app
-    >>> map_app['/form-submit'] = debug_app
-
-Then submit:
+Then you can submit:
 
 .. code-block:: python
 

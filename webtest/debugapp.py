@@ -1,4 +1,4 @@
-from webob import Request
+from webob import Request, Response
 try:
     sorted
 except NameError:
@@ -8,6 +8,15 @@ __all__ = ['debug_app']
 
 def debug_app(environ, start_response):
     req = Request(environ)
+    if req.path_info == '/form.html' and req.method == 'GET':
+        resp = Response(content_type='text/html')
+        resp.body = '''<html><body>
+        <form action="/form-submit" method="POST">
+            <input type="text" name="name">
+            <input type="submit" name="submit" value="Submit!">
+        </form></body></html>'''
+        return resp(environ, start_response)
+
     if 'error' in req.GET:
         raise Exception('Exception requested')
     status = str(req.GET.get('status', '200 OK'))
