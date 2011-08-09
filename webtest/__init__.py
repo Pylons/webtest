@@ -9,21 +9,19 @@ Most interesting is TestApp
 import sys
 import random
 import urllib
-import urlparse
 import warnings
 import mimetypes
 import time
 import cgi
 import os
-from Cookie import SimpleCookie, CookieError
-from Cookie import _quote as cookie_quote
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 import re
 import fnmatch
-from webob import Response, Request
+from webtest.compat import urlparse
+from webtest.compat import print_stderr
+from webtest.compat import StringIO
+from webtest.compat import SimpleCookie, CookieError
+from webtest.compat import cookie_quote
+from webob import Request, Response
 from webtest import lint
 
 __all__ = ['TestApp', 'TestRequest']
@@ -249,7 +247,7 @@ class TestResponse(Response):
 
         def printlog(s):
             if verbose:
-                print s
+                print(s)
 
         found_links = []
         total_links = 0
@@ -428,14 +426,14 @@ class TestResponse(Response):
                 "The only keyword argument allowed is 'no'")
         for s in strings:
             if not s in self:
-                print >> sys.stderr, "Actual response (no %r):" % s
-                print >> sys.stderr, self
+                print_stderr("Actual response (no %r):" % s)
+                print_stderr(self)
                 raise IndexError(
                     "Body does not contain string %r" % s)
         for no_s in no:
             if no_s in self:
-                print >> sys.stderr, "Actual response (has %r)" % no_s
-                print >> sys.stderr, self
+                print_stderr("Actual response (has %r)" % no_s)
+                print_stderr(self)
                 raise IndexError(
                     "Body contains bad string %r" % no_s)
 
@@ -977,9 +975,9 @@ class TestApp(object):
         for header in res.headers.getall('set-cookie'):
             try:
                 c = SimpleCookie(header)
-            except CookieError, e:
+            except CookieError:
                 raise CookieError(
-                    "Could not parse cookie header %r: %s" % (header, e))
+                    "Could not parse cookie header %r" % (header,))
             for key, morsel in c.items():
                 self.cookies[key] = morsel.value
                 res.cookies_set[key] = morsel.value
