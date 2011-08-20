@@ -1,0 +1,35 @@
+:mod:`webtest.sel` -- Functional Testing with Selenium
+========================================================
+
+.. automodule:: webtest.sel
+
+Example
+-------
+
+.. literalinclude:: ../../tests/test_selenium.py
+   :pyobject: TestApp
+
+Module Contents
+---------------
+
+.. autoclass:: SeleniumApp
+   :members:
+
+Return Values
+~~~~~~~~~~~~~
+
+Some of the return values return instances of these classes:
+
+.. autoclass:: TestResponse
+   :members:
+.. autoclass:: Form
+   :members:
+.. autoclass:: Field
+.. autoclass:: Select
+.. autoclass:: Radio
+.. autoclass:: Checkbox
+.. autoclass:: Text
+.. autoclass:: Textarea
+.. autoclass:: Hidden
+.. autoclass:: Submit
+

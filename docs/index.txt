@@ -9,6 +9,7 @@ Testing Applications with WebTest
    news
    license
    modules/webtest
+   modules/sel
 
 .. contents::
 

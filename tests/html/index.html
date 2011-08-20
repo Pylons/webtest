@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <script language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js"></script>
+      <script language="javascript" src="/app.js"></script>
+    </head>
+    <body>
+        <h1>It Works!</h1>
+        <div id="message">
+        </div>
+        <form action="/post" id="myform" method="post">
+          <input type="text" name="mytext" value="" />
+
+          <input type="radio" id="radio_true" name="myradio" value="true" />
+          <label for="radio_true">true</label>
+          <input type="radio" id="radio_false" name="myradio" value="false" />
+          <label for="radio_true">false</label>
+
+          <input type="checkbox" id="mycheckbox" name="mycheckbox" value="true" />
+          <label for="checkbox_true">true</label>
+
+          <select id="myselect" name="myselect">
+            <option value="value1">value1</option>
+            <option value="value2">value2</option>
+            <option value="value3">value3</option>
+          </select>
+
+          <select id="mymultiselect" name="mymultiselect" multiple="multiple">
+            <option value="value1">value1</option>
+            <option value="value2">value2</option>
+            <option value="value3">value3</option>
+          </select>
+
+          <input type="hidden" name="redirect" value="%(redirect)s" />
+          <input type="submit" name="go" value="GO" />
+        </form>
+    </body>
+</html>

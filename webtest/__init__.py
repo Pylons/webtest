@@ -20,3 +20,5 @@ from webtest.testapp import Textarea
 from webtest.testapp import Hidden
 from webtest.testapp import Submit
 
+from webtest.sel import SeleniumApp
+from webtest.sel import with_selenium
