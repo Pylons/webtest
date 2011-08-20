@@ -1,3 +1,4 @@
+webob==1.1rc1
 lxml
 pyquery
 BeautifulSoup
@@ -5,3 +6,4 @@ simplejson
 Sphinx
 selenium
 unittest2
+coverage
