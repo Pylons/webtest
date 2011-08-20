@@ -27,7 +27,10 @@ def debug_app(environ, start_response):
             value = repr(value)
         parts.append('%s: %s\n' % (name, value))
 
-    req_body = req.body
+    if req.content_length:
+        req_body = req.body
+    else:
+        req_body = ''
     if req_body:
         parts.append('-- Body ----------\n')
         parts.append(req_body)
