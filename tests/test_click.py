@@ -1,6 +1,6 @@
 #coding: utf-8
 import webtest
-from webtest import _parse_attrs
+from webtest.testapp import _parse_attrs
 from webob import Request
 from tests.test_testing import raises
 
