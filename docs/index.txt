@@ -88,7 +88,7 @@ any configuration, you must set that up manually in your tests.)
     >>> res.status
     '200 OK'
     >>> res.form
-    <webtest.Form object at ...>
+    <webtest.testapp.Form object at ...>
 
 Making Requests
 ---------------
@@ -254,7 +254,7 @@ Then you fill it in fields:
     POST
     >>> # dict of fields
     >>> fields = form.fields.items(); fields.sort(); fields
-    [(u'name', [<webtest.Text object at ...>]), (u'submit', [<webtest.Submit object at ...>])]
+    [(u'name', [<webtest.testapp.Text object at ...>]), (u'submit', [<webtest.testapp.Submit object at ...>])]
     >>> form['name'] = 'Bob'
     >>> # When names don't point to a single field:
     >>> form.set('name', 'Bob', index=0)
@@ -334,8 +334,8 @@ Examples:
     >>> res = TestResponse(content_type='application/json',
     ...                    body='{"a":1,"b":2}')
     >>> res.request = TestRequest.blank('/')
-    >>> res.json
-    {u'a': 1, u'b': 2}
+    >>> res.json.values()
+    [1, 2]
     >>> res = TestResponse(content_type='application/xml',
     ...                    body='<xml><message>hey!</message></xml>')
     >>> res.request = TestRequest.blank('/')
