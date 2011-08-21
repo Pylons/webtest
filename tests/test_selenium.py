@@ -113,6 +113,7 @@ class TestJQueryUI(unittest.TestCase):
         day = resp.doc.link('16')
         day.wait().click()
         self.assertIn('/16/', field.value)
+        resp.doc.sdfdsff.wait()
 
     def test_dialog(self):
         resp = self.resp.click('Dialog')

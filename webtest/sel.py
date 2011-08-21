@@ -165,7 +165,9 @@ class Selenium(object):
             data = resp.read()
         finally:
             conn.close()
-        if not data.startswith('OK'):
+        if data.startswith('ERROR: Unknown command:'):
+            raise AttributeError(repr(data))
+        elif not data.startswith('OK'):
             raise RuntimeError(repr(data))
         data = data[3:]
         if data in ('true', 'false'):
@@ -248,7 +250,7 @@ class SeleniumApp(testapp.TestApp):
         elif resp is not None:
             return resp
         else:
-            raise AssertionError('No response found')
+            raise LookupError('No response found')
 
     def _run_server(self, app):
         """Run a wsgi server in a separate thread"""
@@ -266,13 +268,14 @@ class SeleniumApp(testapp.TestApp):
         app.thread = threading.Thread(target=run)
         app.thread.start()
         conn = httplib.HTTPConnection("127.0.0.1", port)
+        time.sleep(.3)
         while True:
             try:
                 conn.request('GET', '/__application__')
+                resp = conn.getresponse()
             except (socket.error, httplib.CannotSendRequest), e:
                 time.sleep(.1)
             else:
-                resp = conn.getresponse()
                 break
 
     def close(self):
@@ -323,12 +326,9 @@ class Element(object):
         """Wait for an element and return this element"""
         ctime = time.time() + (timeout / 1000)
         while ctime >= time.time():
-            try:
-                if self.isElementPresent():
-                    return self
-            except:
-                time.sleep(.5)
-        raise AssertionError("Can't find %s after %sms" % (self, timeout))
+            if self.isElementPresent():
+                return self
+        raise RuntimeError("Can't find %s after %sms" % (self, timeout))
 
     def hasClass(self, name):
         """True iif the class is present"""
@@ -428,12 +428,12 @@ class TestResponse(testapp.TestResponse):
         is an error if this is not a redirect response.  Returns
         another response object.
         """
-        if self.status_int not in (301, 302):
-            raise AssertionError(
+        if not (self.status_int >= 300 and self.status_int < 400):
+            raise ValueError(
                'You can only follow 301 and 302. Not %s' % self.status_int)
         if len(self.responses):
             return self.responses.pop(0)
-        raise AssertionError('Nothing to follow')
+        raise LookupError('Responses queue is empty. Nothing to follow.')
 
     def click(self, description=None, linkid=None, href=None,
               anchor=None, index=None, verbose=False,
@@ -570,7 +570,7 @@ class Radio(Field):
             return None
         elif len(value) == 1:
             return value[0]
-        raise AssertionError(
+        raise ValueError(
                 'Got more than one value for %r: %s' % (self, value))
 
     value = property(value__get, value__set)
@@ -657,7 +657,7 @@ class Form(testapp.Form):
         else:
             self.locator = _eval_xpath('form', id=id)
         if not self.sel.execute('isElementPresent', self.locator):
-            raise AssertionError('No form found at %s' % self.locator)
+            raise LookupError('No form found at %s' % self.locator)
         form = self.sel.execute('getEval',
             "this.browserbot.findElement('%s').innerHTML;" % self.locator)
         super(Form, self).__init__(resp, u'<form>%s</form>' % form)
