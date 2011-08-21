@@ -3,11 +3,23 @@
 
 .. automodule:: webtest.sel
 
-Example
--------
+Environment variables
+---------------------
 
-.. literalinclude:: ../../tests/test_selenium.py
-   :pyobject: TestApp
+Those value are used if found in environment:
+
+- ``SELENIUM_HOST``: Default to ``127.0.0.1``
+
+- ``SELENIUM_PORT``: Default to ``4444``
+
+- ``SELENIUM_COMMAND``: The command used to start the browser. Usualy something
+  in ``chrome``, ``googlechrome``, ``iexplore``
+
+- ``SELENIUM_KEEP_OPEN``: If exist then browser session are not closed so you
+  can introspect the problem on failure.
+
+- ``SELENIUM_JAR``: If selenium is not running then this jar is used to run
+  selenium.
 
 Module Contents
 ---------------
@@ -15,12 +27,18 @@ Module Contents
 .. autoclass:: SeleniumApp
    :members:
 
+.. autofunction:: with_selenium
+
 Return Values
 ~~~~~~~~~~~~~
 
 Some of the return values return instances of these classes:
 
 .. autoclass:: TestResponse
+   :members:
+.. autoclass:: Document
+   :members:
+.. autoclass:: Element
    :members:
 .. autoclass:: Form
    :members:
@@ -32,4 +50,19 @@ Some of the return values return instances of these classes:
 .. autoclass:: Textarea
 .. autoclass:: Hidden
 .. autoclass:: Submit
+
+Examples
+--------
+
+Testing a wsgi application
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../../tests/test_selenium.py
+   :pyobject: TestApp
+
+Testing the jquery.ui website
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../../tests/test_selenium.py
+   :pyobject: TestJQueryUI
 

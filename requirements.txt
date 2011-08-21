@@ -4,6 +4,6 @@ pyquery
 BeautifulSoup
 simplejson
 Sphinx
-selenium
 unittest2
 coverage
+pep8
