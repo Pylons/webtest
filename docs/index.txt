@@ -89,7 +89,7 @@ any configuration, you must set that up manually in your tests.)
     >>> res.status
     '200 OK'
     >>> res.form
-    <webtest.testapp.Form object at ...>
+    <webtest.app.Form object at ...>
 
 Making Requests
 ---------------

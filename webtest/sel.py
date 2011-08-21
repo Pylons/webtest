@@ -23,7 +23,7 @@ import warnings
 import threading
 import subprocess
 from functools import wraps
-from webtest import testapp
+from webtest import app as testapp
 from wsgiref import simple_server
 
 try:

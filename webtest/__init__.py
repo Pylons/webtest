@@ -3,22 +3,22 @@
 """
 Routines for testing WSGI applications.
 
-Most interesting is TestApp
+Most interesting is app
 """
 
-from webtest.testapp import TestApp
-from webtest.testapp import TestRequest
-from webtest.testapp import TestResponse
-from webtest.testapp import Form
-from webtest.testapp import Field
-from webtest.testapp import AppError
-from webtest.testapp import Select
-from webtest.testapp import Radio
-from webtest.testapp import Checkbox
-from webtest.testapp import Text
-from webtest.testapp import Textarea
-from webtest.testapp import Hidden
-from webtest.testapp import Submit
+from webtest.app import TestApp
+from webtest.app import TestRequest
+from webtest.app import TestResponse
+from webtest.app import Form
+from webtest.app import Field
+from webtest.app import AppError
+from webtest.app import Select
+from webtest.app import Radio
+from webtest.app import Checkbox
+from webtest.app import Text
+from webtest.app import Textarea
+from webtest.app import Hidden
+from webtest.app import Submit
 
 from webtest.sel import SeleniumApp
 from webtest.sel import with_selenium
