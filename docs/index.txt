@@ -255,7 +255,7 @@ Then you fill it in fields:
     POST
     >>> # dict of fields
     >>> fields = form.fields.items(); fields.sort(); fields
-    [(u'name', [<webtest.testapp.Text object at ...>]), (u'submit', [<webtest.testapp.Submit object at ...>])]
+    [(u'name', [<Text name="name">]), (u'submit', [<Submit name="submit">])]
     >>> form['name'] = 'Bob'
     >>> # When names don't point to a single field:
     >>> form.set('name', 'Bob', index=0)

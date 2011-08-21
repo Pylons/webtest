@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from webob import Request
 import webtest
+import unittest
 
 try:
     unicode()
@@ -162,3 +163,27 @@ def test_input_no_default():
     assert(form.submit_fields() == [])
 
 
+class TestFormLint(unittest.TestCase):
+
+    def test_form_lint(self):
+        form = webtest.Form(None, '''<form>
+        <input type="text" name="field"/>
+        </form>''')
+        self.assertRaises(AttributeError, form.lint)
+
+        form = webtest.Form(None, '''<form>
+        <input type="text" id="myfield" name="field"/>
+        </form>''')
+        self.assertRaises(AttributeError, form.lint)
+
+        form = webtest.Form(None, '''<form>
+        <label for="myfield">my field</label>
+        <input type="text" id="myfield" name="field"/>
+        </form>''')
+        form.lint()
+
+        form = webtest.Form(None, '''<form>
+        <label class="field" for="myfield" role="r">my field</label>
+        <input type="text" id="myfield" name="field"/>
+        </form>''')
+        form.lint()

@@ -1075,6 +1075,12 @@ class Field(object):
 
     value = property(value__get, value__set)
 
+    def __repr__(self):
+        value = '<%s name="%s"' % (self.__class__.__name__, self.name)
+        if self.id:
+            value += ' id="%s"' % self.id
+        return value + '>'
+
 class NoValue(object):
     pass
 
@@ -1319,6 +1325,8 @@ class Form(object):
     # something...
 
     _tag_re = re.compile(r'<(/?)([a-z0-9_\-]*)([^>]*?)>', re.I)
+    _label_re = re.compile(
+            '''<label\s+(?:[^>]*)for=(?:"|')([a-z0-9_\-]+)(?:"|')(?:[^>]*)>''', re.I)
 
     FieldClass = Field
 
@@ -1444,6 +1452,23 @@ class Form(object):
             "Multiple fields match %r: %s"
             % (name, ', '.join(map(repr, fields))))
         return fields[0]
+
+    def lint(self):
+        """Check that the html is valid:
+
+        - each field must have an id
+        - each field must have a label
+        """
+        labels = self._label_re.findall(self.text)
+        for name, fields in self.fields.items():
+            for field in fields:
+                if not isinstance(field, (Submit, Hidden)):
+                    if not field.id:
+                        raise AttributeError(
+                             "%r as no id attribute" % field)
+                    elif field.id not in labels:
+                        raise AttributeError(
+                             "%r as no associated label" % field)
 
     def set(self, name, value, index=None):
         """
