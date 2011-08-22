@@ -1,5 +1,7 @@
-# (c) 2005 Ian Bicking and contributors; written for Paste (http://pythonpaste.org)
-# Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+# (c) 2005 Ian Bicking and contributors; written for Paste
+# (http://pythonpaste.org)
+# Licensed under the MIT license:
+# http://www.opensource.org/licenses/mit-license.php
 """
 Routines for testing WSGI applications.
 
@@ -26,6 +28,7 @@ from webtest import lint
 
 __all__ = ['TestApp', 'TestRequest']
 
+
 def tempnam_no_warning(*args):
     """
     An os.tempnam with the warning turned off, because sometimes
@@ -33,6 +36,7 @@ def tempnam_no_warning(*args):
     security warning.
     """
     return os.tempnam(*args)
+
 
 class NoDefault(object):
     pass
@@ -45,8 +49,10 @@ except NameError:
         l.sort()
         return l
 
+
 class AppError(Exception):
     pass
+
 
 class CaptureStdout(object):
 
@@ -68,6 +74,7 @@ class CaptureStdout(object):
     def getvalue(self):
         return self.captured.getvalue()
 
+
 class TestResponse(Response):
 
     """
@@ -75,7 +82,6 @@ class TestResponse(Response):
     """
 
     _forms_indexed = None
-
 
     def forms__get(self):
         """
@@ -116,7 +122,7 @@ class TestResponse(Response):
             return self.unicode_body
         return self.body
 
-    _tag_re = re.compile(r'<(/?)([:a-z0-9_\-]*)(.*?)>', re.S|re.I)
+    _tag_re = re.compile(r'<(/?)([:a-z0-9_\-]*)(.*?)>', re.S | re.I)
 
     def _parse_forms(self):
         forms = self._forms_indexed = {}
@@ -239,8 +245,8 @@ class TestResponse(Response):
         html_pat = _make_pattern(html_pattern)
 
         _tag_re = re.compile(r'<%s\s+(.*?)>(.*?)</%s>' % (tag, tag),
-                             re.I+re.S)
-        _script_re = re.compile(r'<script.*?>.*?</script>', re.I|re.S)
+                             re.I + re.S)
+        _script_re = re.compile(r'<script.*?>.*?</script>', re.I | re.S)
         bad_spans = []
         for match in _script_re.finditer(self.testbody):
             bad_spans.append((match.start(), match.end()))
@@ -346,10 +352,12 @@ class TestResponse(Response):
             href = to_str(href)
 
             if 'params' in args:
-                args['params'] = [tuple(map(to_str, p)) for p in args['params']]
+                args['params'] = [tuple(map(to_str, p)) \
+                                        for p in args['params']]
 
             if 'upload_files' in args:
-                args['upload_files'] = [map(to_str, f) for f in args['upload_files']]
+                args['upload_files'] = [map(to_str, f) \
+                                            for f in args['upload_files']]
 
             if 'content_type' in args:
                 args['content_type'] = to_str(args['content_type'])
@@ -378,7 +386,8 @@ class TestResponse(Response):
     def unicode_normal_body__get(self):
         if not self.charset:
             raise AttributeError(
-                "You cannot access Response.unicode_normal_body unless charset is set")
+                ("You cannot access Response.unicode_normal_body "
+                 "unless charset is set"))
         return self.normal_body.decode(self.charset)
 
     unicode_normal_body = property(
@@ -462,7 +471,7 @@ class TestResponse(Response):
         if self.body:
             br = repr(self.body)
             if len(br) > 18:
-                br = br[:10]+'...'+br[-5:]
+                br = br[:10] + '...' + br[-5:]
                 br += '/%s' % len(self.body)
             body = ' body=%s' % br
         else:
@@ -519,7 +528,8 @@ class TestResponse(Response):
                     from elementtree import ElementTree
                 except ImportError:
                     raise ImportError(
-                        "You must have ElementTree installed (or use Python 2.5) to use response.xml")
+                        ("You must have ElementTree installed "
+                         "(or use Python 2.5) to use response.xml"))
         # ElementTree can't parse unicode => use `body` instead of `testbody`
         return ElementTree.XML(self.body)
 
@@ -560,11 +570,9 @@ class TestResponse(Response):
 
     def json(self):
         """
-        Return the response as a JSON response.  You must have
-        `simplejson
-        <http://svn.red-bean.com/bob/simplejson/tags/simplejson-1.7/docs/index.html>`_
-        installed to use this, or be using a Python version with the
-        json module.
+        Return the response as a JSON response.  You must have `simplejson
+        <http://goo.gl/B9g6s>`_ installed to use this, or be using a Python
+        version with the json module.
 
         The content type must be application/json to use this.
         """
@@ -618,11 +626,13 @@ class TestResponse(Response):
         url = 'file:' + fn.replace(os.sep, '/')
         webbrowser.open_new(url)
 
+
 class TestRequest(Request):
 
     # for py.test
     disabled = True
     ResponseClass = TestResponse
+
 
 class TestApp(object):
     """
@@ -645,7 +655,8 @@ class TestApp(object):
     disabled = True
     RequestClass = TestRequest
 
-    def __init__(self, app, extra_environ=None, relative_to=None, use_unicode=True):
+    def __init__(self, app, extra_environ=None, relative_to=None,
+                       use_unicode=True):
         if isinstance(app, (str, unicode)):
             from paste.deploy import loadapp
             # @@: Should pick up relative_to from calling module's
@@ -731,9 +742,9 @@ class TestApp(object):
         return self.do_request(req, status=status,
                                expect_errors=expect_errors)
 
-    def _gen_request(self, method, url, params='', headers=None, extra_environ=None,
-                     status=None, upload_files=None, expect_errors=False,
-                     content_type=None):
+    def _gen_request(self, method, url, params='', headers=None,
+                           extra_environ=None, status=None, upload_files=None,
+                           expect_errors=False, content_type=None):
         """
         Do a generic request.
         """
@@ -743,13 +754,15 @@ class TestApp(object):
             params = urllib.urlencode(params, doseq=True)
         if hasattr(params, 'items'):
             params = urllib.urlencode(params.items(), doseq=True)
-        if upload_files or (content_type and content_type.startswith('multipart')):
+        if upload_files or \
+                (content_type and content_type.startswith('multipart')):
             params = cgi.parse_qsl(params, keep_blank_values=True)
             content_type, params = self.encode_multipart(
                 params, upload_files or ())
             environ['CONTENT_TYPE'] = content_type
         elif params:
-            environ.setdefault('CONTENT_TYPE', 'application/x-www-form-urlencoded')
+            environ.setdefault('CONTENT_TYPE',
+                               'application/x-www-form-urlencoded')
         if '?' in url:
             url, environ['QUERY_STRING'] = url.split('?', 1)
         else:
@@ -781,7 +794,7 @@ class TestApp(object):
         Returns a ``webob.Response`` object.
         """
         return self._gen_request('POST', url, params=params, headers=headers,
-                                 extra_environ=extra_environ,status=status,
+                                 extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
                                  content_type=content_type)
@@ -799,7 +812,7 @@ class TestApp(object):
         Returns a ``webob.Response`` object.
         """
         return self._gen_request('PUT', url, params=params, headers=headers,
-                                 extra_environ=extra_environ,status=status,
+                                 extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
                                  content_type=content_type)
@@ -816,8 +829,9 @@ class TestApp(object):
                            'DELETE request. Most web servers will ignore it'),
                            lint.WSGIWarning)
         return self._gen_request('DELETE', url, params=params, headers=headers,
-                                 extra_environ=extra_environ,status=status,
-                                 upload_files=None, expect_errors=expect_errors)
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=None,
+                                 expect_errors=expect_errors)
 
     def head(self, url, headers=None, extra_environ=None,
                status=None, expect_errors=False):
@@ -827,8 +841,9 @@ class TestApp(object):
         Returns a ``webob.Response`` object.
         """
         return self._gen_request('HEAD', url, headers=headers,
-                                 extra_environ=extra_environ,status=status,
-                                 upload_files=None, expect_errors=expect_errors)
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=None,
+                                 expect_errors=expect_errors)
 
     def encode_multipart(self, params, files):
         """
@@ -839,15 +854,16 @@ class TestApp(object):
         boundary = '----------a_BoUnDaRy%s$' % random.random()
         lines = []
         for key, value in params:
-            lines.append('--'+boundary)
+            lines.append('--' + boundary)
             lines.append('Content-Disposition: form-data; name="%s"' % key)
             lines.append('')
             lines.append(value)
         for file_info in files:
             key, filename, value = self._get_file_info(file_info)
-            lines.append('--'+boundary)
-            lines.append('Content-Disposition: form-data; name="%s"; filename="%s"'
-                         % (key, filename))
+            lines.append('--' + boundary)
+            lines.append(
+                    'Content-Disposition: form-data; name="%s"; filename="%s"'
+                    % (key, filename))
             fcontent = mimetypes.guess_type(filename)[0]
             lines.append('Content-Type: %s' %
                          (fcontent or 'application/octet-stream'))
@@ -877,7 +893,6 @@ class TestApp(object):
                 "filename, filecontent) or (fieldname, filename); "
                 "you gave: %r"
                 % repr(file_info)[:100])
-
 
     def request(self, url_or_req, status=None, expect_errors=False,
                 **req_params):
@@ -1021,7 +1036,10 @@ class TestApp(object):
 ########################################
 
 
-_attr_re = re.compile(r'([^= \n\r\t]+)[ \n\r\t]*(?:=[ \n\r\t]*(?:"([^"]*)"|\'([^\']*)\'|([^"\'][^ \n\r\t>]*)))?', re.S)
+_attr_re = re.compile(
+        (r'([^= \n\r\t]+)[ \n\r\t]*(?:=[ \n\r\t]*(?:"([^"]*)"|\'([^\']*)'
+         r'\'|([^"\'][^ \n\r\t>]*)))?'), re.S)
+
 
 def _parse_attrs(text):
     attrs = {}
@@ -1034,6 +1052,7 @@ def _parse_attrs(text):
         # supported now (actually they have never been supported).
         attrs[str(attr_name)] = attr_body
     return attrs
+
 
 class Field(object):
 
@@ -1081,8 +1100,10 @@ class Field(object):
             value += ' id="%s"' % self.id
         return value + '>'
 
+
 class NoValue(object):
     pass
+
 
 class Select(Field):
 
@@ -1133,6 +1154,7 @@ class Select(Field):
 
 Field.classes['select'] = Select
 
+
 class MultipleSelect(Field):
 
     """
@@ -1167,7 +1189,8 @@ class MultipleSelect(Field):
     def value__get(self):
         selected_values = []
         if self.selectedIndices:
-            selected_values = [self.options[i][0] for i in self.selectedIndices]
+            selected_values = [self.options[i][0] \
+                                    for i in self.selectedIndices]
         elif not self._forced_values:
             selected_values = []
             for option, checked in self.options:
@@ -1182,6 +1205,7 @@ class MultipleSelect(Field):
     value = property(value__get, value__set)
 
 Field.classes['multiple_select'] = MultipleSelect
+
 
 class Radio(Select):
 
@@ -1201,8 +1225,8 @@ class Radio(Select):
 
     value = property(value__get, Select.value__set)
 
-
 Field.classes['radio'] = Radio
+
 
 class Checkbox(Field):
 
@@ -1229,6 +1253,7 @@ class Checkbox(Field):
     value = property(value__get, value__set)
 
 Field.classes['checkbox'] = Checkbox
+
 
 class Text(Field):
     """
@@ -1262,6 +1287,7 @@ class File(Field):
 
 Field.classes['file'] = File
 
+
 class Textarea(Text):
     """
     Field representing ``<textarea>``
@@ -1269,12 +1295,14 @@ class Textarea(Text):
 
 Field.classes['textarea'] = Textarea
 
+
 class Hidden(Text):
     """
     Field representing ``<input type="hidden">``
     """
 
 Field.classes['hidden'] = Hidden
+
 
 class Submit(Field):
     """
@@ -1296,6 +1324,7 @@ Field.classes['submit'] = Submit
 Field.classes['button'] = Submit
 
 Field.classes['image'] = Submit
+
 
 class Form(object):
 
@@ -1326,7 +1355,8 @@ class Form(object):
 
     _tag_re = re.compile(r'<(/?)([a-z0-9_\-]*)([^>]*?)>', re.I)
     _label_re = re.compile(
-            '''<label\s+(?:[^>]*)for=(?:"|')([a-z0-9_\-]+)(?:"|')(?:[^>]*)>''', re.I)
+            '''<label\s+(?:[^>]*)for=(?:"|')([a-z0-9_\-]+)(?:"|')(?:[^>]*)>''',
+            re.I)
 
     FieldClass = Field
 
@@ -1354,7 +1384,8 @@ class Form(object):
             if tag == 'textarea' and end:
                 assert in_textarea, (
                     "</textarea> with no <textarea> at %s" % match.start())
-                in_textarea[0].value = html_unquote(self.text[in_textarea[1]:match.start()])
+                in_textarea[0].value = html_unquote(
+                                    self.text[in_textarea[1]:match.start()])
                 in_textarea = None
                 continue
             if end:
@@ -1371,7 +1402,8 @@ class Form(object):
             if tag == 'input' and attrs.get('type') == 'radio':
                 field = fields.get(name)
                 if not field:
-                    field = self.FieldClass.classes['radio'](self, tag, name, match.start(), **attrs)
+                    field = self.FieldClass.classes['radio'](
+                                       self, tag, name, match.start(), **attrs)
                     fields.setdefault(name, []).append(field)
                 else:
                     field = field[0]
@@ -1383,9 +1415,11 @@ class Form(object):
             if tag == 'input':
                 tag_type = attrs.get('type', 'text').lower()
             if tag_type == "select" and attrs.get("multiple"):
-                FieldClass = self.FieldClass.classes.get("multiple_select", self.FieldClass)
+                FieldClass = self.FieldClass.classes.get("multiple_select",
+                                                         self.FieldClass)
             else:
-                FieldClass = self.FieldClass.classes.get(tag_type, self.FieldClass)
+                FieldClass = self.FieldClass.classes.get(tag_type,
+                                                         self.FieldClass)
             field = FieldClass(self, tag, name, match.start(), **attrs)
             if tag == 'textarea':
                 assert not in_textarea, (
@@ -1413,7 +1447,8 @@ class Form(object):
             self.action = attrs.get('action', '')
             self.method = attrs.get('method', 'GET')
             self.id = attrs.get('id')
-            self.enctype = attrs.get('enctype', 'application/x-www-form-urlencoded')
+            self.enctype = attrs.get('enctype',
+                                     'application/x-www-form-urlencoded')
         else:
             assert 0, "No </form> tag found"
         assert self.action is not None, (
@@ -1573,10 +1608,12 @@ class Form(object):
 ## Utility functions
 ########################################
 
+
 def _stringify(value):
     if isinstance(value, unicode):
         return value
     return str(value)
+
 
 def _popget(d, key, default=None):
     """
@@ -1585,6 +1622,7 @@ def _popget(d, key, default=None):
     if key in d:
         return d.pop(key)
     return default
+
 
 def _space_prefix(pref, full, sep=None, indent=None, include_sep=True):
     """
@@ -1611,6 +1649,7 @@ def _space_prefix(pref, full, sep=None, indent=None, include_sep=True):
     else:
         return sep.join(full)
 
+
 def _make_pattern(pat):
     if pat is None:
         return None
@@ -1622,6 +1661,7 @@ def _make_pattern(pat):
         return pat
     assert 0, (
         "Cannot make callable pattern object out of %r" % pat)
+
 
 def html_unquote(v):
     """
