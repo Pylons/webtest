@@ -1,5 +1,7 @@
-from setuptools import setup, find_packages
-import sys, os
+from setuptools import setup
+from setuptools import find_packages
+import sys
+import os
 
 version = '1.2.4'
 
