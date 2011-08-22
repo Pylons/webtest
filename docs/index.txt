@@ -341,7 +341,7 @@ Examples:
     ...                    body='<xml><message>hey!</message></xml>')
     >>> res.request = TestRequest.blank('/')
     >>> res.xml
-    <Element xml at ...>
+    <Element ...>
     >>> res.xml[0].tag
     'message'
     >>> res.xml[0].text
