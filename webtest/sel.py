@@ -244,7 +244,7 @@ class SeleniumApp(testapp.TestApp):
             for h in d['requestHeaders']:
                 req.headers[h['name']] = h['value']
             resp = TestResponse()
-            resp.app = self.test_app
+            resp.app = resp.test_app = self.test_app
             resp.sel = self.test_app.sel
             resp.responses = responses
             resp.errors = errors
