@@ -132,6 +132,7 @@ class WSGIServer(simple_server.WSGIServer):
         while self.application.serve_forever:
             self.handle_request()
 
+
 class Selenium(object):
 
     def __init__(self, host, port):
@@ -150,7 +151,7 @@ class Selenium(object):
         self.session_id = None
 
     def execute(self, cmd, *args):
-        data = dict([(i+1, a) for i, a in enumerate(args)], cmd=cmd)
+        data = dict([(i + 1, a) for i, a in enumerate(args)], cmd=cmd)
         if self.session_id:
             data['sessionId'] = self.session_id
         data = urllib.urlencode(data)
@@ -173,6 +174,7 @@ class Selenium(object):
         if data in ('true', 'false'):
             return data == 'true' and True or False
         return data
+
 
 class SeleniumApp(testapp.TestApp):
     """See :class:`webtest.TestApp`
@@ -227,7 +229,6 @@ class SeleniumApp(testapp.TestApp):
                 if not (status > 300 and status < 400):
                     self._check_errors(resp)
         return resp
-
 
     def _get_response(self, resp=None, timeout=None):
         """Get responses responses from selenium"""
@@ -314,7 +315,8 @@ class SeleniumApp(testapp.TestApp):
 
 class Element(object):
     """A object use to manipulate DOM nodes. This object allow to use the
-    underlying selenium api for the specified locator. See Selenium `api <http://goo.gl/IecEk>`_
+    underlying selenium api for the specified locator. See Selenium `api
+    <http://goo.gl/IecEk>`_
     """
 
     def __init__(self, resp, locator):
@@ -387,6 +389,7 @@ class Element(object):
     def __str__(self):
         return self.locator
 
+
 class Document(object):
     """The browser document. ``resp.doc.myid`` is egual to
     ``resp.doc.css('#myid')``"""
@@ -401,8 +404,8 @@ class Document(object):
         """Return an element matching ``tag``, an ``attribute`` and an
         ``index``.  For example::
 
-            resp.doc.get('input', name='myinput') => xpath=//input[@name="myinput"]
-            resp.doc.get('li', description='Item') => xpath=//li[.="Item"]
+          resp.doc.get('input', name='go') => xpath=//input[@name="go"]
+          resp.doc.get('li', description='Item') => xpath=//li[.="Item"]
         """
         locator = _eval_xpath(tag, **kwargs)
         return Element(self.resp, locator)
@@ -684,7 +687,6 @@ class Form(testapp.Form):
             if len(fields) > 1:
                 for i, field in enumerate(fields):
                     field.locator += '[%s]' % (i + 1,)
-
 
     def submit(self, name=None, index=None, extra_environ=None, timeout=None):
         """Submits the form.  If ``name`` is given, then also select that
