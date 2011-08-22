@@ -6,7 +6,7 @@
 Routines for testing WSGI applications with selenium.
 
 Most interesting is :class:`~webtest.sel.SeleniumApp` and the
-:func:`~webtest.sel.with_selenium` decorator
+:func:`~webtest.sel.selenium` decorator
 """
 import os
 import cgi
@@ -15,15 +15,22 @@ import time
 import urllib
 import signal
 import socket
+import types
 import webob
 import signal
+import shutil
 import httplib
+import logging
 import warnings
+import tempfile
 import threading
 import subprocess
 from functools import wraps
 from webtest import app as testapp
 from wsgiref import simple_server
+from contextlib import contextmanager
+from BaseHTTPServer import HTTPServer
+from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 try:
     import json
@@ -34,115 +41,100 @@ except ImportError:
         json = False
 
 
-def is_selenium_available():
-    """return True if the selenium module is available and a RC server is
-    running"""
-    if json == False:
-        warnings.warn(
-            ('selenium is not available because no json module are '
-            'available. Consider installing simplejson'),
-            SeleniumWarning)
-    host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
-    port = int(os.environ.get('SELENIUM_POST', 4444))
-    try:
-        conn = httplib.HTTPConnection(host, port)
-        conn.request('GET', '/')
-    except socket.error:
-        if 'SELENIUM_JAR' not in os.environ:
-            return False
-        else:
-            jar = os.environ['SELENIUM_JAR']
-            if os.path.isfile(jar):
-                p = subprocess.Popen(['java', '-jar', jar])
-                os.environ['SELENIUM_PID'] = str(p.pid)
-                for i in range(30):
-                    time.sleep(.3)
-                    try:
-                        conn = httplib.HTTPConnection(host, port)
-                        conn.request('GET', '/')
-                    except socket.error:
-                        pass
-                    else:
-                        return True
-            return False
-    return True
+log = logging.getLogger(__name__)
 
+sys_stdout = sys.stdout
 
-def with_selenium(commands=()):
-    """A decorator to run tests only when selenium is available"""
-    if 'SELENIUM_COMMAND' in os.environ:
-        command = os.environ['SELENIUM_COMMAND'].strip('*')
-        commands = ('*%s' % command,)
-    elif not commands:
-        commands = ('*googlechrome',)
-
-    def wrapped(func_or_class):
-        if is_selenium_available():
-            if isinstance(func_or_class, type):
-                return func_or_class
-            else:
-                @wraps(func_or_class)
-                def wrapper(self):
-                        old_app = self.app
-                        for command in commands:
-                            self.app = SeleniumApp(self.app.app,
-                                                   command=command)
-                            try:
-                                res = func_or_class(self)
-                            finally:
-                                self.app.close()
-                                self.app = old_app
-                return wrapper
-    return wrapped
+if 'SELENIUM_VERBOSE':
+    log.addHandler(logging.StreamHandler(sys.stderr))
+    log.setLevel(logging.DEBUG)
 
 
 class SeleniumWarning(Warning):
     """Specific warning category"""
 
+HAS_UPLOAD_SUPPORT = ('*chrome', '*firefox')
 
-class WSGIApplication(object):
-    """A WSGI middleware to handle special calls used to run a test app"""
-
-    def __init__(self, app, port):
-        self.app = app
-        self.serve_forever = True
-        self.port = port
-        self.url = 'http://localhost:%s/' % port
-        self.thread = None
-
-    def __call__(self, environ, start_response):
-        if '__kill_application__' in environ['PATH_INFO']:
-            self.serve_forever = False
-            resp = webob.Response()
-            return resp(environ, start_response)
-        elif '__application__' in environ['PATH_INFO']:
-            resp = webob.Response()
-            resp.body = 'Application running'
-            return resp(environ, start_response)
-        return self.app(environ, start_response)
-
-    def __repr__(self):
-        return '<WSGIApplication %r at %s>' % (self.app, self.url)
+############
+# Decorator
+############
 
 
-class WSGIServer(simple_server.WSGIServer):
-    """A WSGIServer"""
+def function_decorator(func):
+    """run test with selenium. create a new session if needed"""
+    @wraps(func)
+    def wrapper(self):
+        if is_available():
+            if isinstance(self.app, SeleniumApp):
+                func(self)
+            else:
+                old_app = self.app
+                self.app = SeleniumApp(self.app.app)
+                try:
+                    func(self)
+                finally:
+                    self.app.close()
+                    self.app = old_app
+    return wrapper
 
-    def serve_forever(self):
-        while self.application.serve_forever:
-            self.handle_request()
+
+def context_manager(resp):
+    """A context mamanger to create a session inside a test"""
+    resp.updated = False
+    if not is_available():
+        yield None
+    else:
+        test_app = resp.test_app
+        app = SeleniumApp(test_app.app)
+        for h, v in resp.request.headers.items():
+            if h.lower() not in ('host',):
+                app.sel.execute('addCustomRequestHeader', h, v)
+        fd = tempfile.NamedTemporaryFile(prefix='webtest-selenium-',
+                                         suffix='.html')
+        fd.write(resp.body)
+        fd.flush()
+        response = app.get('/__file__', dict(__file__=fd.name))
+        try:
+            yield response
+        finally:
+            resp.body = app.sel.execute('getHtmlSource')
+            resp._forms_indexed = None
+            resp.updated = True
+            app.close()
+            fd.close()
+
+
+def selenium(obj):
+    """A callable usable as:
+
+    - class decorator
+    - function decorator
+    - contextmanager
+    """
+    if isinstance(obj, type):
+        if is_available():
+            return obj
+    elif isinstance(obj, types.FunctionType):
+        return function_decorator(obj)
+    elif isinstance(obj, testapp.TestResponse):
+        return contextmanager(context_manager)(obj)
+    else:
+        raise RuntimeError('Unsuported type %r' % obj)
 
 
 class Selenium(object):
+    """Selenium RC control"""
 
-    def __init__(self, host, port):
-        self.host = host
-        self.port = port
+    def __init__(self):
+        self.host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
+        self.port = int(os.environ.get('SELENIUM_POST', 4444))
         self.session_id = None
 
-    def start(self, command, url):
+    def start(self, url):
+        self.driver = os.environ.get('SELENIUM_DRIVER',
+                                      '*googlechrome')
         self.session_id = self.execute('getNewBrowserSession',
-                                       command, url,
+                                       self.driver, url, '',
                                        "captureNetworkTraffic=true",
                                        "addCustomRequestHeader=true")
 
@@ -176,6 +168,11 @@ class Selenium(object):
         return data
 
 
+##############
+# Webtest API
+##############
+
+
 class SeleniumApp(testapp.TestApp):
     """See :class:`webtest.TestApp`
 
@@ -184,42 +181,40 @@ class SeleniumApp(testapp.TestApp):
 
     apps = []
 
-    def __init__(self, app=None, url=None,
-                 command='*chrome', timeout=4000,
+    def __init__(self, app=None, url=None, timeout=4000,
                  extra_environ=None, relative_to=None, **kwargs):
         self.app = None
         if app:
             super(SeleniumApp, self).__init__(app, relative_to=relative_to)
             self._run_server(self.app)
             url = self.app.url
-        assert is_selenium_available()
+        assert is_available()
         self.session_id = None
         host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
         port = int(os.environ.get('SELENIUM_POST', 4444))
-        if 'SELENIUM_COMMAND' in os.environ:
-            command = os.environ['SELENIUM_COMMAND'].strip('*')
-            command = '*%s' % command
-        self.sel = Selenium(host, port)
-        self.sel.start(command, url)
+        self.sel = Selenium()
+        self.sel.start(url)
         self.extra_environ = extra_environ or {}
         self.timeout = timeout
         self.test_app = self
-        self.firefox = self.chrome = self.ie = None
-        if command == '*chrome':
-            self.firefox = True
-        elif command == '*googlechrome':
-            self.chrome = True
-        elif command == '*iexplore':
-            self.ie = True
+
+    @property
+    def driver(self):
+        return self.sel.driver
+
+    @property
+    def has_upload_support(self):
+        return self.sel.driver in HAS_UPLOAD_SUPPORT
 
     def do_request(self, req, status, expect_errors):
         if req.method != 'GET':
             raise testapp.AppError('Only GET are allowed')
         if self.app:
-            req.host = 'localhost:%s' % self.app.port
+            req.host = '%s:%s' % self.app.bind
         self.sel.execute('captureNetworkTraffic', 'json')
         for h, v in req.headers.items():
-            self.sel.execute('addCustomRequestHeader', h, v)
+            if h.lower() not in ('host',):
+                self.sel.execute('addCustomRequestHeader', h, v)
         self.sel.execute('open', req.url)
         resp = self._get_response()
         if not expect_errors:
@@ -261,6 +256,7 @@ class SeleniumApp(testapp.TestApp):
             if 'html' in resp.content_type or resp.status_int != 200:
                 responses.append(resp)
         if responses:
+            print responses
             resp = responses.pop(0)
             print resp.errors
             return resp
@@ -271,167 +267,46 @@ class SeleniumApp(testapp.TestApp):
 
     def _run_server(self, app):
         """Run a wsgi server in a separate thread"""
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('', 0))
-        ip, port = s.getsockname()
-        s.close()
-        self.app = app = WSGIApplication(app, port)
+        ip, port = _free_port()
+        self.app = app = WSGIApplication(app, (ip, port))
 
         def run():
-            httpd = simple_server.make_server('127.0.0.1', port, app,
-                                              server_class=WSGIServer)
+            httpd = simple_server.make_server(
+                            ip, port, app,
+                            server_class=WSGIServer,
+                            handler_class=WSGIRequestHandler)
             httpd.serve_forever()
 
         app.thread = threading.Thread(target=run)
         app.thread.start()
-        conn = httplib.HTTPConnection("127.0.0.1", port)
-        time.sleep(.3)
-        while True:
+        conn = httplib.HTTPConnection(ip, port)
+        time.sleep(.5)
+        for i in range(100):
             try:
                 conn.request('GET', '/__application__')
                 resp = conn.getresponse()
-            except (socket.error, httplib.CannotSendRequest), e:
-                time.sleep(.1)
+            except (socket.error, httplib.CannotSendRequest):
+                time.sleep(.3)
             else:
                 break
 
     def close(self):
         """Close selenium and the WSGI server if needed"""
         if self.app:
-            conn = httplib.HTTPConnection("127.0.0.1", self.app.port)
-            while True:
+            conn = httplib.HTTPConnection(*self.app.bind)
+            for i in range(100):
                 try:
                     conn.request('GET', '/__kill_application__')
                     resp = conn.getresponse()
                 except socket.error:
-                    self.app.thread.join()
+                    conn.close()
                     break
+                else:
+                    time.sleep(.3)
         if 'SELENIUM_KEEP_OPEN' not in os.environ:
-            self.sel.execute("testComplete")
-            self.sessionId = None
+            self.sel.stop()
         if 'SELENIUM_PID' in os.environ:
-            os.kill(int(os.environ['SELENIUM_PID']), signal.SIGKILL)
-
-
-class Element(object):
-    """A object use to manipulate DOM nodes. This object allow to use the
-    underlying selenium api for the specified locator. See Selenium `api
-    <http://goo.gl/IecEk>`_
-    """
-
-    def __init__(self, resp, locator):
-        self.sel = resp.sel
-        self.resp = resp
-        self.locator = locator
-
-    def __getattr__(self, attr):
-        meth = getattr(self.sel, attr, None)
-        if meth is not None:
-            def wrapped(*args):
-                args = [self.locator] + [str(a) for a in args]
-                return meth(*args)
-        else:
-            def wrapped(*args):
-                args = [attr, self.locator] + [str(a) for a in args]
-                return self.sel.execute(*args)
-        if meth:
-            wraps(meth)(wrapped)
-        else:
-            wrapped.__name__ = attr
-        return wrapped
-
-    def wait(self, timeout=3000):
-        """Wait for an element and return this element"""
-        ctime = time.time() + (timeout / 1000)
-        while ctime >= time.time():
-            if self.isElementPresent():
-                return self
-        raise RuntimeError("Can't find %s after %sms" % (self, timeout))
-
-    def hasClass(self, name):
-        """True iif the class is present"""
-        classes = self.eval('e.getAttribute("class")').split()
-        return name in classes
-
-    def html(self):
-        """Return the innerHTML of the element"""
-        return self.eval('e.innerHTML')
-
-    @property
-    def value(self):
-        """Return value (only work with text field)"""
-        return self.getValue()
-
-    def eval(self, expr):
-        """Eval a javascript expression in Selenium RC. You can use the
-        following variables:
-
-        - s: the ``selenium`` object
-        - b: the ``browserbot`` object
-        - e: the element itself
-        """
-        script = r'''(function(s) {
-            var b = s.browserbot;
-            var e = b.findElement("%s");
-            var res = %s;
-            return res || 'null';
-        }(this))''' % (self.locator.replace('"', "'"), expr.strip(';'))
-        return self.sel.execute('getEval', script)
-
-    def __contains__(self, s):
-        if isinstance(s, self.__class__):
-            s = s.html()
-        return s in self.html()
-
-    def __repr__(self):
-        return '<%s at %s>' % (self.__class__.__name__, self.locator)
-
-    def __str__(self):
-        return self.locator
-
-
-class Document(object):
-    """The browser document. ``resp.doc.myid`` is egual to
-    ``resp.doc.css('#myid')``"""
-
-    def __init__(self, resp):
-        self.resp = resp
-
-    def __getattr__(self, attr):
-        return Element(self.resp, 'css=#%s' % attr)
-
-    def get(self, tag, **kwargs):
-        """Return an element matching ``tag``, an ``attribute`` and an
-        ``index``.  For example::
-
-          resp.doc.get('input', name='go') => xpath=//input[@name="go"]
-          resp.doc.get('li', description='Item') => xpath=//li[.="Item"]
-        """
-        locator = _eval_xpath(tag, **kwargs)
-        return Element(self.resp, locator)
-
-    def xpath(self, path):
-        """Get an :class:`~webtest.sel.Element` using xpath"""
-        return Element(self.resp, 'xpath=%s' % path)
-
-    def css(self, selector):
-        """Get an :class:`~webtest.sel.Element` using a css selector"""
-        return Element(self.resp, 'css=%s' % selector)
-
-    def link(self, description=None, linkid=None, href=None, index=None):
-        """Get a link"""
-        return self.get('a', description=description, id=linkid,
-                             href=href, index=index)
-
-    def input(self, value=None, name=None, inputid=None, index=None):
-        """Get an input field"""
-        return self.get('input', id=inputid,
-                                 value=value, name=name, index=index)
-
-    def button(self, description=None, buttonid=None, index=None):
-        """Get a button"""
-        return self.get('button', description=description,
-                                 id=buttonid, index=index)
+            os.kill(int(os.environ['SELENIUM_PID']), signal.SIGTERM)
 
 
 class TestResponse(testapp.TestResponse):
@@ -491,6 +366,162 @@ class TestResponse(testapp.TestResponse):
         return Document(self)
 
 
+##########
+# DOM
+##########
+
+
+class Element(object):
+    """A object use to manipulate DOM nodes. This object allow to use the
+    underlying selenium api for the specified locator. See Selenium `api
+    <http://goo.gl/IecEk>`_
+    """
+
+    def __init__(self, resp, locator):
+        self.sel = resp.sel
+        self.resp = resp
+        self.locator = locator
+
+    def __getattr__(self, attr):
+        meth = getattr(self.sel, attr, None)
+        if meth is not None:
+            def wrapped(*args):
+                args = [self.locator] + [str(a) for a in args]
+                return meth(*args)
+        else:
+            def wrapped(*args):
+                args = [attr, self.locator] + [str(a) for a in args]
+                return self.sel.execute(*args)
+        if meth:
+            wraps(meth)(wrapped)
+        else:
+            wrapped.__name__ = attr
+        return wrapped
+
+    def wait(self, timeout=3000):
+        """Wait for an element and return this element"""
+        ctime = time.time() + (timeout / 1000)
+        while ctime >= time.time():
+            time.sleep(.3)
+            if self.isElementPresent():
+                return self
+        raise RuntimeError("Can't find %s after %sms" % (self, timeout))
+
+    def wait_and_click(self, timeout=3000):
+        """Wait for an element, click on it and return this element"""
+        return self.wait().click()
+
+    def hasClass(self, name):
+        """True iif the class is present"""
+        classes = self.eval('e.getAttribute("class")').split()
+        return name in classes
+
+    def html(self):
+        """Return the innerHTML of the element"""
+        return self.eval('e.innerHTML')
+
+    def value__get(self):
+        return self.getValue()
+
+    def value__set(self, value):
+        if json:
+            value = json.dumps(value)
+        else:
+            value = repr(str(value))
+        script = """(function() {
+        s.doFireEvent(l, "focus");
+        s.doType(l, %s);
+        e.setAttribute("value", %s);
+        s.doFireEvent(l, "keydown");
+        s.doFireEvent(l, "keypress");
+        s.doFireEvent(l, "keyup");
+        }())""" % (value, value)
+        self.eval(script)
+
+    value = property(value__get, value__set)
+
+    def eval(self, *expr):
+        """Eval a javascript expression in Selenium RC. You can use the
+        following variables:
+
+        - s: the ``selenium`` object
+        - b: the ``browserbot`` object
+        - l: the element locator string
+        - e: the element itself
+        """
+        script = (
+        "(function(s) {"
+            "var l = %r;"
+            "var b = s.browserbot; var e = b.findElement(l);"
+            "var res = %s; return res || 'null';"
+        "}(this))"
+        ) % (str(self), ''.join(expr).strip(';'))
+        try:
+            return self.sel.execute('getEval', script)
+        except RuntimeError:
+            raise RuntimeError(script)
+
+    def __contains__(self, s):
+        if isinstance(s, self.__class__):
+            s = s.html()
+        return s in self.html()
+
+    def __repr__(self):
+        return '<%s at %s>' % (self.__class__.__name__, self.locator)
+
+    def __str__(self):
+        return str(self.locator.replace('"', "'"))
+
+
+class Document(object):
+    """The browser document. ``resp.doc.myid`` is egual to
+    ``resp.doc.css('#myid')``"""
+
+    def __init__(self, resp):
+        self.resp = resp
+
+    def __getattr__(self, attr):
+        return Element(self.resp, 'css=#%s' % attr)
+
+    def get(self, tag, **kwargs):
+        """Return an element matching ``tag``, an ``attribute`` and an
+        ``index``.  For example::
+
+          resp.doc.get('input', name='go') => xpath=//input[@name="go"]
+          resp.doc.get('li', description='Item') => xpath=//li[.="Item"]
+        """
+        locator = _eval_xpath(tag, **kwargs)
+        return Element(self.resp, locator)
+
+    def xpath(self, path):
+        """Get an :class:`~webtest.sel.Element` using xpath"""
+        return Element(self.resp, 'xpath=%s' % path)
+
+    def css(self, selector):
+        """Get an :class:`~webtest.sel.Element` using a css selector"""
+        return Element(self.resp, 'css=%s' % selector)
+
+    def link(self, description=None, linkid=None, href=None, index=None):
+        """Get a link"""
+        return self.get('a', description=description, id=linkid,
+                             href=href, index=index)
+
+    def input(self, value=None, name=None, inputid=None, index=None):
+        """Get an input field"""
+        return self.get('input', id=inputid,
+                                 value=value, name=name, index=index)
+
+    def button(self, description=None, buttonid=None, index=None):
+        """Get a button"""
+        return self.get('button', description=description,
+                                 id=buttonid, index=index)
+
+
+###########
+# Forms
+###########
+
+
 class Field(testapp.Field, Element):
 
     classes = {}
@@ -505,17 +536,7 @@ class Field(testapp.Field, Element):
                                    locator=self.form.locator,
                                     name=self.name)
 
-    def value__set(self, value):
-        if not self.settable:
-            raise AttributeError(
-                "You cannot set the value of the <%s> field %r"
-                % (self.tag, self.name))
-        self.type(value)
-
-    def value__get(self):
-        return self.getValue()
-
-    value = property(value__get, value__set)
+    value = property(Element.value__get, Element.value__set)
 
 
 class Select(Field):
@@ -612,8 +633,31 @@ Field.classes['text'] = Text
 class File(Field):
     """Field representing ``<input type="file">``"""
 
+    def _run_server(self, filename):
+        """Run a simple server in a separate thread"""
+        ip, port = _free_port()
+
+        def run():
+            FileHandler.filename = filename
+            server = HTTPServer((ip, port), FileHandler)
+            server.handle_request()
+
+        thread = threading.Thread(target=run)
+        thread.start()
+        return 'http://%s:%s/' % (ip, port)
+
     def value__set(self, value):
-        self.sel.attachFile(value)
+        if isinstance(value, (list, tuple)) and len(value) == 1:
+            value = [self.name] + list(value)
+        test_app = self.form.resp.test_app
+        file_info = test_app._get_file_info(value)
+        name, filename, content = file_info
+        if test_app.has_upload_support:
+            url = self._run_server(filename)
+            url += os.path.basename(filename)
+            self.attachFile(url)
+
+    force_value = value__set
 
     value = property(Field.value__get, value__set)
 
@@ -709,6 +753,87 @@ class Form(testapp.Form):
         return self.test_app._get_response(resp=self.resp, timeout=timeout)
 
 
+###############
+# Servers
+###############
+
+
+class WSGIApplication(object):
+    """A WSGI middleware to handle special calls used to run a test app"""
+
+    def __init__(self, app, bind):
+        self.app = app
+        self.serve_forever = True
+        self.bind = bind
+        self.url = 'http://%s:%s/' % bind
+        self.thread = None
+
+    def __call__(self, environ, start_response):
+        if '__kill_application__' in environ['PATH_INFO']:
+            self.serve_forever = False
+            resp = webob.Response()
+            return resp(environ, start_response)
+        elif '__file__' in environ['PATH_INFO']:
+            req = webob.Request(environ)
+            resp = webob.Response()
+            resp.content_type = 'text/html; charset=UTF-8'
+            filename = req.params.get('__file__')
+            body = open(filename).read()
+            body.replace('http://localhost/',
+                         'http://%s/' % req.host)
+            resp.body = body
+            return resp(environ, start_response)
+        elif '__application__' in environ['PATH_INFO']:
+            resp = webob.Response()
+            resp.body = 'Application running'
+            return resp(environ, start_response)
+        return self.app(environ, start_response)
+
+    def __repr__(self):
+        return '<WSGIApplication %r at %s>' % (self.app, self.url)
+
+
+class WSGIRequestHandler(simple_server.WSGIRequestHandler):
+    """A WSGIRequestHandler who log to a logger"""
+
+    def log_message(self, format, *args):
+        log.debug("%s - - [%s] %s" %
+                  (self.address_string(),
+                  self.log_date_time_string(),
+                  format % args))
+
+
+class WSGIServer(simple_server.WSGIServer):
+    """A WSGIServer"""
+
+    def log_message(self, format, *args):
+        log.debug("%s - - [%s] %s" %
+                  (self.address_string(),
+                  self.log_date_time_string(),
+                  format % args))
+
+    def serve_forever(self):
+        while self.application.serve_forever:
+            self.handle_request()
+
+
+class FileHandler(SimpleHTTPRequestHandler):
+    """Handle a simple file"""
+
+    def translate_path(self, path):
+        return self.filename
+
+    def log_message(self, format, *args):
+        log.debug("%s - - [%s] %s\n" %
+                  (self.address_string(),
+                  self.log_date_time_string(),
+                  format % args))
+
+###############
+# Misc
+###############
+
+
 def _eval_xpath(tag, locator=None, index=None, **kwargs):
     if not locator:
         locator = 'xpath='
@@ -724,3 +849,46 @@ def _eval_xpath(tag, locator=None, index=None, **kwargs):
     if index is not None:
         locator += '[%s]' % (index + 1,)
     return locator
+
+
+def _free_port():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('', 0))
+    ip, port = s.getsockname()
+    s.close()
+    ip = os.environ.get('SELENIUM_BIND', '127.0.0.1')
+    return ip, port
+
+
+def is_available():
+    """return True if the selenium module is available and a RC server is
+    running"""
+    if json == False:
+        warnings.warn(
+            ('selenium is not available because no json module are '
+            'available. Consider installing simplejson'),
+            SeleniumWarning)
+    host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
+    port = int(os.environ.get('SELENIUM_POST', 4444))
+    try:
+        conn = httplib.HTTPConnection(host, port)
+        conn.request('GET', '/')
+    except socket.error:
+        if 'SELENIUM_JAR' not in os.environ:
+            return False
+        else:
+            jar = os.environ['SELENIUM_JAR']
+            p = subprocess.Popen(['java', '-jar', jar], stdout=sys_stdout)
+            os.environ['SELENIUM_PID'] = str(p.pid)
+            for i in range(30):
+                time.sleep(.3)
+                try:
+                    conn = httplib.HTTPConnection(host, port)
+                    conn.request('GET', '/')
+                except socket.error:
+                    pass
+                else:
+                    return True
+            return False
+    return True
+

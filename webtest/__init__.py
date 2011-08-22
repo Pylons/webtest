@@ -23,4 +23,4 @@ from webtest.app import Hidden
 from webtest.app import Submit
 
 from webtest.sel import SeleniumApp
-from webtest.sel import with_selenium
+from webtest.sel import selenium

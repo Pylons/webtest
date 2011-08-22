@@ -12,8 +12,16 @@ Those value are used if found in environment:
 
 - ``SELENIUM_PORT``: Default to ``4444``
 
-- ``SELENIUM_COMMAND``: The command used to start the browser. Usualy something
-  in ``chrome``, ``googlechrome``, ``iexplore``
+- ``SELENIUM_BIND``: IP used to bind extra servers (WSGI Server/File server).
+  Default to ``127.0.0.1``
+
+- ``SELENIUM_DRIVER``: The driver used to start the browser. Usualy something
+  in ``*chrome``, ``*firefox``, ``*googlechrome``. Default to
+  ``*googlechrome``. You can get the full list by running::
+  
+    $ java -jar selenium-server.jar -interactive
+    cmd=getNewBrowserSession
+
 
 - ``SELENIUM_KEEP_OPEN``: If exist then browser session are not closed so you
   can introspect the problem on failure.
@@ -27,7 +35,7 @@ Module Contents
 .. autoclass:: SeleniumApp
    :members:
 
-.. autofunction:: with_selenium
+.. autofunction:: selenium
 
 Return Values
 ~~~~~~~~~~~~~
@@ -42,14 +50,6 @@ Some of the return values return instances of these classes:
    :members:
 .. autoclass:: Form
    :members:
-.. autoclass:: Field
-.. autoclass:: Select
-.. autoclass:: Radio
-.. autoclass:: Checkbox
-.. autoclass:: Text
-.. autoclass:: Textarea
-.. autoclass:: Hidden
-.. autoclass:: Submit
 
 Examples
 --------

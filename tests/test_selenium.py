@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import with_statement
 import os
 import webob
 import webtest
@@ -49,31 +50,40 @@ class TestApp(unittest.TestCase):
         resp.mustcontain('It Works!')
         form = resp.forms['myform']
         form.lint()
-        form['mytext'] = 'toto'
-        self.assertEqual(form['mytext'].value, 'toto')
-        form['myradio'] = 'true'
-        self.assertEqual(form['myradio'].value, 'true')
-        check = form.get('mycheckbox', index=0)
-        check.value = 'true'
-        self.assertEqual(check.value, 'true')
-        form['myselect'] = 'value2'
-        self.assertEqual(form['myselect'].value, 'value2')
-        form['mymultiselect'] = ['value1', 'value3']
-        self.assertEqual(form['mymultiselect'].value, ['value1', 'value3'])
+
+        self.assertEqual(form['mytext'].value, '')
+        resp.mustcontain(no='Form submited')
+
+        with webtest.selenium(resp) as sresp:
+            if sresp:
+                sform = sresp.forms['myform']
+                sform['mytext'] = 'foo'
+                sresp = sform.submit(name='go', timeout=0)
+                sresp.mustcontain('Form submited')
+
+        resp.mustcontain('Form submited')
+        form = resp.forms['myform']
+        self.assertEqual(form['mytext'].value, 'foo')
 
         resp = form.submit(name='go')
-        resp.mustcontain(no='Form submited')
         resp = resp.follow()
         resp.mustcontain('<pre>submited</pre>')
 
-    @webtest.with_selenium(commands=('*googlechrome',))
+    @webtest.selenium
     def test_selenium(self):
         resp = self.app.get('/', {'redirect': '/message.html?message=submited'})
         resp.mustcontain('It Works!')
         form = resp.forms['myform']
         form.lint()
-        form['mytext'] = 'toto'
-        self.assertEqual(form['mytext'].value, 'toto')
+
+        form['mytext'] = 'foo'
+        self.assertEqual(form['mytext'].value, 'foo')
+
+        # file upload are only supported with *firefox *chrome drivers
+        filename = os.path.join(files, 'html', 'index.html')
+        file = form['myfile']
+        file.value = (filename,)
+
         form['myradio'] = 'true'
         self.assertEqual(form['myradio'].value, 'true')
         check = form.get('mycheckbox', index=0)
@@ -99,7 +109,7 @@ class TestStatus(unittest.TestCase):
 
     @classmethod
     def setupClass(cls):
-        cls.app = webtest.SeleniumApp(application, command='*googlechrome', timeout=6000)
+        cls.app = webtest.SeleniumApp(application)
 
     def test_302(self):
         resp = self.app.get('/302', dict(redirect='/500'))
@@ -122,12 +132,14 @@ class TestStatus(unittest.TestCase):
     def teardownClass(cls):
         cls.app.close()
 
+TestStatus = webtest.selenium(TestStatus)
+
 
 class TestJQueryUI(unittest.TestCase):
 
     @classmethod
     def setupClass(cls):
-        cls.app = webtest.SeleniumApp(url='http://jqueryui.com/', command='*googlechrome', timeout=6000)
+        cls.app = webtest.SeleniumApp(url='http://jqueryui.com/', timeout=6000)
 
     def setUp(self):
         self.resp = self.app.get('http://jqueryui.com/demos/')
@@ -135,29 +147,27 @@ class TestJQueryUI(unittest.TestCase):
     def test_autocomplete(self):
         resp = self.resp.click('Autocomplete')
         field = resp.doc.xpath('//input[@id="tags"]')
-        field.focus()
-        field.type('a')
-        if self.app.chrome:
-            field.typeKeys(r'\40')
+        field.value = 'a'
         item = resp.doc.xpath('//ul[@role="listbox"]//a[.="AppleScript"]')
-        item.wait()
+        item.wait().fireEvent('mouseover')
+        field.value = resp.doc.css('#ui-active-menuitem').html()
+        self.assertEqual(field.value, "AppleScript")
 
     def test_datepicker(self):
         resp = self.resp.click('Datepicker')
         field = resp.doc.datepicker
-        field.focus()
-        day = resp.doc.link('16')
-        day.wait().click()
+        field.fireEvent('focus')
+        resp.doc.link('16').wait_and_click()
         self.assertIn('/16/', field.value)
 
     def test_dialog(self):
         resp = self.resp.click('Dialog')
         close = resp.doc.xpath('//div[@role="dialog"]//span[.="close"]')
-        close.wait().click()
+        close.wait_and_click()
         resp.doc.link('Modal form').click()
         resp.doc.button('Create new user').wait().click()
         form = resp.form
-        form['name'] = 'Gael'
+        form['name'].value = 'Gael'
         form['email'] = 'gael@gawel.org'
         create = resp.doc.button('Create an account')
         create.click()
@@ -190,4 +200,4 @@ class TestJQueryUI(unittest.TestCase):
     def teardownClass(cls):
         cls.app.close()
 
-TestJQueryUI = webtest.with_selenium()(TestJQueryUI)
+TestJQueryUI = webtest.selenium(TestJQueryUI)

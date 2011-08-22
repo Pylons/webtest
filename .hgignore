@@ -9,6 +9,7 @@ docs/_build/
 buildout.cfg
 bootstrap.py
 .installed.cfg
+*.jar
 *.swp
 *.pyc
 .project

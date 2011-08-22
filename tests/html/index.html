@@ -8,10 +8,15 @@
         <h1>It Works!</h1>
         <div id="message">
         </div>
-        <form action="/post" id="myform" method="post">
+        <form action="/post" id="myform" method="post" enctype="multipart/form-data">
           <div>
             <label for="mytext">Text</label>
             <input type="text" id="mytext" name="mytext" value="" />
+          </div>
+
+          <div>
+            <label for="myfile">File</label>
+            <input type="file" id="myfile" name="myfile" value="" />
           </div>
 
           <div>
