@@ -3,7 +3,6 @@ import os
 import webob
 import webtest
 from webob import exc
-from webtest import sel
 import unittest2 as unittest
 
 files = os.path.dirname(__file__)
@@ -12,7 +11,15 @@ def application(environ, start_response):
     req = webob.Request(environ)
     resp = webob.Response()
     if req.method == 'GET':
-        filename = os.path.join(files, 'html', req.path_info.strip('/') or 'index.html')
+        filename = req.path_info.strip('/') or 'index.html'
+        if filename in ('302',):
+            redirect = req.params['redirect']
+            resp = exc.HTTPFound(location=redirect)
+            return resp(environ, start_response)
+        if filename.isdigit():
+            resp.status = filename
+            filename = 'index.html'
+        filename = os.path.join(files, 'html', filename)
         if os.path.isfile(filename):
             kw = dict(message=req.params.get('message', ''),
                       redirect=req.params.get('redirect', ''))
@@ -59,7 +66,7 @@ class TestApp(unittest.TestCase):
         resp = resp.follow()
         resp.mustcontain('<pre>submited</pre>')
 
-    @sel.with_selenium(commands=('*googlechrome',))
+    @webtest.with_selenium(commands=('*googlechrome',))
     def test_selenium(self):
         resp = self.app.get('/', {'redirect': '/message.html?message=submited'})
         resp.mustcontain('It Works!')
@@ -87,11 +94,40 @@ class TestApp(unittest.TestCase):
         resp = resp.follow()
         resp.mustcontain('<pre>submited</pre>')
 
+
+class TestStatus(unittest.TestCase):
+
+    @classmethod
+    def setupClass(cls):
+        cls.app = webtest.SeleniumApp(application, command='*googlechrome', timeout=6000)
+
+    def test_302(self):
+        resp = self.app.get('/302', dict(redirect='/500'))
+        self.assertRaises(webtest.AppError, resp.follow)
+        resp.follow(status=500)
+
+        resp = self.app.get('/302', dict(redirect='/404.html'))
+        self.assertRaises(webtest.AppError, resp.follow)
+
+    def test_404(self):
+        self.assertRaises(webtest.AppError, self.app.get, '/404')
+        self.app.get('/404', status=404)
+        self.assertRaises(webtest.AppError, self.app.get, '/404.html')
+
+    def test_500(self):
+        self.assertRaises(webtest.AppError, self.app.get, '/500')
+        self.app.get('/500', status=500)
+
+    @classmethod
+    def teardownClass(cls):
+        cls.app.close()
+
+
 class TestJQueryUI(unittest.TestCase):
 
     @classmethod
     def setupClass(cls):
-        cls.app = sel.SeleniumApp(url='http://jqueryui.com/', command='*googlechrome', timeout=6000)
+        cls.app = webtest.SeleniumApp(url='http://jqueryui.com/', command='*googlechrome', timeout=6000)
 
     def setUp(self):
         self.resp = self.app.get('http://jqueryui.com/demos/')
@@ -150,9 +186,8 @@ class TestJQueryUI(unittest.TestCase):
         item.dragAndDropToObject(cart)
         self.assertIn(item, cart)
 
-
     @classmethod
     def teardownClass(cls):
         cls.app.close()
 
-TestJQueryUI = sel.with_selenium()(TestJQueryUI)
+TestJQueryUI = webtest.with_selenium()(TestJQueryUI)

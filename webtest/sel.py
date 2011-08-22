@@ -18,7 +18,6 @@ import socket
 import webob
 import signal
 import httplib
-import logging
 import warnings
 import threading
 import subprocess
@@ -29,19 +28,20 @@ from wsgiref import simple_server
 try:
     import json
 except ImportError:
-    import simplejson as json
-
-
-logger = logging.getLogger('nose')
-
-
-def log(*args):
-    logger.error(*args)
+    try:
+        import simplejson as json
+    except:
+        json = False
 
 
 def is_selenium_available():
     """return True if the selenium module is available and a RC server is
     running"""
+    if json == False:
+        warnings.warn(
+            ('selenium is not available because no json module are '
+            'available. Consider installing simplejson'),
+            SeleniumWarning)
     host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
     port = int(os.environ.get('SELENIUM_POST', 4444))
     try:
@@ -219,7 +219,14 @@ class SeleniumApp(testapp.TestApp):
         for h, v in req.headers.items():
             self.sel.execute('addCustomRequestHeader', h, v)
         self.sel.execute('open', req.url)
-        return self._get_response()
+        resp = self._get_response()
+        if not expect_errors:
+            self._check_status(status, resp)
+            if not status:
+                status = resp.status_int
+                if not (status > 300 and status < 400):
+                    self._check_errors(resp)
+        return resp
 
 
     def _get_response(self, resp=None, timeout=None):
@@ -229,13 +236,18 @@ class SeleniumApp(testapp.TestApp):
             self.sel.execute('waitForPageToLoad', timeout)
         trafic = json.loads(self.sel.execute('captureNetworkTraffic', 'json'))
         responses = []
+        errors = []
         for d in trafic:
             if d['url'].endswith('.ico'):
                 continue
             req = webob.Request.blank(d['url'])
             for h in d['requestHeaders']:
                 req.headers[h['name']] = h['value']
-            resp = TestResponse(self.test_app, responses=responses)
+            resp = TestResponse()
+            resp.app = self.test_app
+            resp.sel = self.test_app.sel
+            resp.responses = responses
+            resp.errors = errors
             resp.request = req
             resp.status = str(d['statusCode'])
             for h in d['responseHeaders']:
@@ -243,10 +255,14 @@ class SeleniumApp(testapp.TestApp):
             if resp.status_int == 200 and 'text/' in resp.content_type:
                 if not resp.charset:
                     resp.charset = 'utf-8'
+            if resp.status_int > 400:
+                errors.append('%s %r' % (resp.request.url, resp))
             if 'html' in resp.content_type or resp.status_int != 200:
                 responses.append(resp)
         if responses:
-            return responses.pop(0)
+            resp = responses.pop(0)
+            print resp.errors
+            return resp
         elif resp is not None:
             return resp
         else:
@@ -417,13 +433,7 @@ class Document(object):
 
 class TestResponse(testapp.TestResponse):
 
-    def __init__(self, app, responses):
-        super(TestResponse, self).__init__()
-        self.test_app = app
-        self.sel = app.sel
-        self.responses = responses
-
-    def follow(self, **kw):
+    def follow(self, status=None, **kw):
         """If this request is a redirect, follow that redirect.  It
         is an error if this is not a redirect response.  Returns
         another response object.
@@ -432,6 +442,11 @@ class TestResponse(testapp.TestResponse):
             raise ValueError(
                'You can only follow 301 and 302. Not %s' % self.status_int)
         if len(self.responses):
+            resp = self.responses[0]
+            if not kw.get('expect_errors', False):
+                self.app._check_status(status, resp)
+                if not status:
+                    self.app._check_errors(resp)
             return self.responses.pop(0)
         raise LookupError('Responses queue is empty. Nothing to follow.')
 
