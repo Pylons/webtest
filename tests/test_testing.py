@@ -1,6 +1,6 @@
-import unittest
 import webtest
 from webtest.debugapp import debug_app
+from tests.compat import unittest
 
 def raises(exc, func, *args, **kw):
     try:
@@ -19,18 +19,18 @@ class TestTesting(unittest.TestCase):
 
     def test_testing(self):
         res = self.app.get('/')
-        assert(res.status_int == 200)
-        assert(res.headers['content-type'] == 'text/plain')
-        assert(res.content_type == 'text/plain')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'], 'text/plain')
+        self.assertEqual(res.content_type, 'text/plain')
         res = self.app.request('/', method='GET')
-        assert(res.status_int == 200)
-        assert(res.headers['content-type'] == 'text/plain')
-        assert(res.content_type == 'text/plain')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'], 'text/plain')
+        self.assertEqual(res.content_type, 'text/plain')
         res = self.app.head('/')
-        assert(res.status_int == 200)
-        assert(res.headers['content-type'] == 'text/plain')
-        assert(res.content_length)
-        assert(res.body == '')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'], 'text/plain')
+        self.assertTrue(res.content_length > 0)
+        self.assertEqual(res.body, '')
 
     def test_get_params(self):
         res = self.app.post('/', params=dict(a=1))
@@ -43,19 +43,19 @@ class TestTesting(unittest.TestCase):
         res.mustcontain('a=1')
 
     def test_exception(self):
-        raises(Exception, self.app.get, '/?error=t')
-        raises(webtest.AppError, self.app.get, '/?status=404%20Not%20Found')
+        self.assertRaises(Exception, self.app.get, '/?error=t')
+        self.assertRaises(webtest.AppError, self.app.get, '/?status=404%20Not%20Found')
 
     def test_303(self):
         res = self.app.get('/?status=303%20Redirect&header-location=/foo')
-        assert(res.status_int == 303)
+        self.assertEqual(res.status_int, 303)
         print(res.location)
-        assert(res.location == '/foo')
-        assert(res.headers['location'] == '/foo')
+        self.assertEqual(res.location, '/foo')
+        self.assertEqual(res.headers['location'], '/foo')
         res = res.follow()
-        assert(res.request.url == 'http://localhost/foo')
-        assert('Response: 200 OK' in str(res))
-        assert('200 OK' in repr(res))
+        self.assertEqual(res.request.url, 'http://localhost/foo')
+        self.assertIn('Response: 200 OK', str(res))
+        self.assertIn('200 OK', repr(res))
         res = self.app.get('/?status=303%20redirect', status='3*')
 
     def test_204(self):
@@ -63,7 +63,7 @@ class TestTesting(unittest.TestCase):
 
     def test_404(self):
         self.app.get('/?status=404%20Not%20Found', status=404)
-        raises(webtest.AppError, self.app.get, '/', status=404)
+        self.assertRaises(webtest.AppError, self.app.get, '/', status=404)
 
     def test_fake_dict(self):
         class FakeDict(object):

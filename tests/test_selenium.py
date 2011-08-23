@@ -4,7 +4,7 @@ import os
 import webob
 import webtest
 from webob import exc
-import unittest2 as unittest
+from tests.compat import unittest
 
 files = os.path.dirname(__file__)
 
