@@ -23,6 +23,7 @@ import httplib
 import logging
 import warnings
 import tempfile
+import unittest
 import threading
 import subprocess
 from functools import wraps
@@ -63,18 +64,23 @@ HAS_UPLOAD_SUPPORT = ('*chrome', '*firefox')
 def function_decorator(func):
     """run test with selenium. create a new session if needed"""
     @wraps(func)
-    def wrapper(self):
+    def wrapper(*args):
         if is_available():
-            if isinstance(self.app, SeleniumApp):
-                func(self)
-            else:
-                old_app = self.app
-                self.app = SeleniumApp(self.app.app)
-                try:
+            if args and isinstance(args[0], unittest.TestCase):
+                self = args[0]
+                if isinstance(self.app, SeleniumApp):
                     func(self)
-                finally:
-                    self.app.close()
-                    self.app = old_app
+                else:
+                    old_app = self.app
+                    self.app = SeleniumApp(self.app.app)
+                    try:
+                        func(self)
+                    finally:
+                        self.app.close()
+                        self.app = old_app
+            else:
+                # function
+                func(*args)
     return wrapper
 
 
@@ -420,14 +426,19 @@ class Element(object):
         """Return the innerHTML of the element"""
         return self.eval('e.innerHTML')
 
+    def text(self):
+        """Return the text of the element"""
+        return self.getText()
+
+    def attr(self, attr):
+        """Return the attribute value of the element"""
+        return self.getAttribute(attr)
+
     def value__get(self):
         return self.getValue()
 
     def value__set(self, value):
-        if json:
-            value = json.dumps(value)
-        else:
-            value = repr(str(value))
+        value = _value(value)
         script = """(function() {
         s.doFireEvent(l, "focus");
         s.doType(l, %s);
@@ -462,9 +473,12 @@ class Element(object):
             raise RuntimeError(script)
 
     def __contains__(self, s):
-        if isinstance(s, self.__class__):
+        if isinstance(s, Element):
             s = s.html()
         return s in self.html()
+
+    def __nonzero__(self):
+        return self.isElementPresent()
 
     def __repr__(self):
         return '<%s at %s>' % (self.__class__.__name__, self.locator)
@@ -515,6 +529,14 @@ class Document(object):
         """Get a button"""
         return self.get('button', description=description,
                                  id=buttonid, index=index)
+
+    def __contains__(self, s):
+        if isinstance(s, Element):
+            return s.isElementPresent()
+        return self.sel.execute('isTextPresent(%r)' % _value(s))
+
+    def __call__(self, locator):
+        return Element(locator)
 
 
 ###########
@@ -827,6 +849,11 @@ class FileHandler(SimpleHTTPRequestHandler):
 # Misc
 ###############
 
+def _value(s):
+    if json:
+        return json.dumps(s)
+    else:
+        return repr(str(s))
 
 def _eval_xpath(tag, locator=None, index=None, **kwargs):
     if not locator:
