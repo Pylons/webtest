@@ -23,6 +23,9 @@ from webtest.compat import print_stderr
 from webtest.compat import StringIO
 from webtest.compat import SimpleCookie, CookieError
 from webtest.compat import cookie_quote
+from webtest.compat import urlencode
+from webtest.compat import string_types
+from webtest.compat import text_type
 from webob import Request, Response
 from webtest import lint
 
@@ -345,7 +348,7 @@ class TestResponse(Response):
         # encode unicode strings for the outside world
         if getattr(self, '_use_unicode', False):
             def to_str(s):
-                if isinstance(s, unicode):
+                if isinstance(s, text_type):
                     return s.encode(self.charset)
                 return s
 
@@ -401,12 +404,12 @@ class TestResponse(Response):
         of the response.  Whitespace is normalized when searching
         for a string.
         """
-        if not isinstance(s, basestring):
+        if not isinstance(s, string_types):
             if hasattr(s, '__unicode__'):
-                s = unicode(s)
+                s = s.__unicode__()
             else:
                 s = str(s)
-        if isinstance(s, unicode):
+        if isinstance(s, text_type):
             body = self.unicode_body
             normal_body = self.unicode_normal_body
         else:
@@ -426,7 +429,7 @@ class TestResponse(Response):
         if 'no' in kw:
             no = kw['no']
             del kw['no']
-            if isinstance(no, basestring):
+            if isinstance(no, string_types):
                 no = [no]
         else:
             no = []
@@ -657,7 +660,7 @@ class TestApp(object):
 
     def __init__(self, app, extra_environ=None, relative_to=None,
                        use_unicode=True):
-        if isinstance(app, (str, unicode)):
+        if isinstance(app, string_types):
             from paste.deploy import loadapp
             # @@: Should pick up relative_to from calling module's
             # __file__
@@ -724,8 +727,8 @@ class TestApp(object):
         __tracebackhide__ = True
         url = self._remove_fragment(url)
         if params:
-            if not isinstance(params, (str, unicode)):
-                params = urllib.urlencode(params, doseq=True)
+            if not isinstance(params, string_types):
+                params = urlencode(params, doseq=True)
             if '?' in url:
                 url += '&'
             else:
@@ -751,9 +754,9 @@ class TestApp(object):
         environ = self._make_environ(extra_environ)
         # @@: Should this be all non-strings?
         if isinstance(params, (list, tuple, dict)):
-            params = urllib.urlencode(params, doseq=True)
+            params = urlencode(params, doseq=True)
         if hasattr(params, 'items'):
-            params = urllib.urlencode(params.items(), doseq=True)
+            params = urlencode(params.items(), doseq=True)
         if upload_files or \
                 (content_type and content_type.startswith('multipart')):
             params = cgi.parse_qsl(params, keep_blank_values=True)
@@ -917,16 +920,16 @@ class TestApp(object):
         serialized arguments, and simultaneously set the request
         method to ``POST``
         """
-        if isinstance(url_or_req, basestring):
+        if isinstance(url_or_req, string_types):
             req = self.RequestClass.blank(url_or_req, **req_params)
         else:
             req = url_or_req.copy()
-            for name, value in req_params.iteritems():
+            for name, value in req_params.items():
                 setattr(req, name, value)
             if req.content_length == -1:
                 req.content_length = len(req.body)
         req.environ['paste.throw_errors'] = True
-        for name, value in self.extra_environ.iteritems():
+        for name, value in self.extra_environ.items():
             req.environ.setdefault(name, value)
         return self.do_request(req, status=status, expect_errors=expect_errors)
 
@@ -1002,7 +1005,7 @@ class TestApp(object):
         __tracebackhide__ = True
         if status == '*':
             return
-        if (isinstance(status, basestring)
+        if (isinstance(status, string_types)
             and '*' in status):
             if re.match(fnmatch.translate(status), res.status, re.I):
                 return
@@ -1610,7 +1613,7 @@ class Form(object):
 
 
 def _stringify(value):
-    if isinstance(value, unicode):
+    if isinstance(value, text_type):
         return value
     return str(value)
 
@@ -1653,11 +1656,11 @@ def _space_prefix(pref, full, sep=None, indent=None, include_sep=True):
 def _make_pattern(pat):
     if pat is None:
         return None
-    if isinstance(pat, (str, unicode)):
+    if isinstance(pat, string_types):
         pat = re.compile(pat)
     if hasattr(pat, 'search'):
         return pat.search
-    if callable(pat):
+    if hasattr(pat, '__call__'):
         return pat
     assert 0, (
         "Cannot make callable pattern object out of %r" % pat)

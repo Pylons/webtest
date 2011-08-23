@@ -12,14 +12,12 @@ import os
 import cgi
 import sys
 import time
-import urllib
 import signal
 import socket
 import types
 import webob
 import signal
 import shutil
-import httplib
 import logging
 import warnings
 import tempfile
@@ -30,8 +28,12 @@ from functools import wraps
 from webtest import app as testapp
 from wsgiref import simple_server
 from contextlib import contextmanager
-from BaseHTTPServer import HTTPServer
-from SimpleHTTPServer import SimpleHTTPRequestHandler
+from webtest.compat import urlencode
+from webtest.compat import binary_type
+from webtest.compat import HTTPConnection
+from webtest.compat import CannotSendRequest
+from webtest.compat import HTTPServer
+from webtest.compat import SimpleHTTPRequestHandler
 
 try:
     import json
@@ -171,11 +173,11 @@ class Selenium(object):
         data = dict([(i + 1, a) for i, a in enumerate(args)], cmd=cmd)
         if self.session_id:
             data['sessionId'] = self.session_id
-        data = urllib.urlencode(data)
+        data = urlencode(data)
         headers = {
             "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
           }
-        conn = httplib.HTTPConnection(self.host, self.port)
+        conn = HTTPConnection(self.host, self.port)
         try:
             conn.request("POST", "/selenium-server/driver/", data, headers)
             resp = conn.getresponse()
@@ -291,9 +293,7 @@ class SeleniumApp(testapp.TestApp):
             if 'html' in resp.content_type or resp.status_int != 200:
                 responses.append(resp)
         if responses:
-            print responses
             resp = responses.pop(0)
-            print resp.errors
             return resp
         elif resp is not None:
             return resp
@@ -314,13 +314,13 @@ class SeleniumApp(testapp.TestApp):
 
         app.thread = threading.Thread(target=run)
         app.thread.start()
-        conn = httplib.HTTPConnection(ip, port)
+        conn = HTTPConnection(ip, port)
         time.sleep(.5)
         for i in range(100):
             try:
                 conn.request('GET', '/__application__')
                 resp = conn.getresponse()
-            except (socket.error, httplib.CannotSendRequest):
+            except (socket.error, CannotSendRequest):
                 time.sleep(.3)
             else:
                 break
@@ -328,7 +328,7 @@ class SeleniumApp(testapp.TestApp):
     def close(self):
         """Close selenium and the WSGI server if needed"""
         if self.app:
-            conn = httplib.HTTPConnection(*self.app.bind)
+            conn = HTTPConnection(*self.app.bind)
             for i in range(100):
                 try:
                     conn.request('GET', '/__kill_application__')
@@ -383,7 +383,7 @@ class TestResponse(testapp.TestResponse):
 
     def _body__get(self):
         body = self.browser.getHtmlSource()
-        if isinstance(body, unicode):
+        if isinstance(body, binary_type):
             return body.encode(self.charset or 'utf-8')
         else:
             return body
@@ -513,6 +513,7 @@ class Element(object):
 
     def __nonzero__(self):
         return self.isElementPresent()
+    __bool__ = __nonzero__
 
     def __repr__(self):
         return '<%s at %s>' % (self.__class__.__name__, self.locator)
@@ -778,7 +779,7 @@ class Form(testapp.Form):
             raise LookupError('No form found at %s' % self.locator)
         form = self.browser.getEval(
             "this.browserbot.findElement('%s').innerHTML;" % self.locator)
-        super(Form, self).__init__(resp, u'<form>%s</form>' % form)
+        super(Form, self).__init__(resp, '<form>%s</form>' % form)
 
     def _parse_fields(self):
         super(Form, self)._parse_fields()
@@ -935,7 +936,7 @@ def is_available():
     host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
     port = int(os.environ.get('SELENIUM_POST', 4444))
     try:
-        conn = httplib.HTTPConnection(host, port)
+        conn = HTTPConnection(host, port)
         conn.request('GET', '/')
     except socket.error:
         if 'SELENIUM_JAR' not in os.environ:
@@ -947,7 +948,7 @@ def is_available():
             for i in range(30):
                 time.sleep(.3)
                 try:
-                    conn = httplib.HTTPConnection(host, port)
+                    conn = HTTPConnection(host, port)
                     conn.request('GET', '/')
                 except socket.error:
                     pass
