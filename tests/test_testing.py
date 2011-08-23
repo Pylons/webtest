@@ -2,16 +2,6 @@ import webtest
 from webtest.debugapp import debug_app
 from tests.compat import unittest
 
-def raises(exc, func, *args, **kw):
-    try:
-        func(*args, **kw)
-    except exc:
-        pass
-    else:
-        raise AssertionError(
-            "Expected exception %s from %s"
-            % (exc, func))
-
 class TestTesting(unittest.TestCase):
 
     def setUp(self):

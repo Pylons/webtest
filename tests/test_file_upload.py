@@ -1,5 +1,6 @@
 import os.path
 import struct
+from tests.compat import unittest
 
 from webob import Request
 import webtest
@@ -136,89 +137,90 @@ def multiple_upload_file_app(environ, start_response):
     start_response(status, headers)
     return [body]
 
+class TestFileUpload(unittest.TestCase):
 
-def test_no_uploads_error():
-    app = webtest.TestApp(single_upload_file_app)
-    uploads = app.get('/').forms["file_upload_form"].upload_fields()
-
-
-def test_upload_without_file():
-    app = webtest.TestApp(single_upload_file_app)
-    upload_form = app.get('/').forms["file_upload_form"]
-    upload_form.submit()
+    def test_no_uploads_error(self):
+        app = webtest.TestApp(single_upload_file_app)
+        uploads = app.get('/').forms["file_upload_form"].upload_fields()
 
 
-def test_file_upload_with_filename_only():
-    uploaded_file_name = \
-        os.path.join(os.path.dirname(__file__), "__init__.py")
-    uploaded_file_contents = file(uploaded_file_name).read()
-
-    app = webtest.TestApp(single_upload_file_app)
-    res = app.get('/')
-    assert(res.status_int == 200)
-    assert(res.headers['content-type'] == 'text/html; charset=utf-8')
-    assert(res.content_type == 'text/html')
-    assert(res.charset == 'utf-8')
-
-    single_form = res.forms["file_upload_form"]
-    single_form.set("file-field", (uploaded_file_name,))
-    display = single_form.submit("button")
-    assert("<p>You selected '%s'</p>" % uploaded_file_name in display, display)
-    assert("<p>with contents: '%s'</p>" % uploaded_file_contents in display, \
-        display)
+    def test_upload_without_file(self):
+        app = webtest.TestApp(single_upload_file_app)
+        upload_form = app.get('/').forms["file_upload_form"]
+        upload_form.submit()
 
 
-def test_file_upload_with_filename_and_contents():
-    uploaded_file_name = \
-        os.path.join(os.path.dirname(__file__), "__init__.py")
-    uploaded_file_contents = file(uploaded_file_name).read()
+    def test_file_upload_with_filename_only(self):
+        uploaded_file_name = \
+            os.path.join(os.path.dirname(__file__), "__init__.py")
+        uploaded_file_contents = file(uploaded_file_name).read()
 
-    app = webtest.TestApp(single_upload_file_app)
-    res = app.get('/')
-    assert(res.status_int == 200)
-    assert(res.headers['content-type'] == 'text/html; charset=utf-8')
-    assert(res.content_type == 'text/html')
+        app = webtest.TestApp(single_upload_file_app)
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'], 'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
+        self.assertEqual(res.charset, 'utf-8')
 
-    single_form = res.forms["file_upload_form"]
-    single_form.set("file-field",
-                    (uploaded_file_name, uploaded_file_contents))
-    display = single_form.submit("button")
-    assert("<p>You selected '%s'</p>" % uploaded_file_name in display, display)
-    assert("<p>with contents: '%s'</p>" % uploaded_file_contents in display, \
-        display)
-
-
-def test_file_upload_binary():
-    binary_data = struct.pack('255h', *range(0,255))
-    app = webtest.TestApp(upload_binary_app)
-    res = app.get('/')
-    single_form = res.forms["binary_upload_form"]
-    single_form.set("binary-file-field", ('my_file.dat', binary_data))
-    display = single_form.submit("button")
-    assert(','.join([str(n) for n in range(0,255)]) in display, display)
+        single_form = res.forms["file_upload_form"]
+        single_form.set("file-field", (uploaded_file_name,))
+        display = single_form.submit("button")
+        self.assertIn("<p>You selected '%s'</p>" % uploaded_file_name, display, display)
+        self.assertIn("<p>with contents: '%s'</p>" % uploaded_file_contents, display, \
+            display)
 
 
-def test_multiple_file_uploads_with_filename_and_contents():
-    uploaded_file1_name = \
-        os.path.join(os.path.dirname(__file__), "__init__.py")
-    uploaded_file1_contents = file(uploaded_file1_name).read()
-    uploaded_file2_name = \
-        os.path.join(os.path.dirname(__file__), "test_input.py")
-    uploaded_file2_contents = file(uploaded_file2_name).read()
+    def test_file_upload_with_filename_and_contents(self):
+        uploaded_file_name = \
+            os.path.join(os.path.dirname(__file__), "__init__.py")
+        uploaded_file_contents = file(uploaded_file_name).read()
 
-    app = webtest.TestApp(multiple_upload_file_app)
-    res = app.get('/')
-    assert(res.status_int == 200)
-    assert(res.headers['content-type'] == 'text/html; charset=utf-8')
-    assert(res.content_type == 'text/html')
+        app = webtest.TestApp(single_upload_file_app)
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'], 'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
 
-    single_form = res.forms["file_upload_form"]
-    single_form.set("file-field-1", (uploaded_file1_name, uploaded_file1_contents))
-    single_form.set("file-field-2", (uploaded_file2_name, uploaded_file2_contents))
-    display = single_form.submit("button")
-    assert("<p>You selected '%s'</p>" % uploaded_file1_name in display, display)
-    assert("<p>with contents: '%s'</p>" % uploaded_file1_contents in display, \
-        display)
-    assert("<p>You selected '%s'</p>" % uploaded_file2_name in display, display)
-    assert("<p>with contents: '%s'</p>" % uploaded_file2_contents in display, \
-        display)
+        single_form = res.forms["file_upload_form"]
+        single_form.set("file-field",
+                        (uploaded_file_name, uploaded_file_contents))
+        display = single_form.submit("button")
+        self.assertIn("<p>You selected '%s'</p>" % uploaded_file_name, display, display)
+        self.assertIn("<p>with contents: '%s'</p>" % uploaded_file_contents, display, \
+            display)
+
+
+    def test_file_upload_binary(self):
+        binary_data = struct.pack('255h', *range(0,255))
+        app = webtest.TestApp(upload_binary_app)
+        res = app.get('/')
+        single_form = res.forms["binary_upload_form"]
+        single_form.set("binary-file-field", ('my_file.dat', binary_data))
+        display = single_form.submit("button")
+        self.assertIn(','.join([str(n) for n in range(0,255)]), display)
+
+
+    def test_multiple_file_uploads_with_filename_and_contents(self):
+        uploaded_file1_name = \
+            os.path.join(os.path.dirname(__file__), "__init__.py")
+        uploaded_file1_contents = file(uploaded_file1_name).read()
+        uploaded_file2_name = \
+            os.path.join(os.path.dirname(__file__), "test_input.py")
+        uploaded_file2_contents = file(uploaded_file2_name).read()
+
+        app = webtest.TestApp(multiple_upload_file_app)
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'], 'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
+
+        single_form = res.forms["file_upload_form"]
+        single_form.set("file-field-1", (uploaded_file1_name, uploaded_file1_contents))
+        single_form.set("file-field-2", (uploaded_file2_name, uploaded_file2_contents))
+        display = single_form.submit("button")
+        self.assertIn("<p>You selected '%s'</p>" % uploaded_file1_name, display, display)
+        self.assertIn("<p>with contents: '%s'</p>" % uploaded_file1_contents, display, \
+            display)
+        self.assertIn("<p>You selected '%s'</p>" % uploaded_file2_name, display, display)
+        self.assertIn("<p>with contents: '%s'</p>" % uploaded_file2_contents, display, \
+            display)
