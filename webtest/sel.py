@@ -5,8 +5,8 @@
 """
 Routines for testing WSGI applications with selenium.
 
-Most interesting is :class:`~webtest.sel.SeleniumApp` and the
-:func:`~webtest.sel.selenium` decorator
+Most interesting is :class:`~webtest.browser.browsereniumApp` and the
+:func:`~webtest.browser.browserenium` decorator
 """
 import os
 import cgi
@@ -94,7 +94,7 @@ def context_manager(resp):
         app = SeleniumApp(test_app.app)
         for h, v in resp.request.headers.items():
             if h.lower() not in ('host',):
-                app.sel.execute('addCustomRequestHeader', h, v)
+                app.browser.addCustomRequestHeader(h, v)
         fd = tempfile.NamedTemporaryFile(prefix='webtest-selenium-',
                                          suffix='.html')
         fd.write(resp.body)
@@ -103,7 +103,7 @@ def context_manager(resp):
         try:
             yield response
         finally:
-            resp.body = app.sel.execute('getHtmlSource')
+            resp.body = app.browser.getHtmlSource()
             resp._forms_indexed = None
             resp.updated = True
             app.close()
@@ -129,7 +129,26 @@ def selenium(obj):
 
 
 class Selenium(object):
-    """Selenium RC control"""
+    """Selenium RC control aka ``browser``
+
+    A object use to manipulate DOM nodes. This object allow to use the
+    underlying selenium api. See Selenium `api
+    <http://goo.gl/IecEk>`_
+
+    You can use the original method name::
+
+        browser.fireEvent('id=#myid", 'focus')
+
+    Or a more pythonic name::
+
+        browser.fire_event('id=#myid", 'focus')
+
+    Both are equal to::
+
+        browser.execute('fireEvent', 'id=#myid', 'focus')
+
+    """
+
 
     def __init__(self):
         self.host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
@@ -139,13 +158,13 @@ class Selenium(object):
     def start(self, url):
         self.driver = os.environ.get('SELENIUM_DRIVER',
                                       '*googlechrome')
-        self.session_id = self.execute('getNewBrowserSession',
+        self.session_id = self.getNewBrowserSession(
                                        self.driver, url, '',
                                        "captureNetworkTraffic=true",
                                        "addCustomRequestHeader=true")
 
     def stop(self):
-        self.execute("testComplete")
+        self.testComplete()
         self.session_id = None
 
     def execute(self, cmd, *args):
@@ -173,6 +192,15 @@ class Selenium(object):
             return data == 'true' and True or False
         return data
 
+    def __getattr__(self, attr):
+        cmd = _get_command(attr)
+        def wrapped(*args):
+            args = [cmd] + [str(a) for a in args]
+            return self.execute(*args)
+        wrapped.__name__ = attr
+        return wrapped
+
+
 
 ##############
 # Webtest API
@@ -187,7 +215,7 @@ class SeleniumApp(testapp.TestApp):
 
     apps = []
 
-    def __init__(self, app=None, url=None, timeout=4000,
+    def __init__(self, app=None, url=None, timeout=30000,
                  extra_environ=None, relative_to=None, **kwargs):
         self.app = None
         if app:
@@ -198,30 +226,31 @@ class SeleniumApp(testapp.TestApp):
         self.session_id = None
         host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
         port = int(os.environ.get('SELENIUM_POST', 4444))
-        self.sel = Selenium()
-        self.sel.start(url)
+        self._browser = Selenium()
+        self._browser.start(url)
         self.extra_environ = extra_environ or {}
         self.timeout = timeout
         self.test_app = self
 
     @property
-    def driver(self):
-        return self.sel.driver
+    def browser(self):
+        """The current :class:`~webtest.sel.Selenium`"""
+        return self._browser
 
     @property
     def has_upload_support(self):
-        return self.sel.driver in HAS_UPLOAD_SUPPORT
+        return self._browser.driver in HAS_UPLOAD_SUPPORT
 
     def do_request(self, req, status, expect_errors):
         if req.method != 'GET':
             raise testapp.AppError('Only GET are allowed')
         if self.app:
             req.host = '%s:%s' % self.app.bind
-        self.sel.execute('captureNetworkTraffic', 'json')
+        self.browser.captureNetworkTraffic('json')
         for h, v in req.headers.items():
             if h.lower() not in ('host',):
-                self.sel.execute('addCustomRequestHeader', h, v)
-        self.sel.execute('open', req.url)
+                self.browser.addCustomRequestHeader(h, v)
+        self.browser.open(req.url)
         resp = self._get_response()
         if not expect_errors:
             self._check_status(status, resp)
@@ -235,8 +264,8 @@ class SeleniumApp(testapp.TestApp):
         """Get responses responses from selenium"""
         if timeout != 0:
             timeout = timeout or self.timeout
-            self.sel.execute('waitForPageToLoad', timeout)
-        trafic = json.loads(self.sel.execute('captureNetworkTraffic', 'json'))
+            self.browser.waitForPageToLoad(timeout)
+        trafic = json.loads(self.browser.captureNetworkTraffic('json'))
         responses = []
         errors = []
         for d in trafic:
@@ -247,7 +276,7 @@ class SeleniumApp(testapp.TestApp):
                 req.headers[h['name']] = h['value']
             resp = TestResponse()
             resp.app = resp.test_app = self.test_app
-            resp.sel = self.test_app.sel
+            resp.browser = self.test_app.browser
             resp.responses = responses
             resp.errors = errors
             resp.request = req
@@ -310,7 +339,7 @@ class SeleniumApp(testapp.TestApp):
                 else:
                     time.sleep(.3)
         if 'SELENIUM_KEEP_OPEN' not in os.environ:
-            self.sel.stop()
+            self.browser.stop()
         if 'SELENIUM_PID' in os.environ:
             os.kill(int(os.environ['SELENIUM_PID']), signal.SIGTERM)
 
@@ -353,7 +382,7 @@ class TestResponse(testapp.TestResponse):
         return Form(self, 0)
 
     def _body__get(self):
-        body = self.sel.execute('getHtmlSource')
+        body = self.browser.getHtmlSource()
         if isinstance(body, unicode):
             return body.encode(self.charset or 'utf-8')
         else:
@@ -368,7 +397,7 @@ class TestResponse(testapp.TestResponse):
 
     @property
     def doc(self):
-        """Expose a :class:`~webtest.sel.Document`"""
+        """Expose a :class:`~webtest.browser.Document`"""
         return Document(self)
 
 
@@ -381,37 +410,42 @@ class Element(object):
     """A object use to manipulate DOM nodes. This object allow to use the
     underlying selenium api for the specified locator. See Selenium `api
     <http://goo.gl/IecEk>`_
+
+    You can use the original method name::
+
+        element.fireEvent('focus')
+
+    Or a more pythonic name::
+
+        element.fire_event('focus')
+
+    Both are equal to::
+
+        browser.execute('fireEvent', element.locator, 'focus')
+
     """
 
     def __init__(self, resp, locator):
-        self.sel = resp.sel
+        self.browser = resp.browser
         self.resp = resp
         self.locator = locator
 
     def __getattr__(self, attr):
-        meth = getattr(self.sel, attr, None)
-        if meth is not None:
-            def wrapped(*args):
-                args = [self.locator] + [str(a) for a in args]
-                return meth(*args)
-        else:
-            def wrapped(*args):
-                args = [attr, self.locator] + [str(a) for a in args]
-                return self.sel.execute(*args)
-        if meth:
-            wraps(meth)(wrapped)
-        else:
-            wrapped.__name__ = attr
+        cmd = _get_command(attr)
+        def wrapped(*args):
+            args = [cmd, self.locator] + [str(a) for a in args]
+            return self.browser.execute(*args)
+        wrapped.__name__ = attr
         return wrapped
 
     def wait(self, timeout=3000):
         """Wait for an element and return this element"""
-        ctime = time.time() + (timeout / 1000)
-        while ctime >= time.time():
-            time.sleep(.3)
-            if self.isElementPresent():
-                return self
-        raise RuntimeError("Can't find %s after %sms" % (self, timeout))
+        script = "selenium.isElementPresent(%r) || null" % str(self)
+        try:
+            self.browser.waitForCondition(script, timeout)
+        except RuntimeError:
+            raise RuntimeError("Can't find %s after %sms" % (self, timeout))
+        return self
 
     def wait_and_click(self, timeout=3000):
         """Wait for an element, click on it and return this element"""
@@ -438,7 +472,7 @@ class Element(object):
         return self.getValue()
 
     def value__set(self, value):
-        value = _value(value)
+        value = _get_value(value)
         script = """(function() {
         s.doFireEvent(l, "focus");
         s.doType(l, %s);
@@ -468,7 +502,7 @@ class Element(object):
         "}(this))"
         ) % (str(self), ''.join(expr).strip(';'))
         try:
-            return self.sel.execute('getEval', script)
+            return self.browser.getEval(script)
         except RuntimeError:
             raise RuntimeError(script)
 
@@ -508,11 +542,11 @@ class Document(object):
         return Element(self.resp, locator)
 
     def xpath(self, path):
-        """Get an :class:`~webtest.sel.Element` using xpath"""
+        """Get an :class:`~webtest.browser.Element` using xpath"""
         return Element(self.resp, 'xpath=%s' % path)
 
     def css(self, selector):
-        """Get an :class:`~webtest.sel.Element` using a css selector"""
+        """Get an :class:`~webtest.browser.Element` using a css selector"""
         return Element(self.resp, 'css=%s' % selector)
 
     def link(self, description=None, linkid=None, href=None, index=None):
@@ -533,7 +567,7 @@ class Document(object):
     def __contains__(self, s):
         if isinstance(s, Element):
             return s.isElementPresent()
-        return self.sel.execute('isTextPresent(%r)' % _value(s))
+        return self.browser.isTextPresent(_get_value(s))
 
     def __call__(self, locator):
         return Element(locator)
@@ -550,7 +584,7 @@ class Field(testapp.Field, Element):
 
     def __init__(self, *args, **kwargs):
         super(Field, self).__init__(*args, **kwargs)
-        self.sel = self.form.sel
+        self.browser = self.form.browser
         self.options = []
         self.selectedIndices = []
         self._forced_values = []
@@ -625,7 +659,7 @@ class Radio(Field):
             }
             return values.join('&');
         }(this))""" % (self.name, self.form.locator)
-        value = self.sel.execute('getEval', script)
+        value = self.browser.getEval(script)
         value = [v for k, v in cgi.parse_qsl('name=true')]
         if not value:
             return None
@@ -735,14 +769,14 @@ class Form(testapp.Form):
     def __init__(self, resp, id):
         self.resp = resp
         self.test_app = resp.test_app
-        self.sel = resp.sel
+        self.browser = resp.browser
         if isinstance(id, int):
             self.locator = _eval_xpath('form', index=id)
         else:
             self.locator = _eval_xpath('form', id=id)
-        if not self.sel.execute('isElementPresent', self.locator):
+        if not self.browser.isElementPresent(self.locator):
             raise LookupError('No form found at %s' % self.locator)
-        form = self.sel.execute('getEval',
+        form = self.browser.getEval(
             "this.browserbot.findElement('%s').innerHTML;" % self.locator)
         super(Form, self).__init__(resp, u'<form>%s</form>' % form)
 
@@ -761,17 +795,17 @@ class Form(testapp.Form):
         Any extra keyword arguments are passed to the ``.get()`` or
         ``.post()`` method.
 
-        Returns a :class:`webtest.sel.TestResponse` object.
+        Returns a :class:`webtest.browser.TestResponse` object.
         """
         if timeout != 0:
-            self.sel.execute('captureNetworkTraffic', 'json')
+            self.browser.captureNetworkTraffic('json')
         self.test_app._make_environ(extra_environ)
         if name:
             selector = _eval_xpath('input', locator=self.locator,
                                     name=name, index=index)
-            self.sel.execute('click', selector)
+            self.browser.click(selector)
         else:
-            self.sel.execute('submit', self.locator)
+            self.browser.submit(self.locator)
         return self.test_app._get_response(resp=self.resp, timeout=timeout)
 
 
@@ -849,11 +883,20 @@ class FileHandler(SimpleHTTPRequestHandler):
 # Misc
 ###############
 
-def _value(s):
+def _get_value(s):
     if json:
         return json.dumps(s)
     else:
         return repr(str(s))
+
+
+def _get_command(cmd):
+    if '_' in cmd:
+        cmd = cmd.split('_')
+        cmd = [cmd.pop(0)] + [c.title() for c in cmd]
+        cmd = ''.join(cmd)
+    return cmd
+
 
 def _eval_xpath(tag, locator=None, index=None, **kwargs):
     if not locator:

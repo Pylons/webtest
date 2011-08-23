@@ -140,7 +140,7 @@ class TestJQueryUI(unittest.TestCase):
 
     @classmethod
     def setupClass(cls):
-        cls.app = webtest.SeleniumApp(url='http://jqueryui.com/', timeout=6000)
+        cls.app = webtest.SeleniumApp(url='http://jqueryui.com/')
 
     def setUp(self):
         self.resp = self.app.get('http://jqueryui.com/demos/')

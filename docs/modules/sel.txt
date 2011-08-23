@@ -35,6 +35,9 @@ Module Contents
 .. autoclass:: SeleniumApp
    :members:
 
+.. autoclass:: Selenium
+   :members:
+
 .. autofunction:: selenium
 
 Return Values
