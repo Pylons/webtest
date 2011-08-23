@@ -61,9 +61,10 @@ class TestApp(unittest.TestCase):
                 sresp = sform.submit(name='go', timeout=0)
                 sresp.mustcontain('Form submited')
 
-        resp.mustcontain('Form submited')
-        form = resp.forms['myform']
-        self.assertEqual(form['mytext'].value, 'foo')
+        if resp.updated:
+            resp.mustcontain('Form submited')
+            form = resp.forms['myform']
+            self.assertEqual(form['mytext'].value, 'foo')
 
         resp = form.submit(name='go')
         resp = resp.follow()

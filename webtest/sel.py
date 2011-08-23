@@ -806,12 +806,6 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
 class WSGIServer(simple_server.WSGIServer):
     """A WSGIServer"""
 
-    def log_message(self, format, *args):
-        log.debug("%s - - [%s] %s" %
-                  (self.address_string(),
-                  self.log_date_time_string(),
-                  format % args))
-
     def serve_forever(self):
         while self.application.serve_forever:
             self.handle_request()
