@@ -56,14 +56,6 @@ def tempnam_no_warning(*args):
 class NoDefault(object):
     pass
 
-try:
-    sorted
-except NameError:
-    def sorted(l):
-        l = list(l)
-        l.sort()
-        return l
-
 
 class AppError(Exception):
     pass
@@ -778,7 +770,7 @@ class TestApp(object):
         if hasattr(params, 'items'):
             params = urlencode(params.items(), doseq=True)
         if upload_files or \
-                (content_type and to_string(content_type).startswith('multipart')):
+            (content_type and to_string(content_type).startswith('multipart')):
             params = cgi.parse_qsl(params, keep_blank_values=True)
             content_type, params = self.encode_multipart(
                 params, upload_files or ())

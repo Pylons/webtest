@@ -51,6 +51,7 @@ def debug_app(environ, start_response):
         return [to_bytes('')]
     return [body]
 
+
 def make_debug_app(global_conf):
     """
     An application that displays the request environment, and does

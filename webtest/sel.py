@@ -151,7 +151,6 @@ class Selenium(object):
 
     """
 
-
     def __init__(self):
         self.host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
         self.port = int(os.environ.get('SELENIUM_POST', 4444))
@@ -196,12 +195,13 @@ class Selenium(object):
 
     def __getattr__(self, attr):
         cmd = _get_command(attr)
+
         def wrapped(*args):
             args = [cmd] + [str(a) for a in args]
             return self.execute(*args)
+
         wrapped.__name__ = attr
         return wrapped
-
 
 
 ##############
@@ -432,10 +432,12 @@ class Element(object):
 
     def __getattr__(self, attr):
         cmd = _get_command(attr)
+
         def wrapped(*args):
             args = [cmd, self.locator] + [str(a) for a in args]
             return self.browser.execute(*args)
         wrapped.__name__ = attr
+
         return wrapped
 
     def wait(self, timeout=3000):
@@ -884,6 +886,7 @@ class FileHandler(SimpleHTTPRequestHandler):
 # Misc
 ###############
 
+
 def _get_value(s):
     if json:
         return json.dumps(s)
@@ -956,4 +959,3 @@ def is_available():
                     return True
             return False
     return True
-

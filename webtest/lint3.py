@@ -1,7 +1,9 @@
-# (c) 2005 Ian Bicking and contributors; written for Paste (http://pythonpaste.org)
-# Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
-# Also licenced under the Apache License, 2.0: http://opensource.org/licenses/apache2.0.php
-# Licensed to PSF under a Contributor Agreement
+# (c) 2005 Ian Bicking and contributors; written for Paste
+# (http://pythonpaste.org)
+# Licensed under the MIT license:
+# http://www.opensource.org/licenses/mit-license.php Also licenced under the
+# Apache License, 2.0: http://opensource.org/licenses/apache2.0.php Licensed to
+# PSF under a Contributor Agreement
 """
 Middleware to check for obedience to the WSGI specification.
 
@@ -121,10 +123,12 @@ bad_header_value_re = re.compile(r'[\000-\037]')
 
 METADATA_TYPE = (str, bytes)
 
+
 class WSGIWarning(Warning):
     """
     Raised in response to WSGI-spec-related warnings
     """
+
 
 def middleware(application, global_conf=None):
 
@@ -181,6 +185,7 @@ def middleware(application, global_conf=None):
 
     return lint_app
 
+
 class InputWrapper(object):
 
     def __init__(self, wsgi_input):
@@ -215,6 +220,7 @@ class InputWrapper(object):
     def close(self):
         assert 0, "input.close() must not be called"
 
+
 class ErrorWrapper(object):
 
     def __init__(self, wsgi_errors):
@@ -234,6 +240,7 @@ class ErrorWrapper(object):
     def close(self):
         assert 0, "errors.close() must not be called"
 
+
 class WriteWrapper(object):
 
     def __init__(self, wsgi_writer):
@@ -243,6 +250,7 @@ class WriteWrapper(object):
         assert type(s) is bytes
         self.writer(s)
 
+
 class PartialIteratorWrapper(object):
 
     def __init__(self, wsgi_iterator):
@@ -251,6 +259,7 @@ class PartialIteratorWrapper(object):
     def __iter__(self):
         # We want to make sure __iter__ is called
         return IteratorWrapper(self.iterator)
+
 
 class IteratorWrapper(object):
 
@@ -272,7 +281,8 @@ class IteratorWrapper(object):
             v = self.iterator.next()
         if self.check_start_response is not None:
             assert self.check_start_response, (
-                "The application returns and we started iterating over its body, but start_response has not yet been called")
+                "The application returns and we started iterating over its"
+                " body, but start_response has not yet been called")
             self.check_start_response = None
         assert isinstance(v, bytes), (
             "Iterator %r returned a non-%r object: %r"
@@ -292,6 +302,7 @@ class IteratorWrapper(object):
                 "Iterator garbage collected without being closed")
         assert self.closed, (
             "Iterator garbage collected without being closed")
+
 
 def check_environ(environ):
     assert type(environ) is dict, (
@@ -335,7 +346,7 @@ def check_environ(environ):
 
     # @@: these need filling out:
     if environ['REQUEST_METHOD'] not in (
-        'GET', 'HEAD', 'POST', 'OPTIONS','PUT','DELETE','TRACE'):
+        'GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'TRACE'):
         warnings.warn(
             "Unknown REQUEST_METHOD: %r" % environ['REQUEST_METHOD'],
             WSGIWarning)
@@ -358,11 +369,13 @@ def check_environ(environ):
         "SCRIPT_NAME cannot be '/'; it should instead be '', and "
         "PATH_INFO should be '/'")
 
+
 def check_input(wsgi_input):
     for attr in ['read', 'readline', 'readlines', '__iter__']:
         assert hasattr(wsgi_input, attr), (
             "wsgi.input (%r) doesn't have the attribute %s"
             % (wsgi_input, attr))
+
 
 def check_errors(wsgi_errors):
     for attr in ['flush', 'write', 'writelines']:
@@ -370,8 +383,9 @@ def check_errors(wsgi_errors):
             "wsgi.errors (%r) doesn't have the attribute %s"
             % (wsgi_errors, attr))
 
+
 def check_status(status):
-    assert type(status) in METADATA_TYPE , (
+    assert type(status) in METADATA_TYPE, (
         "Status must be a %s (not %r)" % (METADATA_TYPE, status))
     # Implicitly check that we can turn it into an integer:
     status_code = status.split(None, 1)[0]
@@ -384,6 +398,7 @@ def check_status(status):
             "The status string (%r) should be a three-digit integer "
             "followed by a single space and a status explanation"
             % status, WSGIWarning)
+
 
 def check_headers(headers):
     assert type(headers) is list, (
@@ -424,6 +439,7 @@ def check_headers(headers):
             "Bad header value: %r (bad char: %r)"
             % (str_value, bad_header_value_re.search(str_value).group(0)))
 
+
 def check_content_type(status, headers):
     code = int(status.split(None, 1)[0])
     # @@: need one more person to verify this interpretation of RFC 2616
@@ -451,10 +467,12 @@ def check_content_type(status, headers):
     if code not in NO_MESSAGE_BODY:
         assert 0, "No Content-Type header found in headers (%s)" % headers
 
+
 def check_exc_info(exc_info):
     assert exc_info is None or type(exc_info) is tuple, (
         "exc_info (%r) is not a tuple: %r" % (exc_info, type(exc_info)))
     # More exc_info checks?
+
 
 def check_iterator(iterator):
     # Technically a bytes is legal, which is why it's a really bad
@@ -466,6 +484,7 @@ def check_iterator(iterator):
     assert not isinstance(iterator, str), (
         "You should not return a string as your application iterator, "
         "instead return a single-item list containing bytes.")
+
 
 def make_middleware(application, global_conf):
     # @@: global_conf should be taken out of the middleware function,

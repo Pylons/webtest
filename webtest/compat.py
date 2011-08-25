@@ -64,6 +64,7 @@ else:
         l = [e for e in l]
         return sep.join(l)
 
+
 def print_stderr(value):
     if PY3:
         exec('print(value, file=sys.stderr)')
