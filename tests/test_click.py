@@ -2,13 +2,15 @@
 import webtest
 from webtest.app import _parse_attrs
 from webob import Request
+from webtest.compat import to_bytes
+from webtest.compat import PY3
 from tests.compat import unittest
 from tests.compat import u
 
 
 def links_app(environ, start_response):
     req = Request(environ)
-    status = "200 OK"
+    status = to_bytes("200 OK")
     responses = {
        '/': """
             <html>
@@ -51,7 +53,7 @@ def links_app(environ, start_response):
     }
 
     utf8_paths = ['/utf8/']
-    body = responses[req.path_info]
+    body = responses[u(req.path_info)]
     headers = [
         ('Content-Type', 'text/html'),
         ('Content-Length', str(len(body)))
@@ -60,7 +62,7 @@ def links_app(environ, start_response):
         headers[0] = ('Content-Type', 'text/html; charset=utf-8')
 
     start_response(status, headers)
-    return [body]
+    return [to_bytes(body)]
 
 class TestClick(unittest.TestCase):
 
@@ -97,13 +99,17 @@ class TestClick(unittest.TestCase):
         app = webtest.TestApp(links_app, use_unicode=False)
         resp = app.get('/utf8/')
         self.assertEqual(resp.charset, 'utf-8')
-        self.assertIn(u("Тестовая страница").encode('utf8'), resp)
-        self.assertIn(u("Тестовая страница"), resp)
-        self.assertIn('This is foo.', resp.click(u('Менделеев').encode('utf8')))
+        if not PY3:
+            # No need to deal with that in Py3
+            self.assertIn(u("Тестовая страница").encode('utf8'), resp)
+            self.assertIn(u("Тестовая страница"), resp)
+            target = u('Менделеев').encode('utf8')
+            self.assertIn('This is foo.', resp.click(target))
 
-        # should skip the img tag
-        anchor_re = u(".*title='Поэт'.*").encode('utf8')
-        self.assertIn('This is baz.', resp.click(anchor=anchor_re))
+            # should skip the img tag
+            anchor = u(".*title='Поэт'.*")
+            anchor_re = anchor.encode('utf8')
+            self.assertIn('This is baz.', resp.click(anchor=anchor_re))
 
 
     def test_click_u(self):

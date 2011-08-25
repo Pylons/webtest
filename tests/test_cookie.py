@@ -1,11 +1,12 @@
 import webtest
 from webob import Request
 from tests.compat import unittest
+from webtest.compat import to_bytes
 
 
 def cookie_app(environ, start_response):
     req = Request(environ)
-    status = '200 OK'
+    status = to_bytes("200 OK")
     body = '<html><body><a href="/go/">go</a></body></html>'
     headers = [
         ('Content-Type', 'text/html'),
@@ -17,10 +18,10 @@ def cookie_app(environ, start_response):
             ('Set-Cookie', 'foo="bar;baz"'),
         ])
     start_response(status, headers)
-    return [body]
+    return [to_bytes(body)]
 
 def cookie_app2(environ, start_response):
-    status = '200 OK'
+    status = to_bytes("200 OK")
     body = ''
     headers = [
         ('Content-Type', 'text/html'),
@@ -29,7 +30,7 @@ def cookie_app2(environ, start_response):
         ('Set-Cookie', 'foo="bar;baz"'),
     ]
     start_response(status, headers)
-    return [body]
+    return [to_bytes(body)]
 
 class TestCookies(unittest.TestCase):
 

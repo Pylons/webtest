@@ -21,13 +21,25 @@ import fnmatch
 from webtest.compat import urlparse
 from webtest.compat import print_stderr
 from webtest.compat import StringIO
+from webtest.compat import BytesIO
 from webtest.compat import SimpleCookie, CookieError
 from webtest.compat import cookie_quote
 from webtest.compat import urlencode
+from webtest.compat import splittype
+from webtest.compat import splithost
 from webtest.compat import string_types
+from webtest.compat import binary_type
 from webtest.compat import text_type
+from webtest.compat import to_string
+from webtest.compat import to_bytes
+from webtest.compat import join_bytes
+from webtest.compat import PY3
 from webob import Request, Response
-from webtest import lint
+
+if PY3:
+    from webtest import lint3 as lint
+else:
+    from webtest import lint
 
 __all__ = ['TestApp', 'TestRequest']
 
@@ -123,6 +135,8 @@ class TestResponse(Response):
     def testbody(self):
         if getattr(self, '_use_unicode', True) and self.charset:
             return self.unicode_body
+        if PY3:
+            return to_string(self.body)
         return self.body
 
     _tag_re = re.compile(r'<(/?)([:a-z0-9_\-]*)(.*?)>', re.S | re.I)
@@ -163,8 +177,8 @@ class TestResponse(Response):
             "You can only follow redirect responses (not %s)"
             % self.status)
         location = self.headers['location']
-        type, rest = urllib.splittype(location)
-        host, path = urllib.splithost(rest)
+        type, rest = splittype(location)
+        host, path = splithost(rest)
         # @@: We should test that it's not a remote redirect
         return self.test_app.get(location, **kw)
 
@@ -247,11 +261,13 @@ class TestResponse(Response):
         href_pat = _make_pattern(href_pattern)
         html_pat = _make_pattern(html_pattern)
 
+        body = self.testbody
+
         _tag_re = re.compile(r'<%s\s+(.*?)>(.*?)</%s>' % (tag, tag),
                              re.I + re.S)
         _script_re = re.compile(r'<script.*?>.*?</script>', re.I | re.S)
         bad_spans = []
-        for match in _script_re.finditer(self.testbody):
+        for match in _script_re.finditer(body):
             bad_spans.append((match.start(), match.end()))
 
         def printlog(s):
@@ -260,7 +276,7 @@ class TestResponse(Response):
 
         found_links = []
         total_links = 0
-        for match in _tag_re.finditer(self.testbody):
+        for match in _tag_re.finditer(body):
             found_bad = False
             for bad_start, bad_end in bad_spans:
                 if (match.start() > bad_start
@@ -346,7 +362,7 @@ class TestResponse(Response):
             % method)
 
         # encode unicode strings for the outside world
-        if getattr(self, '_use_unicode', False):
+        if not PY3 and getattr(self, '_use_unicode', False):
             def to_str(s):
                 if isinstance(s, text_type):
                     return s.encode(self.charset)
@@ -371,14 +387,14 @@ class TestResponse(Response):
             method = self.test_app.post
         return method(href, **args)
 
-    _normal_body_regex = re.compile(r'[ \n\r\t]+')
+    _normal_body_regex = re.compile(to_bytes(r'[ \n\r\t]+'))
 
     _normal_body = None
 
     def normal_body__get(self):
         if self._normal_body is None:
             self._normal_body = self._normal_body_regex.sub(
-                ' ', self.body)
+                to_bytes(' '), self.body)
         return self._normal_body
 
     normal_body = property(normal_body__get,
@@ -409,6 +425,10 @@ class TestResponse(Response):
                 s = s.__unicode__()
             else:
                 s = str(s)
+        # PY3 Workaround.
+        # We don't want to search for str when we have no charset
+        if isinstance(s, text_type) and not self.charset:
+            s = to_bytes(s)
         if isinstance(s, text_type):
             body = self.unicode_body
             normal_body = self.unicode_normal_body
@@ -450,14 +470,14 @@ class TestResponse(Response):
                     "Body contains bad string %r" % no_s)
 
     def __str__(self):
-        simple_body = '\n'.join([l for l in self.body.splitlines()
+        simple_body = '\n'.join([l for l in self.testbody.splitlines()
                                  if l.strip()])
         headers = [(self._normalize_header_name(n), v)
                    for n, v in self.headerlist
                    if n.lower() != 'content-length']
         headers.sort()
         return 'Response: %s\n%s\n%s' % (
-            self.status,
+            to_string(self.status),
             '\n'.join(['%s: %s' % (n, v) for n, v in headers]),
             simple_body)
 
@@ -483,7 +503,7 @@ class TestResponse(Response):
             location = ' location: %s' % self.location
         else:
             location = ''
-        return ('<' + self.status + ct + location + body + '>')
+        return ('<' + to_string(self.status) + ct + location + body + '>')
 
     def html(self):
         """
@@ -758,7 +778,7 @@ class TestApp(object):
         if hasattr(params, 'items'):
             params = urlencode(params.items(), doseq=True)
         if upload_files or \
-                (content_type and content_type.startswith('multipart')):
+                (content_type and to_string(content_type).startswith('multipart')):
             params = cgi.parse_qsl(params, keep_blank_values=True)
             content_type, params = self.encode_multipart(
                 params, upload_files or ())
@@ -774,7 +794,7 @@ class TestApp(object):
             environ['CONTENT_TYPE'] = content_type
         environ['CONTENT_LENGTH'] = str(len(params))
         environ['REQUEST_METHOD'] = method
-        environ['wsgi.input'] = StringIO(params)
+        environ['wsgi.input'] = BytesIO(to_bytes(params))
         url = self._remove_fragment(url)
         req = self.RequestClass.blank(url, environ)
         if headers:
@@ -874,7 +894,7 @@ class TestApp(object):
             lines.append(value)
         lines.append('--' + boundary + '--')
         lines.append('')
-        body = '\r\n'.join(lines)
+        body = join_bytes('\r\n', lines)
         content_type = 'multipart/form-data; boundary=%s' % boundary
         return content_type, body
 
@@ -886,9 +906,16 @@ class TestApp(object):
                 filename = os.path.join(self.relative_to, filename)
             f = open(filename, 'rb')
             content = f.read()
+            if PY3 and isinstance(content, text_type):
+                # we want bytes
+                content = content.encode(f.encoding)
             f.close()
             return (file_info[0], filename, content)
         elif len(file_info) == 3:
+            content = file_info[2]
+            if not isinstance(content, binary_type):
+                raise ValueError('File content must be %s not %s'
+                        % (binary_type, type(content)))
             return file_info
         else:
             raise ValueError(
@@ -976,7 +1003,10 @@ class TestApp(object):
         res.app = app
         res.test_app = self
         # We do this to make sure the app_iter is exausted:
-        res.body
+        try:
+            res.body
+        except TypeError:
+            pass
         res.errors = errors.getvalue()
         total_time = end_time - start_time
         for name, value in req.environ['paste.testing_variables'].items():
@@ -1005,15 +1035,16 @@ class TestApp(object):
         __tracebackhide__ = True
         if status == '*':
             return
+        res_status = to_string(res.status)
         if (isinstance(status, string_types)
             and '*' in status):
-            if re.match(fnmatch.translate(status), res.status, re.I):
+            if re.match(fnmatch.translate(status), res_status, re.I):
                 return
         if isinstance(status, (list, tuple)):
             if res.status_int not in status:
                 raise AppError(
                     "Bad response: %s (not one of %s for %s)\n%s"
-                    % (res.status, ', '.join(map(str, status)),
+                    % (res_status, ', '.join(map(str, status)),
                        res.request.url, res.body))
             return
         if status is None:
@@ -1021,11 +1052,11 @@ class TestApp(object):
                 return
             raise AppError(
                 "Bad response: %s (not 200 OK or 3xx redirect for %s)\n%s"
-                % (res.status, res.request.url,
+                % (res_status, res.request.url,
                    res.body))
         if status != res.status_int:
             raise AppError(
-                "Bad response: %s (not %s)" % (res.status, status))
+                "Bad response: %s (not %s)" % (res_status, status))
 
     def _check_errors(self, res):
         errors = res.errors

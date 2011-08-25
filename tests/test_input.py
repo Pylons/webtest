@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from webob import Request
 import webtest
+from webtest.compat import to_bytes
 from tests.compat import unittest
 from tests.compat import u
 
 
 def input_app(environ, start_response):
     req = Request(environ)
-    status = "200 OK"
-    body =\
+    status = to_bytes("200 OK")
+    body = to_bytes(
 """
 <html>
     <head><title>form page</title></head>
@@ -28,7 +29,7 @@ def input_app(environ, start_response):
         </form>
     </body>
 </html>
-"""
+""")
     headers = [
         ('Content-Type', 'text/html'),
         ('Content-Length', str(len(body)))]
@@ -37,8 +38,8 @@ def input_app(environ, start_response):
 
 def input_app_without_default(environ, start_response):
     req = Request(environ)
-    status = "200 OK"
-    body =\
+    status = to_bytes("200 OK")
+    body = to_bytes(
 """
 <html>
     <head><title>form page</title></head>
@@ -58,7 +59,7 @@ def input_app_without_default(environ, start_response):
         </form>
     </body>
 </html>
-"""
+""")
     headers = [
         ('Content-Type', 'text/html'),
         ('Content-Length', str(len(body)))]
@@ -68,7 +69,7 @@ def input_app_without_default(environ, start_response):
 
 def input_unicode_app(environ, start_response):
     req = Request(environ)
-    status = "200 OK"
+    status = to_bytes("200 OK")
     body =\
 u("""
 <html>

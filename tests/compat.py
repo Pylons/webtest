@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+
 try:
     # py < 2.7
     import unnitest2 as unittest
@@ -9,17 +11,16 @@ try:
     unicode()
 except NameError:
     u = str
+    b = bytes
 else:
+    def b(value):
+        return str(value)
     def u(value):
         return unicode(value, 'utf-8')
 
-def raises(exc, func, *args, **kw):
-    try:
-        func(*args, **kw)
-    except exc:
-        pass
-    else:
-        raise AssertionError(
-            "Expected exception %s from %s"
-            % (exc, func))
 
+if sys.version_info[:1] < (2, 6):
+    def assertIn(self, x, y, c=None):
+        assert x in y
+
+    unittest.TestCase.assertIn = assertIn

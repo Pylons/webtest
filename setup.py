@@ -35,7 +35,10 @@ This is based on ``paste.fixture.TestApp``.
       maintainer_email='gael@gawel.org',
       url='http://webtest.pythonpaste.org/',
       license='MIT',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      packages=find_packages(exclude=[
+          'ez_setup', 'examples', 'tests',
+          'bootstrap', 'bootstrap-py3k',
+      ]),
       include_package_data=True,
       zip_safe=False,
       install_requires=[

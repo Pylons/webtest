@@ -1,5 +1,6 @@
 import webtest
 from webtest.debugapp import debug_app
+from webtest.compat import to_bytes
 from tests.compat import unittest
 
 class TestTesting(unittest.TestCase):
@@ -20,7 +21,7 @@ class TestTesting(unittest.TestCase):
         self.assertEqual(res.status_int, 200)
         self.assertEqual(res.headers['content-type'], 'text/plain')
         self.assertTrue(res.content_length > 0)
-        self.assertEqual(res.body, '')
+        self.assertEqual(res.body, to_bytes(''))
 
     def test_get_params(self):
         res = self.app.post('/', params=dict(a=1))

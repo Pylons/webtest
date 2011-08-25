@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from webob import Request
 import webtest
+from webtest.compat import binary_type
+from webtest.compat import to_bytes
 from tests.compat import unittest
 from tests.compat import u
 
@@ -8,7 +10,7 @@ def select_app(environ, start_response):
     req = Request(environ)
     status = "200 OK"
     if req.method == "GET":
-        body =\
+        body = to_bytes(
 """
 <html>
     <head><title>form page</title></head>
@@ -33,14 +35,14 @@ def select_app(environ, start_response):
         </form>
     </body>
 </html>
-"""
+""")
     else:
         select_type = req.POST.get("button")
         if select_type == "single":
             selection = req.POST.get("single")
         elif select_type == "multiple":
             selection = ", ".join(req.POST.getall("multiple"))
-        body =\
+        body = to_bytes(
 """
 <html>
     <head><title>display page</title></head>
@@ -49,19 +51,19 @@ def select_app(environ, start_response):
         <p>You selected %(selection)s</p>
     </body>
 </html>
-""" % locals()
+""" % locals())
 
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    return [body.encode('utf8')]
+    start_response(to_bytes(status), headers)
+    return [body]
 
 def select_app_without_default(environ, start_response):
     req = Request(environ)
     status = "200 OK"
     if req.method == "GET":
-        body =\
+        body = to_bytes(
 """
 <html>
     <head><title>form page</title></head>
@@ -86,14 +88,14 @@ def select_app_without_default(environ, start_response):
         </form>
     </body>
 </html>
-"""
+""")
     else:
         select_type = req.POST.get("button")
         if select_type == "single":
             selection = req.POST.get("single")
         elif select_type == "multiple":
             selection = ", ".join(req.POST.getall("multiple"))
-        body =\
+        body = to_bytes(
 """
 <html>
     <head><title>display page</title></head>
@@ -102,13 +104,13 @@ def select_app_without_default(environ, start_response):
         <p>You selected %(selection)s</p>
     </body>
 </html>
-""" % locals()
+""" % locals())
 
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    return [body.encode('utf8')]
+    start_response(to_bytes(status), headers)
+    return [body]
 
 
 def select_app_unicode(environ, start_response):
@@ -160,9 +162,9 @@ u("""
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    if not isinstance(body, str):
-        raise AssertionError('Body is not str')
+    start_response(to_bytes(status), headers)
+    if not isinstance(body, binary_type):
+        raise AssertionError('Body is not %s' % binary_type)
     return [body]
 
 class TestSelect(unittest.TestCase):

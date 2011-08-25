@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 import webtest
-from webob import Request, Response, exc
+from webob import Request, Response
 from tests.compat import unittest
+from webtest.compat import to_bytes
 
 def application(environ, start_response):
     req = Request(environ)
     if req.path_info == '/redirect':
         req.path_info = '/path'
-        resp = exc.HTTPFound(location=req.path)
+        resp = Response()
+        resp.status = '302 Found'
+        resp.location = req.path
     else:
         resp = Response()
-        resp.body = '<html><body><a href="%s">link</a></body></html>' % req.path
+        resp.body = to_bytes('<html><body><a href="%s">link</a></body></html>' % req.path)
     return resp(environ, start_response)
 
 class TestScriptName(unittest.TestCase):
