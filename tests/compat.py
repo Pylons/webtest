@@ -3,7 +3,7 @@ import sys
 
 try:
     # py < 2.7
-    import unnitest2 as unittest
+    import unittest2 as unittest
 except ImportError:
     import unittest
 

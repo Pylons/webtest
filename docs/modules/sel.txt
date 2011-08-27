@@ -47,10 +47,13 @@ Some of the return values return instances of these classes:
 
 .. autoclass:: TestResponse
    :members:
+
 .. autoclass:: Document
    :members:
+
 .. autoclass:: Element
    :members:
+
 .. autoclass:: Form
    :members:
 

@@ -186,7 +186,7 @@ class TestJQueryUI(unittest.TestCase):
         draggable = resp.doc.draggable
         droppable = resp.doc.droppable
         self.assertFalse(droppable.hasClass('ui-state-highlight'))
-        draggable.dragAndDropToObject(droppable)
+        draggable.drag_and_drop(droppable)
         self.assertTrue(droppable.hasClass('ui-state-highlight'))
 
         resp.doc.link('Shopping Cart').click()

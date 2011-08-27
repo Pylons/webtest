@@ -5,8 +5,8 @@
 """
 Routines for testing WSGI applications with selenium.
 
-Most interesting is :class:`~webtest.browser.browsereniumApp` and the
-:func:`~webtest.browser.browserenium` decorator
+Most interesting is :class:`~webtest.sel.SeleniumApp` and the
+:func:`~webtest.sel.selenium` decorator
 """
 import os
 import cgi
@@ -44,9 +44,14 @@ except ImportError:
         json = False
 
 
+try:
+    unicode()
+except NameError:
+    unicode = str
+
+
 log = logging.getLogger(__name__)
 
-sys_stdout = sys.stdout
 
 if 'SELENIUM_VERBOSE':
     log.addHandler(logging.StreamHandler(sys.stderr))
@@ -384,7 +389,7 @@ class TestResponse(testapp.TestResponse):
     def _body__get(self):
         body = self.browser.getHtmlSource()
         if isinstance(body, binary_type):
-            return body.encode(self.charset or 'utf-8')
+            return unicode(body, self.charset or 'utf-8')
         else:
             return body
 
@@ -440,6 +445,10 @@ class Element(object):
 
         return wrapped
 
+    def exist(self):
+        """return true is the element is present"""
+        return self.isElementPresent()
+
     def wait(self, timeout=3000):
         """Wait for an element and return this element"""
         script = "selenium.isElementPresent(%r) || null" % str(self)
@@ -455,7 +464,7 @@ class Element(object):
 
     def hasClass(self, name):
         """True iif the class is present"""
-        classes = self.eval('e.getAttribute("class")').split()
+        classes = self.attr('class').split()
         return name in classes
 
     def html(self):
@@ -468,7 +477,10 @@ class Element(object):
 
     def attr(self, attr):
         """Return the attribute value of the element"""
-        return self.getAttribute(attr)
+        return self.eval('e.getAttribute(%r)' % str(attr))
+
+    def drag_and_drop(self, element):
+        return self.dragAndDropToObject(element)
 
     def value__get(self):
         return self.getValue()
@@ -514,7 +526,7 @@ class Element(object):
         return s in self.html()
 
     def __nonzero__(self):
-        return self.isElementPresent()
+        return self.exist()
     __bool__ = __nonzero__
 
     def __repr__(self):
@@ -569,7 +581,7 @@ class Document(object):
 
     def __contains__(self, s):
         if isinstance(s, Element):
-            return s.isElementPresent()
+            return s.exist()
         return self.browser.isTextPresent(_get_value(s))
 
     def __call__(self, locator):
@@ -764,7 +776,7 @@ class Forms(object):
         return Form(self.resp, key)
 
 
-class Form(testapp.Form):
+class Form(testapp.Form, Element):
     """See :class:`~webtest.Form`"""
 
     FieldClass = Field
@@ -777,10 +789,9 @@ class Form(testapp.Form):
             self.locator = _eval_xpath('form', index=id)
         else:
             self.locator = _eval_xpath('form', id=id)
-        if not self.browser.isElementPresent(self.locator):
+        if not self:
             raise LookupError('No form found at %s' % self.locator)
-        form = self.browser.getEval(
-            "this.browserbot.findElement('%s').innerHTML;" % self.locator)
+        form = self.eval('e.innerHTML')
         super(Form, self).__init__(resp, '<form>%s</form>' % form)
 
     def _parse_fields(self):
@@ -794,9 +805,6 @@ class Form(testapp.Form):
     def submit(self, name=None, index=None, extra_environ=None, timeout=None):
         """Submits the form.  If ``name`` is given, then also select that
         button (using ``index`` to disambiguate)``.
-
-        Any extra keyword arguments are passed to the ``.get()`` or
-        ``.post()`` method.
 
         Returns a :class:`webtest.browser.TestResponse` object.
         """
@@ -946,7 +954,7 @@ def is_available():
             return False
         else:
             jar = os.environ['SELENIUM_JAR']
-            p = subprocess.Popen(['java', '-jar', jar], stdout=sys_stdout)
+            p = subprocess.Popen(['java', '-jar', jar])
             os.environ['SELENIUM_PID'] = str(p.pid)
             for i in range(30):
                 time.sleep(.3)

@@ -92,8 +92,8 @@ class TestResponse(Response):
 
     def forms__get(self):
         """
-        Returns a dictionary of ``Form`` objects.  Indexes are both in
-        order (from zero) and by form id (if the form is given an id).
+        Returns a dictionary of :class:`~webtest.Form` objects.  Indexes are
+        both in order (from zero) and by form id (if the form is given an id).
         """
         if self._forms_indexed is None:
             self._parse_forms()
@@ -101,8 +101,7 @@ class TestResponse(Response):
 
     forms = property(forms__get,
                      doc="""
-                     A list of <form>s found on the page (instances of
-                     ``Form``)
+                     A list of :class:`~webtest.Form`s found on the page
                      """)
 
     def form__get(self):
@@ -118,9 +117,8 @@ class TestResponse(Response):
 
     form = property(form__get,
                     doc="""
-                    Returns a single ``Form`` instance; it
-                    is an error if there are multiple forms on the
-                    page.
+                    Returns a single :class:`~webtest.Form` instance; it is an
+                    error if there are multiple forms on the page.
                     """)
 
     @property
@@ -1629,6 +1627,12 @@ class Form(object):
                 else:
                     submit.append((name, value))
         return submit
+
+    def __repr__(self):
+        value = '<Form'
+        if self.id:
+            value += ' id=%r' % str(self.id)
+        return value + ' />'
 
 ########################################
 ## Utility functions

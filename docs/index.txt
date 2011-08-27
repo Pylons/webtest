@@ -2,6 +2,7 @@ Testing Applications with WebTest
 +++++++++++++++++++++++++++++++++
 
 :author: Ian Bicking <ianb@colorstudy.com>
+:maintainer: Gael Pasgrimaud <gael@gawel.org>
 
 .. toctree::
    :maxdepth: 1
@@ -75,10 +76,10 @@ run WSGI applications and verify the output.
 TestApp
 =======
 
-The most important object in WebTest is ``webtest.TestApp``, the
-wrapper for WSGI applications.  To use it, you simply instantiate it
-with your WSGI application.  (Note: if your WSGI application requires
-any configuration, you must set that up manually in your tests.)
+The most important object in WebTest is :class:`~webtest.TestApp`, the wrapper
+for WSGI applications.  To use it, you simply instantiate it with your WSGI
+application. (Note: if your WSGI application requires any configuration, you
+must set that up manually in your tests.)
 
 .. code-block:: python
 
@@ -89,7 +90,7 @@ any configuration, you must set that up manually in your tests.)
     >>> res.status
     '200 OK'
     >>> res.form
-    <webtest.app.Form object at ...>
+    <Form />
 
 Making Requests
 ---------------
@@ -227,12 +228,14 @@ The added methods:
 ``response.forms``:
     Return a dictionary of forms; you can use both indexes (refer to
     the forms in order) or the string ids of forms (if you've given
-    them ids) to identify the form.  See `Form Submissions <#form-submissions>`_ for
+    them ids) to identify the form.  See :ref:`form-submissions` for
     more on the form objects.
 
 ``response.form``:
     If there is just a single form, this returns that.  It is an error
     if you use this and there are multiple forms.
+
+.. _form-submissions:
 
 Form Submissions
 ================

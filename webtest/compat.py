@@ -22,12 +22,12 @@ if sys.version_info[0] > 2:
     def to_bytes(s):
         if isinstance(s, bytes):
             return s
-        return s.encode('ISO-8859-1')
+        return s.encode('latin1')
 
     def to_string(s):
         if isinstance(s, str):
             return s
-        return str(s, 'ISO-8859-1')
+        return str(s, 'latin1')
 
     def join_bytes(sep, l):
         l = [to_bytes(e) for e in l]
