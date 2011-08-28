@@ -194,7 +194,7 @@ class TestJQueryUI(unittest.TestCase):
         cart.wait()
         item = resp.doc.xpath('//li[.="Lolcat Shirt"]')
         self.assertNotIn(item, cart)
-        item.dragAndDropToObject(cart)
+        item.drag_and_drop(cart)
         self.assertIn(item, cart)
 
     @classmethod

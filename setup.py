@@ -4,7 +4,7 @@ from setuptools import find_packages
 import sys
 import os
 
-version = '1.2.4'
+version = '1.3'
 
 setup(name='WebTest',
       version=version,

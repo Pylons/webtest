@@ -480,6 +480,7 @@ class Element(object):
         return self.eval('e.getAttribute(%r)' % str(attr))
 
     def drag_and_drop(self, element):
+        """Drag and drop to element"""
         return self.dragAndDropToObject(element)
 
     def value__get(self):

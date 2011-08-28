@@ -1,6 +1,14 @@
 News
 ====
 
+1.2.5
+-----
+
+* Moved TestApp to app.py
+
+* Added selenium testing framework. See :mod:`~webtest.sel` module.
+
+
 1.2.4
 ------
 
