@@ -33,6 +33,10 @@ class TestTesting(unittest.TestCase):
         res = self.app.delete('/', params=dict(a=1))
         res.mustcontain('a=1')
 
+    def test_options(self):
+        res = self.app.options('/')
+        self.assertEqual(res.status_int, 200)
+
     def test_exception(self):
         self.assertRaises(Exception, self.app.get, '/?error=t')
         self.assertRaises(webtest.AppError, self.app.get, '/?status=404%20Not%20Found')

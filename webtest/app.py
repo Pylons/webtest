@@ -846,6 +846,18 @@ class TestApp(object):
                                  upload_files=None,
                                  expect_errors=expect_errors)
 
+    def options(self, url, headers=None, extra_environ=None,
+               status=None, expect_errors=False):
+        """
+        Do a OPTIONS request.  Very like the ``.get()`` method.
+
+        Returns a ``webob.Response`` object.
+        """
+        return self._gen_request('OPTIONS', url, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=None,
+                                 expect_errors=expect_errors)
+
     def head(self, url, headers=None, extra_environ=None,
                status=None, expect_errors=False):
         """
