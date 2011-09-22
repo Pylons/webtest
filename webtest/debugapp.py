@@ -46,7 +46,7 @@ def debug_app(environ, start_response):
             header_name = name[len('header-'):]
             headers.append((header_name, value))
 
-    start_response(to_bytes(str(status)), headers)
+    start_response(str(status), headers)
     if req.method == 'HEAD':
         return [to_bytes('')]
     return [body]

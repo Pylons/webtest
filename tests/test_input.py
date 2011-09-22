@@ -8,7 +8,7 @@ from tests.compat import u
 
 def input_app(environ, start_response):
     req = Request(environ)
-    status = to_bytes("200 OK")
+    status = "200 OK"
     body = to_bytes(
 """
 <html>
@@ -38,7 +38,7 @@ def input_app(environ, start_response):
 
 def input_app_without_default(environ, start_response):
     req = Request(environ)
-    status = to_bytes("200 OK")
+    status = "200 OK"
     body = to_bytes(
 """
 <html>
@@ -69,7 +69,7 @@ def input_app_without_default(environ, start_response):
 
 def input_unicode_app(environ, start_response):
     req = Request(environ)
-    status = to_bytes("200 OK")
+    status = "200 OK"
     body =\
 u("""
 <html>

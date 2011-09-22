@@ -10,7 +10,7 @@ from tests.compat import u
 
 def links_app(environ, start_response):
     req = Request(environ)
-    status = to_bytes("200 OK")
+    status = "200 OK"
     responses = {
        '/': """
             <html>

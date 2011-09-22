@@ -6,6 +6,8 @@ import webtest
 from webob import exc
 from tests.compat import unittest
 
+raise NotImplementedError
+
 files = os.path.dirname(__file__)
 
 def application(environ, start_response):

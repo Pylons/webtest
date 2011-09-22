@@ -56,7 +56,7 @@ def select_app(environ, start_response):
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
-    start_response(to_bytes(status), headers)
+    start_response(status, headers)
     return [body]
 
 def select_app_without_default(environ, start_response):
@@ -109,7 +109,7 @@ def select_app_without_default(environ, start_response):
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
-    start_response(to_bytes(status), headers)
+    start_response(status, headers)
     return [body]
 
 
@@ -162,7 +162,7 @@ u("""
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
-    start_response(to_bytes(status), headers)
+    start_response(status, headers)
     if not isinstance(body, binary_type):
         raise AssertionError('Body is not %s' % binary_type)
     return [body]

@@ -6,7 +6,7 @@ from webtest.compat import to_bytes
 
 def cookie_app(environ, start_response):
     req = Request(environ)
-    status = to_bytes("200 OK")
+    status = "200 OK"
     body = '<html><body><a href="/go/">go</a></body></html>'
     headers = [
         ('Content-Type', 'text/html'),

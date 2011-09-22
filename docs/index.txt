@@ -257,7 +257,7 @@ Then you fill it in fields:
     >>> print(form.method)
     POST
     >>> # dict of fields
-    >>> fields = form.fields.items(); fields.sort(); fields
+    >>> fields = list(form.fields.items()); fields.sort(); fields
     [(u'name', [<Text name="name">]), (u'submit', [<Submit name="submit">])]
     >>> form['name'] = 'Bob'
     >>> # When names don't point to a single field:
@@ -321,7 +321,7 @@ Examples:
 
     >>> from webtest import TestRequest
     >>> from webtest import TestResponse
-    >>> res = TestResponse(content_type='text/html', body='''
+    >>> res = TestResponse(content_type='text/html', body=b'''
     ... <html><body><div id="content">hey!</div></body>''')
     >>> res.request = TestRequest.blank('/')
     >>> res.html
@@ -336,12 +336,12 @@ Examples:
     >>> res.lxml.xpath('//body/div')[0].text
     'hey!'
     >>> res = TestResponse(content_type='application/json',
-    ...                    body='{"a":1,"b":2}')
+    ...                    body=b'{"a":1,"b":2}')
     >>> res.request = TestRequest.blank('/')
     >>> res.json.values()
     [1, 2]
     >>> res = TestResponse(content_type='application/xml',
-    ...                    body='<xml><message>hey!</message></xml>')
+    ...                    body=b'<xml><message>hey!</message></xml>')
     >>> res.request = TestRequest.blank('/')
     >>> res.xml
     <Element ...>

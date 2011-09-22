@@ -11,7 +11,7 @@ import webtest
 
 def single_upload_file_app(environ, start_response):
     req = Request(environ)
-    status = to_bytes("200 OK")
+    status = "200 OK"
     if req.method == "GET":
         body = to_bytes(
 """
@@ -58,7 +58,7 @@ def single_upload_file_app(environ, start_response):
 
 def upload_binary_app(environ, start_response):
     req = Request(environ)
-    status = to_bytes("200 OK")
+    status = "200 OK"
     if req.method == "GET":
         body = to_bytes("""
 <html>
@@ -92,7 +92,7 @@ def upload_binary_app(environ, start_response):
 
 def multiple_upload_file_app(environ, start_response):
     req = Request(environ)
-    status = to_bytes("200 OK")
+    status = "200 OK"
     if req.method == "GET":
         body = to_bytes(
 """
