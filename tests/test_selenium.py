@@ -5,8 +5,10 @@ import webob
 import webtest
 from webob import exc
 from tests.compat import unittest
+from webtest.compat import PY3
 
-raise NotImplementedError
+if PY3:
+    raise NotImplementedError
 
 files = os.path.dirname(__file__)
 
