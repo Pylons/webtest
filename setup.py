@@ -28,6 +28,7 @@ This is based on ``paste.fixture.TestApp``.
         "Programming Language :: Python :: 2.5",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
       ],
       keywords='wsgi test unit tests web',
       author='Ian Bicking',
