@@ -6,9 +6,10 @@ import webtest
 from webob import exc
 from tests.compat import unittest
 from webtest.compat import PY3
+from tests.compat import u
 
-if PY3:
-    raise NotImplementedError
+#if PY3:
+#    raise NotImplementedError
 
 files = os.path.dirname(__file__)
 
@@ -28,7 +29,7 @@ def application(environ, start_response):
         if os.path.isfile(filename):
             kw = dict(message=req.params.get('message', ''),
                       redirect=req.params.get('redirect', ''))
-            resp.unicode_body = unicode(open(filename).read()) % kw
+            resp.unicode_body = u(open(filename).read()) % kw
             _, ext = os.path.splitext(filename)
             if ext == '.html':
                 resp.content_type = 'text/html'

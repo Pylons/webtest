@@ -28,6 +28,7 @@ from functools import wraps
 from webtest import app as testapp
 from wsgiref import simple_server
 from contextlib import contextmanager
+from webtest.compat import PY3
 from webtest.compat import urlencode
 from webtest.compat import binary_type
 from webtest.compat import HTTPConnection
@@ -48,7 +49,6 @@ try:
     unicode()
 except NameError:
     unicode = str
-
 
 log = logging.getLogger(__name__)
 
@@ -110,7 +110,10 @@ def context_manager(resp):
         try:
             yield response
         finally:
-            resp.body = app.browser.getHtmlSource()
+            body = app.browser.getHtmlSource()
+            if PY3:
+                body = body.encode(resp.charset or 'utf-8')
+            resp.body = body
             resp._forms_indexed = None
             resp.updated = True
             app.close()
@@ -189,6 +192,8 @@ class Selenium(object):
             data = resp.read()
         finally:
             conn.close()
+        if PY3:
+            data = str(data, 'utf-8')
         if data.startswith('ERROR: Unknown command:'):
             raise AttributeError(repr(data))
         elif not data.startswith('OK'):
@@ -388,6 +393,8 @@ class TestResponse(testapp.TestResponse):
 
     def _body__get(self):
         body = self.browser.getHtmlSource()
+        if PY3:
+            return body.encode(self.charset or 'utf-8')
         if isinstance(body, binary_type):
             return unicode(body, self.charset or 'utf-8')
         else:
@@ -849,11 +856,13 @@ class WSGIApplication(object):
             body = open(filename).read()
             body.replace('http://localhost/',
                          'http://%s/' % req.host)
-            resp.body = body
+            if PY3:
+                resp.text = body
+            else:
+                resp.body = body
             return resp(environ, start_response)
         elif '__application__' in environ['PATH_INFO']:
             resp = webob.Response()
-            resp.body = 'Application running'
             return resp(environ, start_response)
         return self.app(environ, start_response)
 
