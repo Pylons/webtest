@@ -8,6 +8,13 @@ class TestTesting(unittest.TestCase):
     def setUp(self):
         self.app = webtest.TestApp(debug_app)
 
+    def test_url_class(self):
+        class U:
+            def __str__(self):
+                return '/'
+        res = self.app.get(U())
+        self.assertEqual(res.status_int, 200)
+
     def test_testing(self):
         res = self.app.get('/')
         self.assertEqual(res.status_int, 200)

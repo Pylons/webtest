@@ -88,6 +88,7 @@ class TestResponse(Response):
     Instances of this class are return by ``TestApp``
     """
 
+    request = None
     _forms_indexed = None
 
     def forms__get(self):
@@ -735,6 +736,7 @@ class TestApp(object):
         environ = self._make_environ(extra_environ)
         # Hide from py.test:
         __tracebackhide__ = True
+        url = str(url)
         url = self._remove_fragment(url)
         if params:
             if not isinstance(params, string_types):
@@ -744,7 +746,6 @@ class TestApp(object):
             else:
                 url += '?'
             url += params
-        url = str(url)
         if '?' in url:
             url, environ['QUERY_STRING'] = url.split('?', 1)
         else:
@@ -1002,6 +1003,7 @@ class TestApp(object):
             end_time = time.time()
         finally:
             sys.stdout = old_stdout
+        res.request = req
         res.app = app
         res.test_app = self
         # We do this to make sure the app_iter is exausted:
