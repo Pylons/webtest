@@ -1,6 +1,11 @@
 News
 ====
 
+1.3.2 (Unreleased)
+-------------------
+
+* improve showbrowser. fixed `#23 <https://bitbucket.org/ianb/webtest/issue/23`_
+
 1.3.1
 -----
 

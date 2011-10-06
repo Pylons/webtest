@@ -44,15 +44,6 @@ else:
 __all__ = ['TestApp', 'TestRequest']
 
 
-def tempnam_no_warning(*args):
-    """
-    An os.tempnam with the warning turned off, because sometimes
-    you just need to use this and don't care about the stupid
-    security warning.
-    """
-    return os.tempnam(*args)
-
-
 class NoDefault(object):
     pass
 
@@ -633,11 +624,19 @@ class TestResponse(Response):
         when it's hard to read the HTML).
         """
         import webbrowser
-        fn = tempnam_no_warning(None, 'webtest-page') + '.html'
-        f = open(fn, 'wb')
+        import tempfile
+        f = tempfile.NamedTemporaryFile(prefix='webtest-page',
+                                         suffix='.html')
+        name = f.name
+        f.close()
+        f = open(name, 'w')
         f.write(self.body)
         f.close()
-        url = 'file:' + fn.replace(os.sep, '/')
+        if name[0] != '/':
+            # windows ...
+            url = 'file:///' + name
+        else:
+            url = 'file://' + name
         webbrowser.open_new(url)
 
 
