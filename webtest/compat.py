@@ -69,4 +69,10 @@ def print_stderr(value):
     if PY3:
         exec('print(value, file=sys.stderr)')
     else:
-        exec('print >> sys.stderr, value')
+        if isinstance(value, text_type):
+            # not really clean but this must *never* fail
+            try:
+                value = value.encode('utf-8')
+            except:
+                value = repr(value)
+        sys.stderr.write(value)

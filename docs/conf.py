@@ -40,7 +40,7 @@ copyright = '2008, Ian Bicking'
 # other places throughout the built documents.
 #
 # The full version, including alpha/beta/rc tags.
-version = release = '1.3.1'
+version = release = '1.3.2'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -128,3 +128,17 @@ htmlhelp_basename = 'WebTestdoc'
 
 # If false, no module index is generated.
 #latex_use_modindex = True
+
+from os import path
+pkg_dir = path.abspath(__file__).split('/docs')[0]
+setup = path.join(pkg_dir, 'setup.py')
+if path.isfile(setup):
+    for line_ in open(setup):
+        if line_.startswith("version"):
+            version = line_.split('=')[-1]
+            version = version.strip()
+            version = version.strip("'\"")
+            release = version
+            break
+del pkg_dir, setup, path
+

@@ -1,7 +1,15 @@
+# -*- coding: utf-8 -*-
 import webtest
 from webtest.debugapp import debug_app
 from webtest.compat import to_bytes
+from webtest.compat import print_stderr
 from tests.compat import unittest
+from tests.compat import u
+
+
+def test_print_unicode():
+    print_stderr(u('°C'))
+
 
 class TestTesting(unittest.TestCase):
 
