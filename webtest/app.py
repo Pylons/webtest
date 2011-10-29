@@ -627,7 +627,7 @@ class TestResponse(Response):
         name = f.name
         f.close()
         f = open(name, 'w')
-        f.write(self.body)
+        f.write(to_string(self.body))
         f.close()
         if name[0] != '/':
             # windows ...
