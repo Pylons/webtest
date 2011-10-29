@@ -68,6 +68,10 @@ class TestTesting(unittest.TestCase):
         self.assertRaises(Exception, self.app.get, '/?error=t')
         self.assertRaises(webtest.AppError, self.app.get, '/?status=404%20Not%20Found')
 
+    def test_request_obj(self):
+        res = self.app.get('/')
+        res = self.app.request(res.request)
+
     def test_showbrowser(self):
         open_new = webbrowser.open_new
         self.filename = ''
