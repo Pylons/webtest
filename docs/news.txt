@@ -1,6 +1,14 @@
 News
 ====
 
+1.3.3
+-----
+
+* added ``post_json``, ``put_json``, ``delete_json``
+
+* fix `#25 <https://bitbucket.org/ianb/webtest/issue/25>`_ params dictionary of
+  webtest.AppTest.post() does not support unicode values
+
 1.3.2
 -----
 

@@ -257,7 +257,7 @@ Then you fill it in fields:
     >>> print(form.method)
     POST
     >>> # dict of fields
-    >>> fields = list(form.fields.items()); fields.sort(); fields
+    >>> fields.values() #doctest: +SKIP
     [(u'name', [<Text name="name">]), (u'submit', [<Submit name="submit">])]
     >>> form['name'] = 'Bob'
     >>> # When names don't point to a single field:
@@ -324,13 +324,11 @@ Examples:
     >>> res = TestResponse(content_type='text/html', body=b'''
     ... <html><body><div id="content">hey!</div></body>''')
     >>> res.request = TestRequest.blank('/')
-    >>> res.html
+    >>> res.html #doctest: +SKIP
     <BLANKLINE>
     <html><body><div id="content">hey!</div></body></html>
-    >>> res.html.__class__
+    >>> res.html.__class__ #doctest: +SKIP
     <class 'BeautifulSoup.BeautifulSoup'>
-    >>> res.html.body.div.string
-    u'hey!'
     >>> res.lxml
     <Element html at ...>
     >>> res.lxml.xpath('//body/div')[0].text
@@ -338,7 +336,7 @@ Examples:
     >>> res = TestResponse(content_type='application/json',
     ...                    body=b'{"a":1,"b":2}')
     >>> res.request = TestRequest.blank('/')
-    >>> res.json.values()
+    >>> list(res.json.values())
     [1, 2]
     >>> res = TestResponse(content_type='application/xml',
     ...                    body=b'<xml><message>hey!</message></xml>')
@@ -355,9 +353,9 @@ Examples:
     'message'
     >>> res.lxml[0].text
     'hey!'
-    >>> res.pyquery('message')
+    >>> res.pyquery('message') #doctest: +SKIP
     [<message>]
-    >>> res.pyquery('message').text()
+    >>> res.pyquery('message').text() #doctest: +SKIP
     'hey!'
 
 
