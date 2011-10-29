@@ -33,6 +33,8 @@ from webtest.compat import text_type
 from webtest.compat import to_string
 from webtest.compat import to_bytes
 from webtest.compat import join_bytes
+from webtest.compat import dumps
+from webtest.compat import loads
 from webtest.compat import PY3
 from webob import Request, Response
 
@@ -441,13 +443,13 @@ class TestResponse(Response):
         for s in strings:
             if not s in self:
                 print_stderr("Actual response (no %r):" % s)
-                print_stderr(self)
+                print_stderr(str(self))
                 raise IndexError(
                     "Body does not contain string %r" % s)
         for no_s in no:
             if no_s in self:
                 print_stderr("Actual response (has %r)" % no_s)
-                print_stderr(self)
+                print_stderr(str(self))
                 raise IndexError(
                     "Body contains bad string %r" % no_s)
 
@@ -585,14 +587,9 @@ class TestResponse(Response):
             raise AttributeError(
                 "Not a JSON response body (content-type: %s)"
                 % self.content_type)
-        try:
-            from simplejson import loads
-        except ImportError:
-            try:
-                from json import loads
-            except ImportError:
-                raise ImportError(
-                    "You must have simplejson installed to use response.json")
+        if loads is None:
+            raise ImportError(
+                "You must have simplejson installed to use response.json")
         return loads(self.testbody)
 
     json = property(json, doc=json.__doc__)
@@ -812,11 +809,29 @@ class TestApp(object):
                                  expect_errors=expect_errors,
                                  content_type=content_type)
 
+    def post_json(self, url, params='', headers=None, extra_environ=None,
+                  status=None, expect_errors=False):
+        """
+        Do a POST request.  Very like the ``.get()`` method.
+        ``params`` are dumps to json and put in the body of the request.
+        Content-Type is set to ``application/json``.
+
+        Returns a ``webob.Response`` object.
+        """
+        content_type = 'application/json'
+        if params:
+            params = dumps(params)
+        return self._gen_request('POST', url, params=params, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=None,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type)
+
     def put(self, url, params='', headers=None, extra_environ=None,
             status=None, upload_files=None, expect_errors=False,
             content_type=None):
         """
-        Do a PUT request.  Very like the ``.put()`` method.
+        Do a PUT request.  Very like the ``.post()`` method.
         ``params`` are put in the body of the request, if params is a
         tuple, dictionary, list, or iterator it will be urlencoded and
         placed in the body as with a POST, if it is string it will not
@@ -830,8 +845,26 @@ class TestApp(object):
                                  expect_errors=expect_errors,
                                  content_type=content_type)
 
+    def put_json(self, url, params='', headers=None, extra_environ=None,
+            status=None, expect_errors=False):
+        """
+        Do a PUT request.  Very like the ``.post()`` method.
+        ``params`` are dumps to json and put in the body of the request.
+        Content-Type is set to ``application/json``.
+
+        Returns a ``webob.Response`` object.
+        """
+        content_type = 'application/json'
+        if params:
+            params = dumps(params)
+        return self._gen_request('PUT', url, params=params, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=None,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type)
+
     def delete(self, url, params='', headers=None, extra_environ=None,
-               status=None, expect_errors=False):
+               status=None, expect_errors=False, content_type=None):
         """
         Do a DELETE request.  Very like the ``.get()`` method.
 
@@ -844,7 +877,29 @@ class TestApp(object):
         return self._gen_request('DELETE', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
-                                 expect_errors=expect_errors)
+                                 expect_errors=expect_errors,
+                                 content_type=content_type)
+
+    def delete_json(self, url, params='', headers=None, extra_environ=None,
+               status=None, expect_errors=False):
+        """
+        Do a DELETE request.  Very like the ``.get()`` method.
+        Content-Type is set to ``application/json``.
+
+        Returns a ``webob.Response`` object.
+        """
+        if params:
+            warnings.warn(('You are not supposed to send a body in a '
+                           'DELETE request. Most web servers will ignore it'),
+                           lint.WSGIWarning)
+        content_type = 'application/json'
+        if params:
+            params = dumps(params)
+        return self._gen_request('DELETE', url, params=params, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=None,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type)
 
     def options(self, url, headers=None, extra_environ=None,
                status=None, expect_errors=False):

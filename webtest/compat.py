@@ -6,6 +6,8 @@ if sys.version_info[0] > 2:
     string_types = (str,)
     text_type = str
     binary_type = bytes
+    from json import loads
+    from json import dumps
     from io import StringIO
     from io import BytesIO
     from urllib.parse import urlencode
@@ -53,6 +55,16 @@ else:
         from StringIO import StringIO
     BytesIO = StringIO
     import urlparse
+    try:
+        from json import loads
+        from json import dumps
+    except ImportError:
+        try:
+            from simplejson import loads
+            from simplejson import dumps
+        except ImportError:
+            loads = None
+            dumps = None
 
     def to_bytes(s):
         return str(s)

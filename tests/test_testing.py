@@ -5,6 +5,8 @@ from webtest.compat import to_bytes
 from webtest.compat import print_stderr
 from tests.compat import unittest
 from tests.compat import u
+import webbrowser
+
 
 
 def test_print_unicode():
@@ -43,10 +45,20 @@ class TestTesting(unittest.TestCase):
         res.mustcontain('a=1')
         res = self.app.post('/', params=[('a','1')])
         res.mustcontain('a=1')
+        res = self.app.post_json('/', params=dict(a=1))
+        res.mustcontain('{"a": 1}')
+
+    def test_put_params(self):
+        res = self.app.put('/', params=dict(a=1))
+        res.mustcontain('a=1')
+        res = self.app.put_json('/', params=dict(a=1))
+        res.mustcontain('{"a": 1}')
 
     def test_delete_params(self):
         res = self.app.delete('/', params=dict(a=1))
         res.mustcontain('a=1')
+        res = self.app.delete_json('/', params=dict(a=1))
+        res.mustcontain('{"a": 1}')
 
     def test_options(self):
         res = self.app.options('/')
@@ -55,6 +67,16 @@ class TestTesting(unittest.TestCase):
     def test_exception(self):
         self.assertRaises(Exception, self.app.get, '/?error=t')
         self.assertRaises(webtest.AppError, self.app.get, '/?status=404%20Not%20Found')
+
+    def test_showbrowser(self):
+        open_new = webbrowser.open_new
+        self.filename = ''
+        def open_new(f):
+            self.filename = f
+        webbrowser.open_new = open_new
+        res = self.app.get('/')
+        res.showbrowser()
+        assert self.filename.startswith('file://'), self.filename
 
     def test_303(self):
         res = self.app.get('/?status=303%20Redirect&header-location=/foo')
