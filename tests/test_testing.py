@@ -40,6 +40,11 @@ class TestTesting(unittest.TestCase):
         self.assertTrue(res.content_length > 0)
         self.assertEqual(res.body, to_bytes(''))
 
+    def test_post_unicode(self):
+        res = self.app.post('/', params=dict(a=u('é')),
+               content_type='application/x-www-form-urlencoded;charset=utf8')
+        res.mustcontain('a=%C3%A9')
+
     def test_get_params(self):
         res = self.app.post('/', params=dict(a=1))
         res.mustcontain('a=1')

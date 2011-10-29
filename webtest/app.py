@@ -760,10 +760,7 @@ class TestApp(object):
         """
         environ = self._make_environ(extra_environ)
         # @@: Should this be all non-strings?
-        if isinstance(params, (list, tuple, dict)):
-            params = urlencode(params, doseq=True)
-        if hasattr(params, 'items'):
-            params = urlencode(params.items(), doseq=True)
+        params = encode_params(params, content_type)
         if upload_files or \
             (content_type and to_string(content_type).startswith('multipart')):
             params = cgi.parse_qsl(params, keep_blank_values=True)
@@ -1770,3 +1767,21 @@ def html_unquote(v):
                       ('&amp;', '&')]:
         v = v.replace(ent, repl)
     return v
+
+def encode_params(params, content_type):
+    if isinstance(params, dict) or hasattr(params, 'items'):
+        params = list(params.items())
+    if isinstance(params, (list, tuple)):
+        if content_type:
+            content_type = content_type.lower()
+            if 'charset=' in content_type:
+                charset = content_type.split('charset=')[1]
+                charset = charset.strip('; ').lower()
+                encoded_params = []
+                for k, v in params:
+                    if isinstance(v, text_type):
+                        v = v.encode(charset)
+                    encoded_params.append((k, v))
+                params = encoded_params
+        params = urlencode(params, doseq=True)
+    return params
