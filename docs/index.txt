@@ -257,7 +257,7 @@ Then you fill it in fields:
     >>> print(form.method)
     POST
     >>> # dict of fields
-    >>> fields.values() #doctest: +SKIP
+    >>> form.fields.values() #doctest: +SKIP
     [(u'name', [<Text name="name">]), (u'submit', [<Submit name="submit">])]
     >>> form['name'] = 'Bob'
     >>> # When names don't point to a single field:
