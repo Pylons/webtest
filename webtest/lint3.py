@@ -115,7 +115,6 @@ from __future__ import unicode_literals
 import re
 import sys
 import warnings
-from webtest.compat import PY3
 from webtest.compat import to_string
 
 header_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9\-_]*$')
@@ -275,10 +274,7 @@ class IteratorWrapper(object):
     def next(self):
         assert not self.closed, (
             "Iterator read after closed")
-        try:
-            v = next(self.iterator)
-        except NameError:
-            v = self.iterator.next()
+        v = next(self.iterator)
         if self.check_start_response is not None:
             assert self.check_start_response, (
                 "The application returns and we started iterating over its"

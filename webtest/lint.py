@@ -114,6 +114,7 @@ Some of the things this checks:
 import re
 import sys
 import warnings
+from webtest.compat import next
 
 header_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9\-_]*$')
 bad_header_value_re = re.compile(r'[\000-\037]')
@@ -270,10 +271,7 @@ class IteratorWrapper(object):
     def next(self):
         assert not self.closed, (
             "Iterator read after closed")
-        try:
-            v = next(self.iterator)
-        except NameError:
-            v = self.iterator.next()
+        v = next(self.iterator)
         if self.check_start_response is not None:
             assert self.check_start_response, (
                 "The application returns and we started iterating over its"
