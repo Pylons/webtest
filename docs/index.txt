@@ -304,7 +304,7 @@ are the attributes:
     response body.
 
 ``response.pyquery``:
-    Return an `PyQuery <http://pyquery.org/>`_ version of the
+    Return an `PyQuery <http://pypi.python.org/pypi/pyquery>`_ version of the
     response body.
 
 ``response.json``:
