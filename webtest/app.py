@@ -51,7 +51,26 @@ class NoDefault(object):
 
 
 class AppError(Exception):
-    pass
+
+    def __init__(self, message, *args):
+        message = to_string(message)
+        str_args = ()
+        for arg in args:
+            if isinstance(arg, Response):
+                body = arg.body
+                if isinstance(body, binary_type):
+                    if arg.charset:
+                        arg = body.decode(arg.charset)
+                    else:
+                        arg = repr(body)
+            elif isinstance(arg, binary_type):
+                try:
+                    arg = to_string(arg)
+                except UnicodeDecodeError:
+                    arg = repr(arg)
+            str_args += (arg,)
+        message = message % str_args
+        Exception.__init__(self, message)
 
 
 class CaptureStdout(object):
@@ -1098,26 +1117,26 @@ class TestApp(object):
         if isinstance(status, (list, tuple)):
             if res.status_int not in status:
                 raise AppError(
-                    "Bad response: %s (not one of %s for %s)\n%s"
-                    % (res_status, ', '.join(map(str, status)),
-                       res.request.url, res.body))
+                    "Bad response: %s (not one of %s for %s)\n%s",
+                    res_status, ', '.join(map(str, status)),
+                    res.request.url, res)
             return
         if status is None:
             if res.status_int >= 200 and res.status_int < 400:
                 return
             raise AppError(
-                "Bad response: %s (not 200 OK or 3xx redirect for %s)\n%s"
-                % (res_status, res.request.url,
-                   res.body))
+                "Bad response: %s (not 200 OK or 3xx redirect for %s)\n%s",
+                res_status, res.request.url,
+                res)
         if status != res.status_int:
             raise AppError(
-                "Bad response: %s (not %s)" % (res_status, status))
+                "Bad response: %s (not %s)", res_status, status)
 
     def _check_errors(self, res):
         errors = res.errors
         if errors:
             raise AppError(
-                "Application had errors logged:\n%s" % errors)
+                "Application had errors logged:\n%s", errors)
 
 
 ########################################
