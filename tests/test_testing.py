@@ -8,7 +8,6 @@ from tests.compat import u
 import webbrowser
 
 
-
 def test_print_unicode():
     print_stderr(u('°C'))
 
@@ -48,7 +47,7 @@ class TestTesting(unittest.TestCase):
     def test_get_params(self):
         res = self.app.post('/', params=dict(a=1))
         res.mustcontain('a=1')
-        res = self.app.post('/', params=[('a','1')])
+        res = self.app.post('/', params=[('a', '1')])
         res.mustcontain('a=1')
         res = self.app.post_json('/', params=dict(a=1))
         res.mustcontain('{"a": 1}')
@@ -71,7 +70,8 @@ class TestTesting(unittest.TestCase):
 
     def test_exception(self):
         self.assertRaises(Exception, self.app.get, '/?error=t')
-        self.assertRaises(webtest.AppError, self.app.get, '/?status=404%20Not%20Found')
+        self.assertRaises(webtest.AppError, self.app.get,
+                                            '/?status=404%20Not%20Found')
 
     def test_request_obj(self):
         res = self.app.get('/')
@@ -80,8 +80,10 @@ class TestTesting(unittest.TestCase):
     def test_showbrowser(self):
         open_new = webbrowser.open_new
         self.filename = ''
+
         def open_new(f):
             self.filename = f
+
         webbrowser.open_new = open_new
         res = self.app.get('/')
         res.showbrowser()
@@ -97,10 +99,10 @@ class TestTesting(unittest.TestCase):
         self.assertEqual(res.request.url, 'http://localhost/foo')
         self.assertIn('Response: 200 OK', str(res))
         self.assertIn('200 OK', repr(res))
-        res = self.app.get('/?status=303%20redirect', status='3*')
+        self.app.get('/?status=303%20redirect', status='3*')
 
     def test_204(self):
-        res = self.app.post('/?status=204%20OK')
+        self.app.post('/?status=204%20OK')
 
     def test_404(self):
         self.app.get('/?status=404%20Not%20Found', status=404)
@@ -110,5 +112,4 @@ class TestTesting(unittest.TestCase):
         class FakeDict(object):
             def items(self):
                 return [('a', '10'), ('a', '20')]
-        res = self.app.post('/params', params=FakeDict())
-
+        self.app.post('/params', params=FakeDict())
