@@ -1,4 +1,4 @@
-webob==1.1rc1
+webob==1.1.1
 lxml
 pyquery
 BeautifulSoup
