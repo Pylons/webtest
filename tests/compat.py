@@ -16,6 +16,8 @@ else:
     def b(value):
         return str(value)
     def u(value):
+        if isinstance(value, unicode):
+            return value
         return unicode(value, 'utf-8')
 
 
