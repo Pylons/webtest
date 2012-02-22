@@ -30,6 +30,7 @@ from webtest.compat import text_type
 from webtest.compat import to_string
 from webtest.compat import to_bytes
 from webtest.compat import join_bytes
+from webtest.compat import OrderedDict
 from webtest.compat import dumps
 from webtest.compat import loads
 from webtest.compat import PY3
@@ -1444,7 +1445,7 @@ class Form(object):
     def _parse_fields(self):
         in_select = None
         in_textarea = None
-        fields = {}
+        fields = OrderedDict()
         for match in self._tag_re.finditer(self.text):
             end = match.group(1) == '/'
             tag = match.group(2).lower()
