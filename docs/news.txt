@@ -1,6 +1,12 @@
 News
 ====
 
+1.3.5
+-----
+
+* `fix #33 <https://bitbucket.org/ianb/webtest/issue/33>`_ Remove
+  CaptureStdout. Do nothing and break pdb
+
 1.3.4
 -----
 

@@ -8,12 +8,9 @@ Routines for testing WSGI applications.
 Most interesting is TestApp
 """
 
-import sys
 import random
-import urllib
 import warnings
 import mimetypes
-import time
 import cgi
 import os
 import re
@@ -71,27 +68,6 @@ class AppError(Exception):
             str_args += (arg,)
         message = message % str_args
         Exception.__init__(self, message)
-
-
-class CaptureStdout(object):
-
-    def __init__(self, actual):
-        self.captured = StringIO()
-        self.actual = actual
-
-    def write(self, s):
-        self.captured.write(s)
-        self.actual.write(s)
-
-    def flush(self):
-        self.actual.flush()
-
-    def writelines(self, lines):
-        for item in lines:
-            self.write(item)
-
-    def getvalue(self):
-        return self.captured.getvalue()
 
 
 class TestResponse(Response):
@@ -1062,17 +1038,9 @@ class TestApp(object):
         req.environ['paste.testing'] = True
         req.environ['paste.testing_variables'] = {}
         app = lint.middleware(self.app)
-        old_stdout = sys.stdout
-        out = CaptureStdout(old_stdout)
-        try:
-            sys.stdout = out
-            start_time = time.time()
-            ## FIXME: should it be an option to not catch exc_info?
-            res = req.get_response(app, catch_exc_info=True)
-            res._use_unicode = self.use_unicode
-            end_time = time.time()
-        finally:
-            sys.stdout = old_stdout
+        ## FIXME: should it be an option to not catch exc_info?
+        res = req.get_response(app, catch_exc_info=True)
+        res._use_unicode = self.use_unicode
         res.request = req
         res.app = app
         res.test_app = self
@@ -1082,7 +1050,6 @@ class TestApp(object):
         except TypeError:
             pass
         res.errors = errors.getvalue()
-        total_time = end_time - start_time
         for name, value in req.environ['paste.testing_variables'].items():
             if hasattr(res, name):
                 raise ValueError(
