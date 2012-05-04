@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 from setuptools import setup
 from setuptools import find_packages
-import sys
-import os
 
-version = '1.3.3'
+version = '1.3.4'
 
 setup(name='WebTest',
       version=version,
