@@ -39,7 +39,7 @@ from webob import Request, Response
 if PY3:
     from webtest import lint3 as lint
 else:
-    from webtest import lint
+    from webtest import lint  # NOQA
 
 __all__ = ['TestApp', 'TestRequest']
 
@@ -802,8 +802,8 @@ class TestApp(object):
                                  expect_errors=expect_errors,
                                  content_type=content_type)
 
-    def post_json(self, url, params='', headers=None, extra_environ=None,
-                  status=None, expect_errors=False):
+    def post_json(self, url, params=NoDefault, headers=None,
+                  extra_environ=None, status=None, expect_errors=False):
         """
         Do a POST request.  Very like the ``.get()`` method.
         ``params`` are dumps to json and put in the body of the request.
@@ -812,7 +812,7 @@ class TestApp(object):
         Returns a ``webob.Response`` object.
         """
         content_type = 'application/json'
-        if params:
+        if params is not NoDefault:
             params = dumps(params)
         return self._gen_request('POST', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -838,7 +838,7 @@ class TestApp(object):
                                  expect_errors=expect_errors,
                                  content_type=content_type)
 
-    def put_json(self, url, params='', headers=None, extra_environ=None,
+    def put_json(self, url, params=NoDefault, headers=None, extra_environ=None,
             status=None, expect_errors=False):
         """
         Do a PUT request.  Very like the ``.post()`` method.
@@ -848,7 +848,7 @@ class TestApp(object):
         Returns a ``webob.Response`` object.
         """
         content_type = 'application/json'
-        if params:
+        if params is not NoDefault:
             params = dumps(params)
         return self._gen_request('PUT', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -873,8 +873,8 @@ class TestApp(object):
                                  expect_errors=expect_errors,
                                  content_type=content_type)
 
-    def delete_json(self, url, params='', headers=None, extra_environ=None,
-               status=None, expect_errors=False):
+    def delete_json(self, url, params=NoDefault, headers=None,
+                    extra_environ=None, status=None, expect_errors=False):
         """
         Do a DELETE request.  Very like the ``.get()`` method.
         Content-Type is set to ``application/json``.
@@ -886,7 +886,7 @@ class TestApp(object):
                            'DELETE request. Most web servers will ignore it'),
                            lint.WSGIWarning)
         content_type = 'application/json'
-        if params:
+        if params is not NoDefault:
             params = dumps(params)
         return self._gen_request('DELETE', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -1755,7 +1755,10 @@ def html_unquote(v):
         v = v.replace(ent, repl)
     return v
 
+
 def encode_params(params, content_type):
+    if params is NoDefault:
+        return ''
     if isinstance(params, dict) or hasattr(params, 'items'):
         params = list(params.items())
     if isinstance(params, (list, tuple)):

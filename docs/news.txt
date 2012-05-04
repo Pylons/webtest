@@ -4,11 +4,14 @@ News
 1.3.5
 -----
 
-* `fix #33 <https://bitbucket.org/ianb/webtest/issue/33>`_ Remove
+* fix `#33 <https://bitbucket.org/ianb/webtest/issue/33>`_ Remove
   CaptureStdout. Do nothing and break pdb
 
-* use OrderedDict to store fields in form. See 
+* use OrderedDict to store fields in form. See
   `#31 <https://bitbucket.org/ianb/webtest/issue/31>`_
+
+* fix `#38 <https://bitbucket.org/ianb/webtest/issue/38>`_ Allow to post falsey
+  values.
 
 1.3.4
 -----

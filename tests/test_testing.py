@@ -44,19 +44,23 @@ class TestTesting(unittest.TestCase):
                content_type='application/x-www-form-urlencoded;charset=utf8')
         res.mustcontain('a=%C3%A9')
 
-    def test_get_params(self):
+    def test_post_params(self):
         res = self.app.post('/', params=dict(a=1))
         res.mustcontain('a=1')
         res = self.app.post('/', params=[('a', '1')])
         res.mustcontain('a=1')
         res = self.app.post_json('/', params=dict(a=1))
         res.mustcontain('{"a": 1}')
+        res = self.app.post_json('/', params=False)
+        res.mustcontain('false')
 
     def test_put_params(self):
         res = self.app.put('/', params=dict(a=1))
         res.mustcontain('a=1')
         res = self.app.put_json('/', params=dict(a=1))
         res.mustcontain('{"a": 1}')
+        res = self.app.put_json('/', params=False)
+        res.mustcontain('false')
 
     def test_delete_params(self):
         res = self.app.delete('/', params=dict(a=1))
