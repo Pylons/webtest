@@ -460,7 +460,7 @@ def check_content_type(status, headers):
             else:
                 assert 0, (("Content-Type header found in a %s response, "
                             "which must not return content.") % code)
-    if code not in NO_MESSAGE_BODY:
+    if code not in NO_MESSAGE_BODY and length is not None and length > 0:
         assert 0, "No Content-Type header found in headers (%s)" % headers
 
 
