@@ -40,7 +40,7 @@ copyright = '2008, Ian Bicking'
 # other places throughout the built documents.
 #
 # The full version, including alpha/beta/rc tags.
-version = release = '1.3.2'
+version = release = '1.3.4'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
