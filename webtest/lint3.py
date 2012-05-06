@@ -120,6 +120,11 @@ from webtest.compat import to_string
 header_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9\-_]*$')
 bad_header_value_re = re.compile(r'[\000-\037]')
 
+valid_methods = (
+    'GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'DELETE',
+    'TRACE', 'PATCH',
+  )
+
 METADATA_TYPE = (str, bytes)
 
 
@@ -341,8 +346,7 @@ def check_environ(environ):
     check_errors(environ['wsgi.errors'])
 
     # @@: these need filling out:
-    if environ['REQUEST_METHOD'] not in (
-        'GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'TRACE'):
+    if environ['REQUEST_METHOD'] not in valid_methods:
         warnings.warn(
             "Unknown REQUEST_METHOD: %r" % environ['REQUEST_METHOD'],
             WSGIWarning)
