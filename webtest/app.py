@@ -1032,9 +1032,14 @@ class TestApp(object):
         if script_name and req.path_info.startswith(script_name):
             req.path_info = req.path_info[len(script_name):]
         if self.cookies:
+            cookies= self.cookies.items()
+            if 'Cookie' in req.headers:
+                req_cookies= [ i.strip() for i in req.headers['Cookie'].split(';') ]
+                req_cookies= [ i.split('=') for i in req_cookies ]
+                cookies.extend( req_cookies )
             cookie_header = ''.join([
                 '%s=%s; ' % (name, cookie_quote(value))
-                for name, value in self.cookies.items()])
+                for name, value in cookies])
             req.environ['HTTP_COOKIE'] = cookie_header
         req.environ['paste.testing'] = True
         req.environ['paste.testing_variables'] = {}
