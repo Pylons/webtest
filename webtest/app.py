@@ -756,13 +756,14 @@ class TestApp(object):
         """
         environ = self._make_environ(extra_environ)
 
-        # Two cases: params is a string or a list of mapping items
-        # A) String
-        # B) Mapping
-
         inline_uploads = []
+
+        # this supports OrderedDict
+        if isinstance(params, dict) or hasattr(params, 'items'):
+            params = list(params.items())
+
         if isinstance(params, (list, tuple)):
-            inline_uploads = [v for (k,v) in params \
+            inline_uploads = [v for (k,v) in params
                               if isinstance(v, (File, Upload))]
 
         if len(inline_uploads) > 0:
