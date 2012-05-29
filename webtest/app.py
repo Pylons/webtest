@@ -810,6 +810,14 @@ class TestApp(object):
         just ``[(fieldname, filename)]`` and the file content will be
         read from disk.
 
+        For post requests params could be a collections.OrderedDict with
+        Upload fields included in order:
+
+            app.post('/myurl', collections.OrderedDict([
+                ('textfield1', 'value1'),
+                ('uploadfield', webapp.Upload('filename.txt', 'contents'),
+                ('textfield2', 'value2')])))
+
         Returns a ``webob.Response`` object.
         """
         return self._gen_request('POST', url, params=params, headers=headers,
