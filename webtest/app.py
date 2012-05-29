@@ -755,17 +755,32 @@ class TestApp(object):
         Do a generic request.
         """
         environ = self._make_environ(extra_environ)
-        # @@: Should this be all non-strings?
-        params = encode_params(params, content_type)
-        if upload_files or \
-            (content_type and to_string(content_type).startswith('multipart')):
-            params = cgi.parse_qsl(params, keep_blank_values=True)
+
+        # Two cases: params is a string or a list of mapping items
+        # A) String
+        # B) Mapping
+
+        inline_uploads = []
+        if isinstance(params, (list, tuple)):
+            inline_uploads = [v for (k,v) in params \
+                              if isinstance(v, (File, Upload))]
+
+        if len(inline_uploads) > 0:
             content_type, params = self.encode_multipart(
                 params, upload_files or ())
             environ['CONTENT_TYPE'] = content_type
-        elif params:
-            environ.setdefault('CONTENT_TYPE',
+        else:
+            params = encode_params(params, content_type)
+            if upload_files or \
+                (content_type and to_string(content_type).startswith('multipart')):
+                params = cgi.parse_qsl(params, keep_blank_values=True)
+                content_type, params = self.encode_multipart(
+                    params, upload_files or ())
+                environ['CONTENT_TYPE'] = content_type
+            elif params:
+                environ.setdefault('CONTENT_TYPE',
                                'application/x-www-form-urlencoded')
+
         if '?' in url:
             url, environ['QUERY_STRING'] = url.split('?', 1)
         else:
@@ -926,12 +941,14 @@ class TestApp(object):
         """
         boundary = '----------a_BoUnDaRy%s$' % random.random()
         lines = []
-        for key, value in params:
+
+        def _append_value(key, value):
             lines.append('--' + boundary)
             lines.append('Content-Disposition: form-data; name="%s"' % key)
             lines.append('')
             lines.append(value)
-        for file_info in files:
+
+        def _append_file(file_info):
             key, filename, value = self._get_file_info(file_info)
             lines.append('--' + boundary)
             lines.append(
@@ -942,6 +959,21 @@ class TestApp(object):
                          (fcontent or 'application/octet-stream'))
             lines.append('')
             lines.append(value)
+
+        for key, value in params:
+            if isinstance(value, File) and value.value:
+                _append_file([key] + list(value.value))
+            elif isinstance(value, Upload):
+                file_info = [key, value.filename]
+                if value.file_content is not None:
+                    file_info.append(value.file_content)
+                _append_file(file_info)
+            else:
+                _append_value(key, value)
+
+        for file_info in files:
+            _append_file(file_info)
+
         lines.append('--' + boundary + '--')
         lines.append('')
         body = join_bytes('\r\n', lines)
@@ -1128,6 +1160,12 @@ def _parse_attrs(text):
         # supported now (actually they have never been supported).
         attrs[str(attr_name)] = attr_body
     return attrs
+
+
+class Upload(object):
+    def __init__(self, filename, file_content=None):
+        self.filename = filename
+        self.file_content = file_content
 
 
 class Field(object):
@@ -1631,9 +1669,9 @@ class Form(object):
         Returns a :class:`webtest.TestResponse` object.
         """
         fields = self.submit_fields(name, index=index)
-        uploads = self.upload_fields()
-        if uploads:
-            args["upload_files"] = uploads
+        #uploads = self.upload_fields()
+        #if uploads:
+        #    args["upload_files"] = uploads
         if self.method != "GET":
             args.setdefault("content_type",  self.enctype)
         return self.response.goto(self.action, method=self.method,
@@ -1670,8 +1708,7 @@ class Form(object):
                 if value is None:
                     continue
                 if isinstance(field, File):
-                    # skip file uploads; they need to be accounted
-                    # for differently
+                    submit.append((name, field))
                     continue
                 if isinstance(value, list):
                     for item in value:
