@@ -970,8 +970,9 @@ class TestApp(object):
             lines.append(value)
 
         for key, value in params:
-            if isinstance(value, File) and value.value:
-                _append_file([key] + list(value.value))
+            if isinstance(value, File):
+                if value.value:
+                    _append_file([key] + list(value.value))
             elif isinstance(value, Upload):
                 file_info = [key, value.filename]
                 if value.file_content is not None:
