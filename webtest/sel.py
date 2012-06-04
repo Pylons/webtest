@@ -16,8 +16,6 @@ import signal
 import socket
 import types
 import webob
-import signal
-import shutil
 import logging
 import warnings
 import tempfile
@@ -40,7 +38,7 @@ try:
     import json
 except ImportError:
     try:
-        import simplejson as json
+        import simplejson as json  # NOQA
     except:
         json = False
 
@@ -161,7 +159,7 @@ class Selenium(object):
 
     def __init__(self):
         self.host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
-        self.port = int(os.environ.get('SELENIUM_POST', 4444))
+        self.port = int(os.environ.get('SELENIUM_PORT', 4444))
         self.session_id = None
 
     def start(self, url):
@@ -188,7 +186,6 @@ class Selenium(object):
         try:
             conn.request("POST", "/selenium-server/driver/", data, headers)
             resp = conn.getresponse()
-            status = resp.status
             data = resp.read()
         finally:
             conn.close()
@@ -236,8 +233,6 @@ class SeleniumApp(testapp.TestApp):
             url = self.app.url
         assert is_available()
         self.session_id = None
-        host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
-        port = int(os.environ.get('SELENIUM_POST', 4444))
         self._browser = Selenium()
         self._browser.start(url)
         self.extra_environ = extra_environ or {}
@@ -329,7 +324,7 @@ class SeleniumApp(testapp.TestApp):
         for i in range(100):
             try:
                 conn.request('GET', '/__application__')
-                resp = conn.getresponse()
+                conn.getresponse()
             except (socket.error, CannotSendRequest):
                 time.sleep(.3)
             else:
@@ -342,7 +337,7 @@ class SeleniumApp(testapp.TestApp):
             for i in range(100):
                 try:
                     conn.request('GET', '/__kill_application__')
-                    resp = conn.getresponse()
+                    conn.getresponse()
                 except socket.error:
                     conn.close()
                     break
@@ -955,7 +950,7 @@ def is_available():
             'available. Consider installing simplejson'),
             SeleniumWarning)
     host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
-    port = int(os.environ.get('SELENIUM_POST', 4444))
+    port = int(os.environ.get('SELENIUM_PORT', 4444))
     try:
         conn = HTTPConnection(host, port)
         conn.request('GET', '/')
