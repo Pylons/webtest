@@ -501,8 +501,12 @@ class TestResponse(Response):
         try:
             from BeautifulSoup import BeautifulSoup
         except ImportError:
-            raise ImportError(
-                "You must have BeautifulSoup installed to use response.html")
+            try:
+                from bs4 import BeautifulSoup
+            except ImportError:
+                raise ImportError(
+                    "You must have BeautifulSoup installed to use "
+                    "response.html")
         soup = BeautifulSoup(self.testbody)
         return soup
 
