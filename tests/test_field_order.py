@@ -1,6 +1,4 @@
 import collections
-import os.path
-import struct
 from tests.compat import unittest
 from webtest.compat import to_bytes
 from webtest.compat import to_string
@@ -9,6 +7,7 @@ from webtest.compat import binary_type
 from webtest.compat import PY3
 from webob import Request
 import webtest
+import sys
 
 
 def deform_upload_file_app(environ, start_response):
@@ -77,6 +76,7 @@ def deform_upload_file_app(environ, start_response):
     return [body]
 
 
+@unittest.skipIf(sys.version_info[:1] < (2, 7), 'Only work with 2.7+')
 class TestFieldOrder(unittest.TestCase):
 
     def test_submit_with_file_upload(self):

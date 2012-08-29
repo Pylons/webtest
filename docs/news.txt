@@ -1,6 +1,12 @@
 News
 ====
 
+1.3.6
+------
+
+* fix `#42 <https://bitbucket.org/ianb/webtest/issue/42>`_ Check uppercase
+  method.
+
 1.3.5
 ------
 

@@ -456,10 +456,13 @@ class TestResponse(Response):
                    for n, v in self.headerlist
                    if n.lower() != 'content-length']
         headers.sort()
-        return 'Response: %s\n%s\n%s' % (
+        output = 'Response: %s\n%s\n%s' % (
             to_string(self.status),
             '\n'.join(['%s: %s' % (n, v) for n, v in headers]),
             simple_body)
+        if not PY3 and isinstance(output, text_type):
+            output = output.encode(self.charset or 'utf-8', 'replace')
+        return output
 
     def _normalize_header_name(self, name):
         name = name.replace('-', ' ').title().replace(' ', '-')

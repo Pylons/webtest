@@ -112,6 +112,14 @@ class TestTesting(unittest.TestCase):
         self.app.get('/?status=404%20Not%20Found', status=404)
         self.assertRaises(webtest.AppError, self.app.get, '/', status=404)
 
+    def test_print_err(self):
+        res = self.app.get('/')
+        res.charset = 'utf-8'
+        res.text = u('°C')
+        print_stderr(str(res))
+        res.charset = None
+        print_stderr(str(res))
+
     def test_fake_dict(self):
         class FakeDict(object):
             def items(self):
