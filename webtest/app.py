@@ -1081,12 +1081,13 @@ class TestApp(object):
         script_name = req.environ.get('SCRIPT_NAME', '')
         if script_name and req.path_info.startswith(script_name):
             req.path_info = req.path_info[len(script_name):]
-        if self.cookies:
-            cookies= self.cookies.items()
-            if 'Cookie' in req.headers:
-                req_cookies= [ i.strip() for i in req.headers['Cookie'].split(';') ]
-                req_cookies= [ i.split('=') for i in req_cookies ]
-                cookies.extend( req_cookies )
+        cookies = self.cookies or {}
+        cookies = cookies.items()
+        if 'Cookie' in req.headers:
+            req_cookies = [i.strip() for i in req.headers['Cookie'].split(';')]
+            req_cookies = [i.split('=') for i in req_cookies]
+            cookies.extend(req_cookies)
+        if cookies:
             cookie_header = ''.join([
                 '%s=%s; ' % (name, cookie_quote(value))
                 for name, value in cookies])
