@@ -3,6 +3,7 @@ import webtest
 from webtest.debugapp import debug_app
 from webtest.compat import to_bytes
 from webtest.compat import print_stderr
+from webtest.app import AppError
 from tests.compat import unittest
 from tests.compat import u
 import webbrowser
@@ -112,13 +113,21 @@ class TestTesting(unittest.TestCase):
         self.app.get('/?status=404%20Not%20Found', status=404)
         self.assertRaises(webtest.AppError, self.app.get, '/', status=404)
 
-    def test_print_err(self):
+    def test_print_stderr(self):
         res = self.app.get('/')
         res.charset = 'utf-8'
         res.text = u('°C')
         print_stderr(str(res))
         res.charset = None
         print_stderr(str(res))
+
+    def test_app_error(self):
+        res = self.app.get('/')
+        res.charset = 'utf-8'
+        res.text = u('°C')
+        AppError('%s %s %s %s', res.status, '', res.request.url, res)
+        res.charset = None
+        AppError('%s %s %s %s', res.status, '', res.request.url, res)
 
     def test_fake_dict(self):
         class FakeDict(object):
