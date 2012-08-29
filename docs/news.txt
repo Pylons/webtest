@@ -7,6 +7,9 @@ News
 * fix `#42 <https://bitbucket.org/ianb/webtest/issue/42>`_ Check uppercase
   method.
 
+* fix `#24 <https://bitbucket.org/ianb/webtest/issue/24>`_ Include test
+  fixtures.
+
 * fix bug when trying to print a response which contain some unicode chars
 
 1.3.5
