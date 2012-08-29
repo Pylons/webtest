@@ -202,7 +202,7 @@ class TestResponse(Response):
         You can use multiple criteria to essentially assert multiple
         aspects about the link, e.g., where the link's destination is.
         """
-        __tracebackhide__ = True
+        __tracebackhide__ = True # NOQA
         found_html, found_desc, found_attrs = self._find_element(
             tag='a', href_attr='href',
             href_extract=None,
@@ -220,7 +220,7 @@ class TestResponse(Response):
         This kind of button should look like
         ``<button onclick="...location.href='url'...">``.
         """
-        __tracebackhide__ = True
+        __tracebackhide__ = True # NOQA
         found_html, found_desc, found_attrs = self._find_element(
             tag='button', href_attr='onclick',
             href_extract=re.compile(r"location\.href='(.*?)'"),
@@ -505,7 +505,7 @@ class TestResponse(Response):
             from BeautifulSoup import BeautifulSoup
         except ImportError:
             try:
-                from bs4 import BeautifulSoup
+                from bs4 import BeautifulSoup # NOQA
             except ImportError:
                 raise ImportError(
                     "You must have BeautifulSoup installed to use "
@@ -535,7 +535,7 @@ class TestResponse(Response):
                 import ElementTree
             except ImportError:
                 try:
-                    from elementtree import ElementTree
+                    from elementtree import ElementTree # NOQA
                 except ImportError:
                     raise ImportError(
                         ("You must have ElementTree installed "
@@ -734,7 +734,7 @@ class TestApp(object):
         """
         environ = self._make_environ(extra_environ)
         # Hide from py.test:
-        __tracebackhide__ = True
+        __tracebackhide__ = True # NOQA
         url = str(url)
         url = self._remove_fragment(url)
         if params:
@@ -770,7 +770,7 @@ class TestApp(object):
             params = list(params.items())
 
         if isinstance(params, (list, tuple)):
-            inline_uploads = [v for (k,v) in params
+            inline_uploads = [v for (k, v) in params
                               if isinstance(v, (File, Upload))]
 
         if len(inline_uploads) > 0:
@@ -780,7 +780,8 @@ class TestApp(object):
         else:
             params = encode_params(params, content_type)
             if upload_files or \
-                (content_type and to_string(content_type).startswith('multipart')):
+                (content_type and \
+                 to_string(content_type).startswith('multipart')):
                 params = cgi.parse_qsl(params, keep_blank_values=True)
                 content_type, params = self.encode_multipart(
                     params, upload_files or ())
@@ -1074,7 +1075,7 @@ class TestApp(object):
         ``TestRequest.blank()``, which will be set on the request.
         These can be arguments like ``content_type``, ``accept``, etc.
         """
-        __tracebackhide__ = True
+        __tracebackhide__ = True # NOQA
         errors = StringIO()
         req.environ['wsgi.errors'] = errors
         script_name = req.environ.get('SCRIPT_NAME', '')
@@ -1123,7 +1124,7 @@ class TestApp(object):
         return res
 
     def _check_status(self, status, res):
-        __tracebackhide__ = True
+        __tracebackhide__ = True # NOQA
         if status == '*':
             return
         res_status = to_string(res.status)
@@ -1345,6 +1346,8 @@ class Radio(Select):
     """
 
     def value__get(self):
+        if self._forced_value is not NoValue:
+            self._forced_value = NoValue
         if self.selectedIndex is not None:
             return self.options[self.selectedIndex][0]
         else:

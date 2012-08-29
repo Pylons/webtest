@@ -7,6 +7,9 @@ News
 * fix `#42 <https://bitbucket.org/ianb/webtest/issue/42>`_ Check uppercase
   method.
 
+* fix `#36 <https://bitbucket.org/ianb/webtest/issue/36>`_ Radio can use forced
+  value.
+
 * fix `#24 <https://bitbucket.org/ianb/webtest/issue/24>`_ Include test
   fixtures.
 
