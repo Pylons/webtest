@@ -1686,7 +1686,7 @@ class Form(object):
         #uploads = self.upload_fields()
         #if uploads:
         #    args["upload_files"] = uploads
-        if self.method != "GET":
+        if self.method.upper() != "GET":
             args.setdefault("content_type",  self.enctype)
         return self.response.goto(self.action, method=self.method,
                                   params=fields, **args)
