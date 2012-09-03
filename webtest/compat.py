@@ -100,3 +100,19 @@ try:
     from collections import OrderedDict
 except ImportError:
     OrderedDict = dict
+
+try:
+    from unittest import TestCase
+    from unittest import skipIf
+except ImportError:
+    try:
+        from unittest2 import TestCase
+        from unittest2 import skipIf
+    except ImportError:
+        from unittest import TestCase
+        def skipIf(condition, message):
+            if condition:
+                return None
+            def wrapper(func):
+                return func
+            return wrapper
