@@ -1,6 +1,12 @@
 News
 ====
 
+1.4.1
+-----
+
+* fix an error when you use AssertionError(response) with unicode chars in
+  response
+
 1.4.0
 -----
 

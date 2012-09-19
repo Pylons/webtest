@@ -452,7 +452,7 @@ class TestResponse(Response):
     def __str__(self):
         simple_body = '\n'.join([l for l in self.testbody.splitlines()
                                  if l.strip()])
-        headers = [(self._normalize_header_name(n), v)
+        headers = [(n.title(), v)
                    for n, v in self.headerlist
                    if n.lower() != 'content-length']
         headers.sort()
@@ -464,9 +464,11 @@ class TestResponse(Response):
             output = output.encode(self.charset or 'utf-8', 'replace')
         return output
 
-    def _normalize_header_name(self, name):
-        name = name.replace('-', ' ').title().replace(' ', '-')
-        return name
+    def __unicode__(self):
+        output = str(self)
+        if PY3:
+            return output
+        return output.decode(self.charset or 'utf-8', 'replace')
 
     def __repr__(self):
         # Specifically intended for doctests

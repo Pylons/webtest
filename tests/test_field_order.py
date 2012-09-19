@@ -76,7 +76,7 @@ def deform_upload_file_app(environ, start_response):
     return [body]
 
 
-@unittest.skipIf(sys.version_info[:1] < (2, 7), 'Only work with 2.7+')
+@unittest.skipIf(sys.version_info[:2] < (2, 7), 'Only work with 2.7+')
 class TestFieldOrder(unittest.TestCase):
 
     def test_submit_with_file_upload(self):

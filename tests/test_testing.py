@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import webtest
 from webtest.debugapp import debug_app
+from webtest.compat import PY3
 from webtest.compat import to_bytes
 from webtest.compat import print_stderr
 from webtest.app import AppError
@@ -118,6 +119,7 @@ class TestTesting(unittest.TestCase):
         res.charset = 'utf-8'
         res.text = u('°C')
         print_stderr(str(res))
+
         res.charset = None
         print_stderr(str(res))
 
@@ -128,6 +130,18 @@ class TestTesting(unittest.TestCase):
         AppError('%s %s %s %s', res.status, '', res.request.url, res)
         res.charset = None
         AppError('%s %s %s %s', res.status, '', res.request.url, res)
+
+    def test_exception_repr(self):
+        res = self.app.get('/')
+        res.charset = 'utf-8'
+        res.text = u('°C')
+        if not PY3:
+            unicode(AssertionError(res))
+        str(AssertionError(res))
+        res.charset = None
+        if not PY3:
+            unicode(AssertionError(res))
+        str(AssertionError(res))
 
     def test_fake_dict(self):
         class FakeDict(object):

@@ -2,7 +2,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-version = '1.4.0'
+version = '1.4.1'
 
 setup(name='WebTest',
       version=version,
