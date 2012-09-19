@@ -1314,7 +1314,7 @@ class MultipleSelect(Field):
 
     def value__set(self, values):
         str_values = [_stringify(value) for value in values]
-        self.selectedIndicies = []
+        self.selectedIndices = []
         for i, (option, checked) in enumerate(self.options):
             if option in str_values:
                 self.selectedIndices.append(i)
