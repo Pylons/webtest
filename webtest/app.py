@@ -1512,6 +1512,7 @@ class Form(object):
         in_select = None
         in_textarea = None
         fields = OrderedDict()
+        field_order = []
         for match in self._tag_re.finditer(self.text):
             end = match.group(1) == '/'
             tag = match.group(2).lower()
@@ -1547,6 +1548,7 @@ class Form(object):
                     field = self.FieldClass.classes['radio'](
                                        self, tag, name, match.start(), **attrs)
                     fields.setdefault(name, []).append(field)
+                    field_order.append((name, field))
                 else:
                     field = field[0]
                     assert isinstance(field, self.FieldClass.classes['radio'])
@@ -1574,6 +1576,8 @@ class Form(object):
                     % (in_select, match.group(0)))
                 in_select = field
             fields.setdefault(name, []).append(field)
+            field_order.append((name, field))
+        self.field_order = field_order
         self.fields = fields
 
     def _parse_action(self):
@@ -1725,13 +1729,21 @@ class Form(object):
         state of the form.
         """
         submit = []
-        if name is not None:
-            field = self.get(name, index=index)
-            submit.append((field.name, field.value_if_submitted()))
-        for name, fields in self.fields.items():
+        # Use another name here so we can keep function param the same for BWC.
+        submit_name = name
+        if index is None:
+            index = 0
+        # This counts all fields with the submit name not just submit fields.
+        current_index = 0
+        for name, field in self.field_order:
             if name is None:
                 continue
-            for field in fields:
+            if submit_name is not None and name == submit_name and \
+                current_index == index:
+                submit.append((name, field.value_if_submitted()))
+            elif submit_name is not None and name == submit_name:
+                current_index += 1
+            else:
                 value = field.value
                 if value is None:
                     continue
