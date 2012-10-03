@@ -1701,9 +1701,6 @@ class Form(object):
         Returns a :class:`webtest.TestResponse` object.
         """
         fields = self.submit_fields(name, index=index)
-        #uploads = self.upload_fields()
-        #if uploads:
-        #    args["upload_files"] = uploads
         if self.method.upper() != "GET":
             args.setdefault("content_type",  self.enctype)
         return self.response.goto(self.action, method=self.method,
