@@ -100,14 +100,15 @@ class TestFieldOrder(unittest.TestCase):
         single_form.set("description", "testdescription")
         display = single_form.submit("Submit")
         self.assertTrue(
-"""Submit:Submit
-_charset_:
+"""_charset_:
 __formid__:deform
 title:testtitle
 __start__:fileupload:mapping
 fileupload:test.txt:test content file upload
 __end__:fileupload:mapping
-description:testdescription""" in display)
+description:testdescription
+Submit:Submit
+""" in display)
 
     def test_post_with_file_upload(self):
         uploaded_file_name = 'test.txt'
