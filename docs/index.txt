@@ -277,7 +277,7 @@ Then you can submit:
     Content-Type: text/plain
     ...
     -- Body ----------
-    submit=Submit%21&name=Bob
+    name=Bob&submit=Submit%21
 
 Select fields can only be set to valid values (i.e., values in an
 ``<option>``) but you can also use
