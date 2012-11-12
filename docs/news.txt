@@ -4,6 +4,14 @@ News
 1.4.1
 -----
 
+* Fix a typo in apps.py: selectedIndicies
+
+* Preserve field order during parsing (support for deform and such)
+
+* Allow equals sign in the cookie by spliting name-value-string pairs on
+  the first '=' sign as per
+  http://tools.ietf.org/html/rfc6265#section-5.2
+
 * fix an error when you use AssertionError(response) with unicode chars in
   response
 
