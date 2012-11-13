@@ -9,7 +9,7 @@ version = '1.4.1dev0'
 
 tests_require = ['nose', 'coverage']
 
-if sys.version_info[0]:
+if sys.version_info[0] == "2":
     tests_require.append('unittest2')
 else:
     tests_require.append('unittest2py3k')
