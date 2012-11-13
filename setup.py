@@ -7,7 +7,7 @@ version = '1.4.1'
 setup(name='WebTest',
       version=version,
       description="Helper to test WSGI applications",
-      long_description=open('REAMDE.rst').read(),
+      long_description=open('README.rst').read(),
       classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Framework :: Paste",
