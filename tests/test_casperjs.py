@@ -29,7 +29,8 @@ def application(environ, start_response):
         if os.path.isfile(filename):
             kw = dict(message=req.params.get('message', ''),
                       redirect=req.params.get('redirect', ''))
-            resp.unicode_body = u(open(filename).read()) % kw
+            with open(filename) as f:
+                resp.unicode_body = u(f.read()) % kw
             _, ext = os.path.splitext(filename)
             if ext == '.html':
                 resp.content_type = 'text/html'
