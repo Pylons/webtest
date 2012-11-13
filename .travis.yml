@@ -6,7 +6,7 @@ python:
   - 3.2
   - pypy
 install:
-  - python bootstrap.py
+  - python bootstrap-py3k.py
   - bin/buildout
 script:
   - ./bin/nosetests -s -v
