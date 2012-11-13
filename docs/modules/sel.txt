@@ -1,10 +1,36 @@
 :mod:`webtest.sel` -- Functional Testing with Selenium
-========================================================
+--------------------------------------------------------
 
 .. automodule:: webtest.sel
 
+.. autoclass:: SeleniumApp
+   :members:
+
+.. autoclass:: Selenium
+   :members:
+
+.. autofunction:: selenium
+
+
+Response API
+~~~~~~~~~~~~
+
+Some of the return values return instances of these classes:
+
+.. autoclass:: TestResponse
+   :members:
+
+.. autoclass:: Document
+   :members:
+
+.. autoclass:: Element
+   :members:
+
+.. autoclass:: Form
+   :members:
+
 Environment variables
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Those value are used if found in environment:
 
@@ -29,45 +55,17 @@ Those value are used if found in environment:
 - ``SELENIUM_JAR``: If selenium is not running then this jar is used to run
   selenium.
 
-Module Contents
----------------
-
-.. autoclass:: SeleniumApp
-   :members:
-
-.. autoclass:: Selenium
-   :members:
-
-.. autofunction:: selenium
-
-Return Values
-~~~~~~~~~~~~~
-
-Some of the return values return instances of these classes:
-
-.. autoclass:: TestResponse
-   :members:
-
-.. autoclass:: Document
-   :members:
-
-.. autoclass:: Element
-   :members:
-
-.. autoclass:: Form
-   :members:
-
 Examples
---------
+~~~~~~~~
 
 Testing a wsgi application
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+***************************
 
 .. literalinclude:: ../../tests/test_selenium.py
    :pyobject: TestApp
 
 Testing the jquery.ui website
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*****************************
 
 .. literalinclude:: ../../tests/test_selenium.py
    :pyobject: TestJQueryUI

@@ -1,18 +1,15 @@
 :mod:`webtest` -- Functional Testing of Web Applications
-========================================================
+--------------------------------------------------------
 
 .. automodule:: webtest
-
-Module Contents
----------------
 
 .. autoclass:: TestApp
    :members:
 
 .. autoexception:: AppError
 
-Return Values
-~~~~~~~~~~~~~
+Response API
+~~~~~~~~~~~~
 
 Some of the return values return instances of these classes:
 
