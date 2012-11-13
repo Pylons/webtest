@@ -7,15 +7,7 @@ version = '1.4.1'
 setup(name='WebTest',
       version=version,
       description="Helper to test WSGI applications",
-      long_description="""\
-This wraps any WSGI application and makes it easy to send test
-requests to that application, without starting up an HTTP server.
-
-This provides convenient full-stack testing of applications written
-with any WSGI-compatible framework.
-
-This is based on ``paste.fixture.TestApp``.
-""",
+      long_description=open('REAMDE.rst').read(),
       classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Framework :: Paste",
