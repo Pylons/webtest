@@ -1,8 +1,18 @@
 #!/usr/bin/env python
+
+import sys
+
 from setuptools import setup
 from setuptools import find_packages
 
-version = '1.4.1'
+version = '1.4.1dev0'
+
+tests_require = ['nose', 'coverage']
+
+if sys.version_info.major == "2":
+    tests_require.append('unittest2')
+else:
+    tests_require.append('unittest2py3k')
 
 setup(name='WebTest',
       version=version,
@@ -37,7 +47,10 @@ setup(name='WebTest',
         'WebOb',
       ],
       test_suite='nose.collector',
-      tests_require=['dtopt', 'nose'],
+      tests_require=tests_require,
+      extras_require={
+            'tests': tests_require,
+      },
       entry_points="""
       [paste.app_factory]
       debug = webtest.debugapp:make_debug_app
