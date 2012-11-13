@@ -274,5 +274,5 @@ if on_rtd:
 
     sys.path.append(os.path.abspath('_themes'))
     html_theme_path = ['_themes']
-    html_theme = 'pyramid'
+    html_theme = 'pylons'
     html_theme_options = dict(github_url='https://github.com/Pylons/webtest')
