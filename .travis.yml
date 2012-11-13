@@ -6,7 +6,8 @@ python:
   - 3.2
   - pypy
 install:
-  - python bootstrap-py3k.py
+  - deactivate
+  - python$TRAVIS_PYTHON_VERSION bootstrap-py3k.py
   - bin/buildout
 script:
   - ./bin/nosetests -s -v
