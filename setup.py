@@ -9,10 +9,11 @@ version = '1.4.1dev0'
 
 tests_require = ['nose', 'coverage']
 
-if sys.version_info[0] == "2":
+if sys.version_info[0] == 2:
     tests_require.append('unittest2')
 else:
     tests_require.append('unittest2py3k')
+
 
 setup(name='WebTest',
       version=version,
@@ -38,8 +39,11 @@ setup(name='WebTest',
       url='http://webtest.pythonpaste.org/',
       license='MIT',
       packages=find_packages(exclude=[
-          'ez_setup', 'examples', 'tests',
-          'bootstrap', 'bootstrap-py3k',
+          'ez_setup',
+          'examples',
+          'tests',
+          'bootstrap',
+          'bootstrap-py3k',
       ]),
       include_package_data=True,
       zip_safe=False,
