@@ -4,6 +4,10 @@ News
 1.4.1
 -----
 
+* add travis-ci
+
+* migrate repository to https://github.com/Pylons/webtest
+
 * Fix a typo in apps.py: selectedIndicies
 
 * Preserve field order during parsing (support for deform and such)
