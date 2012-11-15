@@ -1,6 +1,11 @@
 News
 ====
 
+1.4.2
+-----
+
+* fix tests error due to CLRF in a tarball
+
 1.4.1
 -----
 
