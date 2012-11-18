@@ -21,6 +21,7 @@ from webtest.compat import StringIO
 from webtest.compat import BytesIO
 from webtest.compat import SimpleCookie, CookieError
 from webtest.compat import cookie_quote
+from webtest.compat import name2codepoint
 from webtest.compat import urlencode
 from webtest.compat import splittype
 from webtest.compat import splithost
@@ -1819,15 +1820,25 @@ def _make_pattern(pat):
         "Cannot make callable pattern object out of %r" % pat)
 
 
+entity_pattern = re.compile(r"&(\w+|#\d+|#[xX][a-fA-F0-9]+);")
 def html_unquote(v):
     """
-    Unquote (some) entities in HTML.  (incomplete)
+    Unquote entities in HTML.
     """
-    for ent, repl in [('&nbsp;', ' '), ('&gt;', '>'),
-                      ('&lt;', '<'), ('&quot;', '"'),
-                      ('&amp;', '&')]:
-        v = v.replace(ent, repl)
-    return v
+    to_chr = chr if PY3 else unichr
+    def repl(match):
+        s = match.group(1)
+        if s.startswith("#"):
+            if s[1].lower() == "x":
+                s = int(s[2:], 16)
+            else:
+                s = int(s[1:])
+        elif s in name2codepoint:
+            s = name2codepoint[s]
+        else:
+            return
+        return to_chr(s)
+    return entity_pattern.sub(repl, v)
 
 
 def encode_params(params, content_type):

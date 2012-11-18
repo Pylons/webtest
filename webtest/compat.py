@@ -8,6 +8,7 @@ if sys.version_info[0] > 2:
     binary_type = bytes
     from json import loads
     from json import dumps
+    from html.entities import name2codepoint
     from io import StringIO
     from io import BytesIO
     from urllib.parse import urlencode
@@ -40,6 +41,7 @@ else:
     string_types = basestring
     text_type = unicode
     binary_type = str
+    from htmlentitydefs import name2codepoint
     from urllib import splittype
     from urllib import splithost
     from urllib import urlencode
