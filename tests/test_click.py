@@ -130,3 +130,8 @@ class TestClick(unittest.TestCase):
         self.assertEqual(_parse_attrs("href='foo' id=\"bar\" "), {'href': 'foo', 'id': 'bar'})
         self.assertEqual(_parse_attrs("href='foo' id='bar' "), {'href': 'foo', 'id': 'bar'})
         self.assertEqual(_parse_attrs("tag='foo\"'"), {'tag': 'foo"'})
+        self.assertEqual(
+            _parse_attrs('value="&lt;&gt;&amp;&quot;&#123;"'),
+                {'value': u('<>&"{')})
+        self.assertEqual(_parse_attrs('value="&sum;"'), {'value': u('∑')})
+        self.assertEqual(_parse_attrs('value="&#x20ac;"'), {'value': u('€')})
