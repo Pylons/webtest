@@ -1,6 +1,13 @@
 News
 ====
 
+1.4.3
+-----
+
+* fully implement decoding of HTML entities
+
+* fix tox configuration
+
 1.4.2
 -----
 
@@ -17,7 +24,7 @@ News
 
 * Preserve field order during parsing (support for deform and such)
 
-* Allow equals sign in the cookie by spliting name-value-string pairs on
+* allow equals sign in the cookie by spliting name-value-string pairs on
   the first '=' sign as per
   http://tools.ietf.org/html/rfc6265#section-5.2
 
