@@ -11,6 +11,7 @@ docs/_themes/
 *.jar
 *.swp
 *.pyc
+*.xml
 .project
 .pydevproject
 .settings/
