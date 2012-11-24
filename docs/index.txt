@@ -324,7 +324,7 @@ Examples:
     >>> res = TestResponse(content_type='application/json',
     ...                    body=b'{"a":1,"b":2}')
     >>> res.request = TestRequest.blank('/')
-    >>> list(res.json.values())
+    >>> sorted(res.json.values())
     [1, 2]
     >>> res = TestResponse(content_type='application/xml',
     ...                    body=b'<xml><message>hey!</message></xml>')
