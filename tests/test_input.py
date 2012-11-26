@@ -27,6 +27,9 @@ def input_app(environ, start_response):
             <input name="foo" type="checkbox" value="bar" checked>
             <input name="button" type="submit" value="text">
         </form>
+        <form method="POST" id="textarea_input_form">
+            <textarea name="textarea">&#39;&#x66;&#x6f;&#x6f;&amp;&#x62;&#x61;&#x72;&#39;</textarea>
+        </form>
     </body>
 </html>
 """)
@@ -157,6 +160,13 @@ class TestInput(unittest.TestCase):
         form = res.forms['checkbox_input_form']
         self.assertTrue(form['foo'].value is None)
         self.assertEqual(form.submit_fields(), [])
+
+    def test_textarea_entities(self):
+        app = webtest.TestApp(input_app)
+        res = app.get('/')
+        form = res.forms.get("textarea_input_form")
+        self.assertEqual(form.get("textarea").value, "'foo&bar'")
+        self.assertEqual(form.submit_fields(), [('textarea', "'foo&bar'")])
 
 
 class TestFormLint(unittest.TestCase):
