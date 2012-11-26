@@ -45,6 +45,7 @@ class TestApp(testapp.TestApp):
                             server_class=WSGIServer,
                             handler_class=WSGIRequestHandler)
             httpd.serve_forever()
+            httpd.server_close()
 
         app.thread = threading.Thread(target=run)
         app.thread.start()
