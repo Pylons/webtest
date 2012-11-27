@@ -45,6 +45,7 @@ class TestApp(testapp.TestApp):
                             server_class=WSGIServer,
                             handler_class=WSGIRequestHandler)
             httpd.serve_forever()
+            httpd.server_close()
 
         app.thread = threading.Thread(target=run)
         app.thread.start()
@@ -99,7 +100,7 @@ def casperjs(test_app):
                     stderr=subprocess.PIPE)
             p.wait()
             output = p.stdout.read()
-            if to_bytes('FAIL') in output:
+            if to_bytes('FAIL') in output or to_bytes('Fatal') in output:
                 print(to_string(output))
 
                 raise AssertionError(
