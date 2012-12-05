@@ -42,7 +42,7 @@ except NameError:
 log = logging.getLogger(__name__)
 
 
-if 'SELENIUM_VERBOSE':
+if 'SELENIUM_VERBOSE' in os.environ:
     log.addHandler(logging.StreamHandler(sys.stderr))
     log.setLevel(logging.DEBUG)
 
@@ -377,16 +377,15 @@ class TestResponse(testapp.TestResponse):
     def form(self):
         return Form(self, 0)
 
-    def _body__get(self):
+    def _text__get(self):
         body = self.browser.getHtmlSource()
-        if PY3:
-            return body.encode(self.charset or 'utf-8')
+        print(body)
         if isinstance(body, binary_type):
-            return unicode(body, self.charset or 'utf-8')
+            return body.decode(self.charset or 'utf-8')
         else:
             return body
 
-    body = property(_body__get)
+    text = property(_text__get)
 
     def __contains__(self, item):
         if isinstance(item, Element):

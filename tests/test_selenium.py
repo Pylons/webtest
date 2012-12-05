@@ -150,41 +150,12 @@ class TestJQueryUI(unittest.TestCase):
     def setUp(self):
         self.resp = self.app.get('http://jqueryui.com/demos/')
 
-    def test_autocomplete(self):
-        resp = self.resp.click('Autocomplete')
-        field = resp.doc.xpath('//input[@id="tags"]')
-        field.value = 'a'
-        item = resp.doc.xpath('//ul[@role="listbox"]//a[.="AppleScript"]')
-        item.wait().fireEvent('mouseover')
-        field.value = resp.doc.css('#ui-active-menuitem').html()
-        self.assertEqual(field.value, "AppleScript")
-
     def test_datepicker(self):
         resp = self.resp.click('Datepicker')
         field = resp.doc.datepicker
         field.fireEvent('focus')
         resp.doc.link('16').wait_and_click()
         self.assertIn('/16/', field.value)
-
-    def test_dialog(self):
-        resp = self.resp.click('Dialog')
-        close = resp.doc.xpath('//div[@role="dialog"]//span[.="close"]')
-        close.wait_and_click()
-        resp.doc.link('Modal form').click()
-        resp.doc.button('Create new user').wait().click()
-        form = resp.form
-        form['name'].value = 'Gael'
-        form['email'] = 'gael@gawel.org'
-        create = resp.doc.button('Create an account')
-        create.click()
-        pwd = form['password']
-        self.assertTrue(pwd.hasClass('ui-state-error'))
-        pwd.value = 'pwd'
-        create.click()
-        resp.mustcontain('Length of password must be between 5 and 16.')
-        pwd.value = 'passwd'
-        create.click()
-        resp.mustcontain('<td>Gael</td>')
 
     def test_dropable(self):
         resp = self.resp.click('Droppable')
@@ -194,7 +165,7 @@ class TestJQueryUI(unittest.TestCase):
         draggable.drag_and_drop(droppable)
         self.assertTrue(droppable.hasClass('ui-state-highlight'))
 
-        resp.doc.link('Shopping Cart').click()
+        resp.doc.link('Shopping Cart Demo').click()
         cart = resp.doc.css('#cart ol.ui-droppable')
         cart.wait()
         item = resp.doc.xpath('//li[.="Lolcat Shirt"]')

@@ -7,9 +7,9 @@ from webtest.sel import WSGIServer
 from webtest.sel import WSGIRequestHandler
 from six.moves import http_client
 from webtest.compat import to_bytes
-from webtest.compat import to_string
 from contextlib import contextmanager
 from wsgiref import simple_server
+from six import binary_type
 import subprocess
 import threading
 import socket
@@ -99,7 +99,9 @@ def casperjs(test_app):
             p.wait()
             output = p.stdout.read()
             if to_bytes('FAIL') in output:
-                print(to_string(output))
+                if isinstance(output, binary_type):
+                    output = output.decode('utf8', 'replace')
+                print(output)
 
                 raise AssertionError(
                         'Failure while running %s' % ' '.join(cmd))
