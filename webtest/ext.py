@@ -5,8 +5,7 @@ from webtest.sel import _free_port
 from webtest.sel import WSGIApplication
 from webtest.sel import WSGIServer
 from webtest.sel import WSGIRequestHandler
-from webtest.compat import HTTPConnection
-from webtest.compat import CannotSendRequest
+from six.moves import http_client
 from webtest.compat import to_bytes
 from webtest.compat import to_string
 from contextlib import contextmanager
@@ -48,13 +47,13 @@ class TestApp(testapp.TestApp):
 
         app.thread = threading.Thread(target=run)
         app.thread.start()
-        conn = HTTPConnection(ip, port)
+        conn = http_client.HTTPConnection(ip, port)
         time.sleep(.5)
         for i in range(100):
             try:
                 conn.request('GET', '/__application__')
                 conn.getresponse()
-            except (socket.error, CannotSendRequest):
+            except (socket.error, http_client.CannotSendRequest):
                 time.sleep(.3)
             else:
                 break
@@ -71,7 +70,7 @@ class TestApp(testapp.TestApp):
     def close(self):
         """Close WSGI server if needed"""
         if self.app:
-            conn = HTTPConnection(*self.app.bind)
+            conn = http_client.HTTPConnection(*self.app.bind)
             for i in range(100):
                 try:
                     conn.request('GET', '/__kill_application__')

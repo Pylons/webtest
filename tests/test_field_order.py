@@ -1,7 +1,6 @@
 import collections
 from tests.compat import unittest
 from webtest.compat import to_bytes
-from webtest.compat import to_string
 from webtest.compat import join_bytes
 from webtest.compat import binary_type
 from webtest.compat import PY3
@@ -18,7 +17,8 @@ deform_upload_fields_text = \
       <input type="hidden" name="__start__" value="fileupload:mapping"/>
         <input type="file" name="fileupload" id="deformField2"/>
       <input type="hidden" name="__end__" value="fileupload:mapping"/>
-      <textarea id="deformField3" name="description" rows="10" cols="60"></textarea>
+      <textarea id="deformField3" name="description" rows="10" cols="60">
+      </textarea>
       <button
           id="deformSubmit"
           name="Submit"
@@ -62,12 +62,12 @@ def get_submit_app(form_id, form_fields_text):
             for (name, value) in req.POST.items():
                 if hasattr(value, 'filename'):
                     body_parts.append("%s:%s:%s\n" % (
-                        to_string(name),
-                        to_string(value.filename),
-                        to_string(value.value)))
+                        name,
+                        value.filename,
+                        value.value.decode('ascii')))
                 else:
                     body_parts.append("%s:%s\n" % (
-                        to_string(name), to_string(value)))
+                        name, value))
 
             body_foot = to_bytes(
     """    </body>
@@ -108,7 +108,7 @@ class TestFieldOrder(unittest.TestCase):
             (uploaded_file_name, uploaded_file_contents))
         single_form.set("description", "testdescription")
         display = single_form.submit("Submit")
-        self.assertTrue(
+        self.assertIn(
 """_charset_:
 __formid__:deform
 title:testtitle
@@ -117,7 +117,7 @@ fileupload:test.txt:test content file upload
 __end__:fileupload:mapping
 description:testdescription
 Submit:Submit
-""" in display)
+""", display, display)
 
     def test_post_with_file_upload(self):
         uploaded_file_name = 'test.txt'
@@ -133,12 +133,13 @@ Submit:Submit
             ('__formid__', 'deform'),
             ('title', 'testtitle'),
             ('__start__', 'fileupload:mapping'),
-              ('fileupload', webtest.Upload(uploaded_file_name, uploaded_file_contents)),
+              ('fileupload', webtest.Upload(uploaded_file_name,
+                                            uploaded_file_contents)),
             ('__end__', 'fileupload:mapping'),
             ('description', 'testdescription'),
             ('Submit', 'Submit')]))
 
-        self.assertTrue(
+        self.assertIn(
 """_charset_:
 __formid__:deform
 title:testtitle
@@ -146,7 +147,7 @@ __start__:fileupload:mapping
 fileupload:test.txt:test content file upload
 __end__:fileupload:mapping
 description:testdescription
-Submit:Submit""" in display)
+Submit:Submit""", display, display)
 
     def test_field_order_is_across_all_fields(self):
         fields = """
@@ -165,7 +166,7 @@ Submit:Submit""" in display)
         get_res = app.get("/")
         # Submit the form with the second submit button.
         display = get_res.forms[0].submit('save', 1)
-        self.assertTrue(
+        self.assertIn(
 """letter:a
 letter:b
 number:1
@@ -173,4 +174,4 @@ letter:c
 number:2
 letter:d
 save:Save 2
-letter:e""" in display)
+letter:e""", display, display)

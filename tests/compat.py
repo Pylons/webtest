@@ -10,8 +10,11 @@ except ImportError:
 try:
     unicode()
 except NameError:
-    u = str
     b = bytes
+    def u(value):
+        if isinstance(value, bytes):
+            return value.decode('utf-8')
+        return value
 else:
     def b(value):
         return str(value)
@@ -19,10 +22,3 @@ else:
         if isinstance(value, unicode):
             return value
         return unicode(value, 'utf-8')
-
-
-if sys.version_info[:1] < (2, 6):
-    def assertIn(self, x, y, c=None):
-        assert x in y
-
-    unittest.TestCase.assertIn = assertIn

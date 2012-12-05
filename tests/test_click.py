@@ -1,4 +1,5 @@
 #coding: utf-8
+from __future__ import unicode_literals
 import webtest
 from webtest.app import _parse_attrs
 from webob import Request
@@ -37,7 +38,7 @@ def links_app(environ, start_response):
        '/spam/': '<html><body>This is spam.</body></html>',
        '/egg/': '<html><body>Just eggs.</body></html>',
 
-       '/utf8/': u("""
+       '/utf8/': """
             <html>
                 <head><title>Тестовая страница</title></head>
                 <body>
@@ -49,20 +50,22 @@ def links_app(environ, start_response):
                     </script>
                 </body>
             </html>
-            """).encode('utf8'),
+            """,
     }
 
     utf8_paths = ['/utf8/']
-    body = responses[u(req.path_info)]
+    body = responses[req.path_info]
+    body = body.encode('utf8')
     headers = [
-        ('Content-Type', 'text/html'),
+        ('Content-Type', str('text/html')),
         ('Content-Length', str(len(body)))
     ]
     if req.path_info in utf8_paths:
-        headers[0] = ('Content-Type', 'text/html; charset=utf-8')
+        headers[0] = ('Content-Type', str('text/html; charset=utf-8'))
 
-    start_response(status, headers)
-    return [to_bytes(body)]
+    start_response(str(status), headers)
+    return [body]
+
 
 class TestClick(unittest.TestCase):
 
@@ -94,32 +97,29 @@ class TestClick(unittest.TestCase):
             app.get('/').click('Boo')
         self.assertRaises(IndexError, tag_inside_script)
 
-
     def test_click_utf8(self):
         app = webtest.TestApp(links_app, use_unicode=False)
         resp = app.get('/utf8/')
         self.assertEqual(resp.charset, 'utf-8')
         if not PY3:
             # No need to deal with that in Py3
-            self.assertIn(u("Тестовая страница").encode('utf8'), resp)
-            self.assertIn(u("Тестовая страница"), resp)
-            target = u('Менделеев').encode('utf8')
-            self.assertIn('This is foo.', resp.click(target))
+            self.assertIn("Тестовая страница".encode('utf8'), resp)
+            self.assertIn("Тестовая страница", resp, resp)
+            target = 'Менделеев'.encode('utf8')
+            self.assertIn('This is foo.', resp.click(target, verbose=True))
 
             # should skip the img tag
-            anchor = u(".*title='Поэт'.*")
+            anchor = ".*title='Поэт'.*"
             anchor_re = anchor.encode('utf8')
             self.assertIn('This is baz.', resp.click(anchor=anchor_re))
-
 
     def test_click_u(self):
         app = webtest.TestApp(links_app)
         resp = app.get('/utf8/')
 
-        self.assertIn(u("Тестовая страница"), resp)
-        self.assertIn('This is foo.', resp.click(u('Менделеев')))
-        self.assertIn('This is baz.', resp.click(anchor=u(".*title='Поэт'.*")))
-
+        self.assertIn("Тестовая страница", resp)
+        self.assertIn('This is foo.', resp.click('Менделеев'))
+        self.assertIn('This is baz.', resp.click(anchor=".*title='Поэт'.*"))
 
     def test_parse_attrs(self):
         self.assertEqual(_parse_attrs("href='foo'"), {'href': 'foo'})
@@ -132,6 +132,6 @@ class TestClick(unittest.TestCase):
         self.assertEqual(_parse_attrs("tag='foo\"'"), {'tag': 'foo"'})
         self.assertEqual(
             _parse_attrs('value="&lt;&gt;&amp;&quot;&#123;"'),
-                {'value': u('<>&"{')})
-        self.assertEqual(_parse_attrs('value="&sum;"'), {'value': u('∑')})
-        self.assertEqual(_parse_attrs('value="&#x20ac;"'), {'value': u('€')})
+                {'value': '<>&"{'})
+        self.assertEqual(_parse_attrs('value="&sum;"'), {'value': '∑'})
+        self.assertEqual(_parse_attrs('value="&#x20ac;"'), {'value': '€'})

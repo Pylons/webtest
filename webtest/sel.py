@@ -17,7 +17,6 @@ import socket
 import types
 import webob
 import logging
-import warnings
 import tempfile
 import unittest
 import threading
@@ -26,21 +25,13 @@ from functools import wraps
 from webtest import app as testapp
 from wsgiref import simple_server
 from contextlib import contextmanager
-from webtest.compat import PY3
+from six.moves import http_client
+from six.moves import BaseHTTPServer
+from six.moves import SimpleHTTPServer
+from six import binary_type
+from six import PY3
 from webtest.compat import urlencode
-from webtest.compat import binary_type
-from webtest.compat import HTTPConnection
-from webtest.compat import CannotSendRequest
-from webtest.compat import HTTPServer
-from webtest.compat import SimpleHTTPRequestHandler
-
-try:
-    import json
-except ImportError:
-    try:
-        import simplejson as json  # NOQA
-    except:
-        json = False
+import json
 
 
 try:
@@ -182,7 +173,7 @@ class Selenium(object):
         headers = {
             "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
           }
-        conn = HTTPConnection(self.host, self.port)
+        conn = http_client.HTTPConnection(self.host, self.port)
         try:
             conn.request("POST", "/selenium-server/driver/", data, headers)
             resp = conn.getresponse()
@@ -319,13 +310,13 @@ class SeleniumApp(testapp.TestApp):
 
         app.thread = threading.Thread(target=run)
         app.thread.start()
-        conn = HTTPConnection(ip, port)
+        conn = http_client.HTTPConnection(ip, port)
         time.sleep(.5)
         for i in range(100):
             try:
                 conn.request('GET', '/__application__')
                 conn.getresponse()
-            except (socket.error, CannotSendRequest):
+            except (socket.error, http_client.CannotSendRequest):
                 time.sleep(.3)
             else:
                 break
@@ -333,7 +324,7 @@ class SeleniumApp(testapp.TestApp):
     def close(self):
         """Close selenium and the WSGI server if needed"""
         if self.app:
-            conn = HTTPConnection(*self.app.bind)
+            conn = http_client.HTTPConnection(*self.app.bind)
             for i in range(100):
                 try:
                     conn.request('GET', '/__kill_application__')
@@ -713,7 +704,7 @@ class File(Field):
 
         def run():
             FileHandler.filename = filename
-            server = HTTPServer((ip, port), FileHandler)
+            server = BaseHTTPServer.HTTPServer((ip, port), FileHandler)
             server.handle_request()
 
         thread = threading.Thread(target=run)
@@ -883,7 +874,7 @@ class WSGIServer(simple_server.WSGIServer):
             self.handle_request()
 
 
-class FileHandler(SimpleHTTPRequestHandler):
+class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """Handle a simple file"""
 
     def translate_path(self, path):
@@ -901,10 +892,7 @@ class FileHandler(SimpleHTTPRequestHandler):
 
 
 def _get_value(s):
-    if json:
-        return json.dumps(s)
-    else:
-        return repr(str(s))
+    return json.dumps(s)
 
 
 def _get_command(cmd):
@@ -944,15 +932,10 @@ def _free_port():
 def is_available():
     """return True if the selenium module is available and a RC server is
     running"""
-    if json == False:
-        warnings.warn(
-            ('selenium is not available because no json module are '
-            'available. Consider installing simplejson'),
-            SeleniumWarning)
     host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
     port = int(os.environ.get('SELENIUM_PORT', 4444))
     try:
-        conn = HTTPConnection(host, port)
+        conn = http_client.HTTPConnection(host, port)
         conn.request('GET', '/')
     except socket.error:
         if 'SELENIUM_JAR' not in os.environ:
@@ -964,7 +947,7 @@ def is_available():
             for i in range(30):
                 time.sleep(.3)
                 try:
-                    conn = HTTPConnection(host, port)
+                    conn = http_client.HTTPConnection(host, port)
                     conn.request('GET', '/')
                 except socket.error:
                     pass

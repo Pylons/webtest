@@ -7,6 +7,7 @@ Routines for testing WSGI applications.
 
 Most interesting is TestApp
 """
+from __future__ import unicode_literals
 
 import random
 import warnings
@@ -28,9 +29,7 @@ from webtest.compat import splithost
 from webtest.compat import string_types
 from webtest.compat import binary_type
 from webtest.compat import text_type
-from webtest.compat import to_string
 from webtest.compat import to_bytes
-from webtest.compat import join_bytes
 from webtest.compat import OrderedDict
 from webtest.compat import dumps
 from webtest.compat import loads
@@ -52,7 +51,8 @@ class NoDefault(object):
 class AppError(Exception):
 
     def __init__(self, message, *args):
-        message = to_string(message)
+        if isinstance(message, binary_type):
+            message = message.decode('utf8')
         str_args = ()
         for arg in args:
             if isinstance(arg, Response):
@@ -64,7 +64,7 @@ class AppError(Exception):
                         arg = repr(body)
             elif isinstance(arg, binary_type):
                 try:
-                    arg = to_string(arg)
+                    arg = arg.decode('utf8')
                 except UnicodeDecodeError:
                     arg = repr(arg)
             str_args += (arg,)
@@ -114,11 +114,12 @@ class TestResponse(Response):
 
     @property
     def testbody(self):
-        if getattr(self, '_use_unicode', True) and self.charset:
-            return self.unicode_body
-        if PY3:
-            return to_string(self.body)
-        return self.body
+        if self.charset:
+            try:
+                return self.text
+            except UnicodeDecodeError:
+                return self.body.decode(self.charset, 'replace')
+        return self.body.decode('ascii', 'replace')
 
     _tag_re = re.compile(r'<(/?)([:a-z0-9_\-]*)(.*?)>', re.S | re.I)
 
@@ -212,7 +213,7 @@ class TestResponse(Response):
             href_pattern=href,
             html_pattern=anchor,
             index=index, verbose=verbose)
-        return self.goto(found_attrs['uri'], extra_environ=extra_environ)
+        return self.goto(str(found_attrs['uri']), extra_environ=extra_environ)
 
     def clickbutton(self, description=None, buttonid=None, href=None,
                     button=None, index=None, verbose=False):
@@ -375,7 +376,7 @@ class TestResponse(Response):
     def normal_body__get(self):
         if self._normal_body is None:
             self._normal_body = self._normal_body_regex.sub(
-                to_bytes(' '), self.body)
+                                                b' ', self.body)
         return self._normal_body
 
     normal_body = property(normal_body__get,
@@ -383,12 +384,19 @@ class TestResponse(Response):
                            Return the whitespace-normalized body
                            """.strip())
 
+    _unicode_normal_body_regex = re.compile('[ \\n\\r\\t]+')
+
+    _unicode_normal_body = None
+
     def unicode_normal_body__get(self):
         if not self.charset:
             raise AttributeError(
                 ("You cannot access Response.unicode_normal_body "
                  "unless charset is set"))
-        return self.normal_body.decode(self.charset)
+        if self._unicode_normal_body is None:
+            self._unicode_normal_body = self._unicode_normal_body_regex.sub(
+                                                ' ', self.testbody)
+        return self._unicode_normal_body
 
     unicode_normal_body = property(
         unicode_normal_body__get, doc="""
@@ -401,22 +409,11 @@ class TestResponse(Response):
         of the response.  Whitespace is normalized when searching
         for a string.
         """
-        if not isinstance(s, string_types):
-            if hasattr(s, '__unicode__'):
-                s = s.__unicode__()
-            else:
-                s = str(s)
-        # PY3 Workaround.
-        # We don't want to search for str when we have no charset
-        if isinstance(s, text_type) and not self.charset:
-            s = to_bytes(s)
-        if isinstance(s, text_type):
-            body = self.unicode_body
-            normal_body = self.unicode_normal_body
-        else:
-            body = self.body
-            normal_body = self.normal_body
-        return s in body or s in normal_body
+        if not self.charset and isinstance(s, text_type):
+            s = s.encode('utf8')
+        if isinstance(s, binary_type):
+            return s in self.body or s in self.normal_body
+        return s in self.testbody or s in self.unicode_normal_body
 
     def mustcontain(self, *strings, **kw):
         """
@@ -451,25 +448,25 @@ class TestResponse(Response):
                     "Body contains bad string %r" % no_s)
 
     def __str__(self):
-        simple_body = '\n'.join([l for l in self.testbody.splitlines()
+        simple_body = str('\n').join([l for l in self.testbody.splitlines()
                                  if l.strip()])
         headers = [(n.title(), v)
                    for n, v in self.headerlist
                    if n.lower() != 'content-length']
         headers.sort()
-        output = 'Response: %s\n%s\n%s' % (
-            to_string(self.status),
-            '\n'.join(['%s: %s' % (n, v) for n, v in headers]),
+        output = str('Response: %s\n%s\n%s') % (
+            self.status,
+            str('\n').join([str('%s: %s') % (n, v) for n, v in headers]),
             simple_body)
         if not PY3 and isinstance(output, text_type):
-            output = output.encode(self.charset or 'utf-8', 'replace')
+            output = output.encode(self.charset or 'utf8', 'replace')
         return output
 
     def __unicode__(self):
         output = str(self)
         if PY3:
             return output
-        return output.decode(self.charset or 'utf-8', 'replace')
+        return output.decode(self.charset or 'utf8', 'replace')
 
     def __repr__(self):
         # Specifically intended for doctests
@@ -489,7 +486,7 @@ class TestResponse(Response):
             location = ' location: %s' % self.location
         else:
             location = ''
-        return ('<' + to_string(self.status) + ct + location + body + '>')
+        return ('<' + self.status + ct + location + body + '>')
 
     def html(self):
         """
@@ -633,7 +630,10 @@ class TestResponse(Response):
         name = f.name
         f.close()
         f = open(name, 'w')
-        f.write(to_string(self.body))
+        if PY3:
+            f.write(self.body.decode(self.charset or 'ascii', 'replace'))
+        else:
+            f.write(self.body)
         f.close()
         if name[0] != '/':
             # windows ...
@@ -743,22 +743,22 @@ class TestApp(object):
         if params:
             if not isinstance(params, string_types):
                 params = urlencode(params, doseq=True)
-            if '?' in url:
-                url += '&'
+            if str('?') in url:
+                url += str('&')
             else:
-                url += '?'
+                url += str('?')
             url += params
-        if '?' in url:
-            url, environ['QUERY_STRING'] = url.split('?', 1)
+        if str('?') in url:
+            url, environ['QUERY_STRING'] = url.split(str('?'), 1)
         else:
-            environ['QUERY_STRING'] = ''
+            environ['QUERY_STRING'] = str('')
         req = self.RequestClass.blank(url, environ)
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,
                                expect_errors=expect_errors)
 
-    def _gen_request(self, method, url, params='', headers=None,
+    def _gen_request(self, method, url, params=str(''), headers=None,
                            extra_environ=None, status=None, upload_files=None,
                            expect_errors=False, content_type=None):
         """
@@ -784,28 +784,26 @@ class TestApp(object):
             params = encode_params(params, content_type)
             if upload_files or \
                 (content_type and \
-                 to_string(content_type).startswith('multipart')):
+                 to_bytes(content_type).startswith(b'multipart')):
                 params = cgi.parse_qsl(params, keep_blank_values=True)
                 content_type, params = self.encode_multipart(
                     params, upload_files or ())
                 environ['CONTENT_TYPE'] = content_type
             elif params:
                 environ.setdefault('CONTENT_TYPE',
-                               'application/x-www-form-urlencoded')
+                                   str('application/x-www-form-urlencoded'))
 
-        if '?' in url:
-            url, environ['QUERY_STRING'] = url.split('?', 1)
-        else:
-            environ['QUERY_STRING'] = ''
         if content_type is not None:
             environ['CONTENT_TYPE'] = content_type
         environ['CONTENT_LENGTH'] = str(len(params))
-        environ['REQUEST_METHOD'] = method
-        environ['wsgi.input'] = BytesIO(to_bytes(params))
+        environ['REQUEST_METHOD'] = str(method)
         url = self._remove_fragment(url)
         req = self.RequestClass.blank(url, environ)
         if headers:
             req.headers.update(headers)
+        if isinstance(params, text_type):
+            params = params.encode(req.charset or 'utf8')
+        req.environ['wsgi.input'] = BytesIO(params)
         return self.do_request(req, status=status,
                                expect_errors=expect_errors)
 
@@ -920,7 +918,7 @@ class TestApp(object):
             warnings.warn(('You are not supposed to send a body in a '
                            'DELETE request. Most web servers will ignore it'),
                            lint.WSGIWarning)
-        content_type = 'application/json'
+        content_type = str('application/json')
         if params is not NoDefault:
             params = dumps(params)
         return self._gen_request('DELETE', url, params=params, headers=headers,
@@ -959,28 +957,41 @@ class TestApp(object):
         a set of files (a list of (name, filename, file_body)) into a
         typical POST body, returning the (content_type, body).
         """
-        boundary = '----------a_BoUnDaRy%s$' % random.random()
+        boundary = to_bytes(str(random.random()))[2:]
+        boundary = b'----------a_BoUnDaRy' + boundary + b'$'
         lines = []
-
-        def _append_value(key, value):
-            lines.append('--' + boundary)
-            lines.append('Content-Disposition: form-data; name="%s"' % key)
-            lines.append('')
-            lines.append(value)
 
         def _append_file(file_info):
             key, filename, value = self._get_file_info(file_info)
-            lines.append('--' + boundary)
-            lines.append(
-                    'Content-Disposition: form-data; name="%s"; filename="%s"'
-                    % (key, filename))
-            fcontent = mimetypes.guess_type(filename)[0]
-            lines.append('Content-Type: %s' %
-                         (fcontent or 'application/octet-stream'))
-            lines.append('')
-            lines.append(value)
+            if isinstance(filename, text_type):
+                fcontent = mimetypes.guess_type(filename)[0]
+                try:
+                    filename = filename.encode('utf8')
+                except:
+                    raise  # file names must be ascii
+            else:
+                fcontent = mimetypes.guess_type(filename.decode('ascii'))[0]
+            if isinstance(value, text_type):
+                try:
+                    value = value.encode('ascii')
+                except:
+                    raise TypeError((
+                            'You are trying to upload some non ascii content.'
+                            'Please encode it first'))
+            fcontent = to_bytes(fcontent)
+            fcontent = fcontent or b'application/octet-stream'
+            lines.extend([
+                b'--' + boundary,
+                b'Content-Disposition: form-data; ' + \
+                b'name="' + key + b'"; filename="' + filename + b'"',
+                b'Content-Type: ' + fcontent, b'', value])
 
         for key, value in params:
+            if isinstance(key, text_type):
+                try:
+                    key = key.encode('ascii')
+                except:
+                    raise  # field name are always ascii
             if isinstance(value, File):
                 if value.value:
                     _append_file([key] + list(value.value))
@@ -990,14 +1001,19 @@ class TestApp(object):
                     file_info.append(value.file_content)
                 _append_file(file_info)
             else:
-                _append_value(key, value)
+                if isinstance(value, text_type):
+                    value = value.encode('utf8')
+                lines.extend([
+                    b'--' + boundary,
+                    b'Content-Disposition: form-data; name="' + key + b'"',
+                    b'', value])
 
         for file_info in files:
             _append_file(file_info)
 
-        lines.append('--' + boundary + '--')
-        lines.append('')
-        body = join_bytes('\r\n', lines)
+        lines.extend([b'--' + boundary + b'--', b''])
+        body = b'\r\n'.join(lines)
+        boundary = boundary.decode('ascii')
         content_type = 'multipart/form-data; boundary=%s' % boundary
         return content_type, body
 
@@ -1087,12 +1103,13 @@ class TestApp(object):
         cookies = self.cookies or {}
         cookies = list(cookies.items())
         if 'Cookie' in req.headers:
-            req_cookies = [i.strip() for i in req.headers['Cookie'].split(';')]
-            req_cookies = [i.split('=', 1) for i in req_cookies]
+            req_cookies = req.headers['Cookie'].split(str(';'))
+            req_cookies = [i.strip() for i in req_cookies]
+            req_cookies = [i.split(str('='), 1) for i in req_cookies]
             cookies.extend(req_cookies)
         if cookies:
-            cookie_header = ''.join([
-                '%s=%s; ' % (name, cookie_quote(value))
+            cookie_header = str('').join([
+                str('%s=%s; ') % (name, cookie_quote(value))
                 for name, value in cookies])
             req.environ['HTTP_COOKIE'] = cookie_header
         req.environ['paste.testing'] = True
@@ -1136,7 +1153,7 @@ class TestApp(object):
         __tracebackhide__ = True # NOQA
         if status == '*':
             return
-        res_status = to_string(res.status)
+        res_status = res.status
         if (isinstance(status, string_types)
             and '*' in status):
             if re.match(fnmatch.translate(status), res_status, re.I):
@@ -1810,7 +1827,9 @@ def _space_prefix(pref, full, sep=None, indent=None, include_sep=True):
 def _make_pattern(pat):
     if pat is None:
         return None
-    if isinstance(pat, string_types):
+    if isinstance(pat, binary_type):
+        pat = pat.decode('utf8')
+    if isinstance(pat, text_type):
         pat = re.compile(pat)
     if hasattr(pat, 'search'):
         return pat.search
@@ -1821,11 +1840,14 @@ def _make_pattern(pat):
 
 
 entity_pattern = re.compile(r"&(\w+|#\d+|#[xX][a-fA-F0-9]+);")
+
+
 def html_unquote(v):
     """
     Unquote entities in HTML.
     """
     to_chr = chr if PY3 else unichr
+
     def repl(match):
         s = match.group(1)
         if s.startswith("#"):
