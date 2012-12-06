@@ -4,7 +4,6 @@ import os
 import webob
 import webtest
 from webob import exc
-from webtest import ext
 from tests.compat import u
 
 #if PY3:
@@ -49,5 +48,5 @@ def application(environ, start_response):
 
 def test_casperjs():
     app = webtest.TestApp(application)
-    with webtest.casperjs(app) as run:
+    with webtest.casperjs(app, timeout=2) as run:
         run('test_casperjs.js')
