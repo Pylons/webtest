@@ -34,12 +34,8 @@ from webtest.compat import OrderedDict
 from webtest.compat import dumps
 from webtest.compat import loads
 from webtest.compat import PY3
+from webtest import lint
 from webob import Request, Response
-
-if PY3:
-    from webtest import lint3 as lint
-else:
-    from webtest import lint  # NOQA
 
 __all__ = ['TestApp', 'TestRequest']
 

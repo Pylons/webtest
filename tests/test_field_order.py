@@ -1,7 +1,6 @@
 import collections
 from tests.compat import unittest
 from webtest.compat import to_bytes
-from webtest.compat import join_bytes
 from webtest.compat import binary_type
 from webtest.compat import PY3
 from webob import Request
@@ -34,7 +33,7 @@ def get_submit_app(form_id, form_fields_text):
         req = Request(environ)
         status = "200 OK"
         if req.method == "GET":
-            body = to_bytes("""
+            body = """
 <html>
   <head><title>form page</title></head>
   <body>
@@ -49,14 +48,13 @@ def get_submit_app(form_id, form_fields_text):
     </form>
   </body>
 </html>
-""" % (form_id, form_fields_text))
+""" % (form_id, form_fields_text)
         else:
-            body_head = to_bytes(
-"""
+            body_head = """
 <html>
     <head><title>display page</title></head>
     <body>
-""")
+"""
 
             body_parts = []
             for (name, value) in req.POST.items():
@@ -69,16 +67,16 @@ def get_submit_app(form_id, form_fields_text):
                     body_parts.append("%s:%s\n" % (
                         name, value))
 
-            body_foot = to_bytes(
-    """    </body>
+            body_foot = """    </body>
     </html>
-    """)
-            body = body_head + join_bytes("", body_parts) + body_foot
+    """
+            body = body_head + "".join(body_parts) + body_foot
+        if not isinstance(body, binary_type):
+            body = body.encode('utf8')
         headers = [
             ('Content-Type', 'text/html; charset=utf-8'),
             ('Content-Length', str(len(body)))]
         start_response(status, headers)
-        assert(isinstance(body, binary_type))
         return [body]
     return submit_app
 

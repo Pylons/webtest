@@ -25,12 +25,6 @@ def to_bytes(value, charset='latin1'):
         return value.encode(charset)
     return value
 
-to_string = six.u
-
-
-def join_bytes(sep, l):
-    l = [to_bytes(e) for e in l]
-    return to_bytes(sep).join(l)
 
 if PY3:
     string_types = (str,)

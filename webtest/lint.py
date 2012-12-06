@@ -110,10 +110,14 @@ Some of the things this checks:
     sys.stderr, because we only know it isn't called when the object
     is garbage collected).
 """
+from __future__ import unicode_literals
 
 import re
 import sys
 import warnings
+from six import PY3
+from six import binary_type
+from six import string_types
 
 header_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9\-_]*$')
 bad_header_value_re = re.compile(r'[\000-\037]')
@@ -122,6 +126,15 @@ valid_methods = (
     'GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'DELETE',
     'TRACE', 'PATCH',
   )
+
+METADATA_TYPE = PY3 and (str, binary_type) or (str,)
+
+
+def to_string(value):
+        if not isinstance(value, string_types):
+            return value.decode('latin1')
+        else:
+            return value
 
 
 class WSGIWarning(Warning):
@@ -194,12 +207,12 @@ class InputWrapper(object):
     def read(self, *args):
         assert len(args) <= 1
         v = self.input.read(*args)
-        assert type(v) is type("")
+        assert type(v) is binary_type
         return v
 
     def readline(self, *args):
         v = self.input.readline(*args)
-        assert type(v) is type("")
+        assert type(v) is binary_type
         return v
 
     def readlines(self, *args):
@@ -207,7 +220,7 @@ class InputWrapper(object):
         lines = self.input.readlines(*args)
         assert type(lines) is type([])
         for line in lines:
-            assert type(line) is type("")
+            assert type(line) is binary_type
         return lines
 
     def __iter__(self):
@@ -227,7 +240,7 @@ class ErrorWrapper(object):
         self.errors = wsgi_errors
 
     def write(self, s):
-        assert type(s) is type("")
+        assert type(s) is binary_type
         self.errors.write(s)
 
     def flush(self):
@@ -247,7 +260,7 @@ class WriteWrapper(object):
         self.writer = wsgi_writer
 
     def __call__(self, s):
-        assert type(s) is type("")
+        assert type(s) is binary_type
         self.writer(s)
 
 
@@ -281,9 +294,9 @@ class IteratorWrapper(object):
                 "The application returns and we started iterating over its"
                 " body, but start_response has not yet been called")
             self.check_start_response = None
-        assert isinstance(v, str), (
-            "Iterator %r returned a non-str object: %r"
-            % (self.iterator, v))
+        assert isinstance(v, binary_type), (
+            "Iterator %r returned a non-%r object: %r"
+            % (self.iterator, binary_type, v))
         return v
 
     __next__ = next
@@ -329,7 +342,7 @@ def check_environ(environ):
         if '.' in key:
             # Extension, we don't care about its type
             continue
-        assert type(environ[key]) is str, (
+        assert type(environ[key]) in METADATA_TYPE, (
             "Environmental variable %s is not a string: %r (value: %r)"
             % (key, type(environ[key]), environ[key]))
 
@@ -381,8 +394,8 @@ def check_errors(wsgi_errors):
 
 
 def check_status(status):
-    assert type(status) is str, (
-        "Status must be a string (not %r)" % status)
+    assert type(status) in METADATA_TYPE, (
+        "Status must be a %s (not %r)" % (METADATA_TYPE, status))
     # Implicitly check that we can turn it into an integer:
     status_code = status.split(None, 1)[0]
     assert len(status_code) == 3, (
@@ -400,26 +413,40 @@ def check_headers(headers):
     assert type(headers) is list, (
         "Headers (%r) must be of type list: %r"
         % (headers, type(headers)))
-    header_names = {}
     for item in headers:
         assert type(item) is tuple, (
             "Individual headers (%r) must be of type tuple: %r"
             % (item, type(item)))
         assert len(item) == 2
         name, value = item
-        assert name.lower() != 'status', (
+        if PY3 and type(name) is str:
+            try:
+                name.encode('latin1')
+            except UnicodeEncodeError:
+                raise AssertionError((
+                    "Headers name must be latin1 string or bytes."
+                    "%r is not a valid latin1 string" % (name,)))
+        str_name = to_string(name)
+        assert str_name.lower() != 'status', (
             "The Status header cannot be used; it conflicts with CGI "
             "script, and HTTP status is not given through headers "
             "(value: %r)." % value)
-        header_names[name.lower()] = None
-        assert '\n' not in name and ':' not in name, (
+        assert '\n' not in str_name and ':' not in str_name, (
             "Header names may not contain ':' or '\\n': %r" % name)
-        assert header_re.search(name), "Bad header name: %r" % name
-        assert not name.endswith('-') and not name.endswith('_'), (
+        assert header_re.search(str_name), "Bad header name: %r" % name
+        assert not str_name.endswith('-') and not str_name.endswith('_'), (
             "Names may not end in '-' or '_': %r" % name)
-        assert not bad_header_value_re.search(value), (
+        if PY3 and type(value) is str:
+            try:
+                value.encode('latin1')
+            except UnicodeEncodeError:
+                raise AssertionError((
+                    "Headers values must be latin1 string or bytes."
+                    "%r is not a valid latin1 string" % (value,)))
+        str_value = to_string(value)
+        assert not bad_header_value_re.search(str_value), (
             "Bad header value: %r (bad char: %r)"
-            % (value, bad_header_value_re.search(value).group(0)))
+            % (str_value, bad_header_value_re.search(str_value).group(0)))
 
 
 def check_content_type(status, headers):
@@ -430,10 +457,13 @@ def check_content_type(status, headers):
     NO_MESSAGE_TYPE = (204, 304)
     length = None
     for name, value in headers:
-        if name.lower() == 'content-length' and value.isdigit():
+        str_name = to_string(name)
+        if str_name.lower() == 'content-length' and value.isdigit():
             length = int(value)
+            break
     for name, value in headers:
-        if name.lower() == 'content-type':
+        str_name = to_string(name)
+        if str_name.lower() == 'content-type':
             if code not in NO_MESSAGE_TYPE:
                 return
             elif length == 0:
@@ -449,18 +479,26 @@ def check_content_type(status, headers):
 
 
 def check_exc_info(exc_info):
-    assert exc_info is None or type(exc_info) is type(()), (
+    assert exc_info is None or type(exc_info) is tuple, (
         "exc_info (%r) is not a tuple: %r" % (exc_info, type(exc_info)))
     # More exc_info checks?
 
 
 def check_iterator(iterator):
-    # Technically a string is legal, which is why it's a really bad
-    # idea, because it may cause the response to be returned
-    # character-by-character
-    assert not isinstance(iterator, str), (
-        "You should not return a string as your application iterator, "
-        "instead return a single-item list containing that string.")
+    if PY3:
+        # Technically a bytes is legal, which is why it's a really bad
+        # idea, because it may cause the response to be returned
+        # character-by-character
+        assert not isinstance(iterator, bytes), (
+            "You should not return a bytes as your application iterator, "
+            "instead return a single-item list containing that string.")
+    else:
+        # Technically a string is legal, which is why it's a really bad
+        # idea, because it may cause the response to be returned
+        # character-by-character
+        assert not isinstance(iterator, str), (
+            "You should not return a string as your application iterator, "
+            "instead return a single-item list containing that string.")
 
 
 def make_middleware(application, global_conf):
