@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from waitress.server import WSGIServer
 from six.moves import http_client
+from six import text_type
 import threading
 import logging
 import socket
@@ -32,9 +33,11 @@ class StopableWSGIServer(WSGIServer):
             resp = webob.Response()
             resp.content_type = 'text/html; charset=UTF-8'
             filename = req.params.get('__file__')
-            body = open(filename, 'rb').read()
+            body = open(filename, 'r').read()
             body.replace('http://localhost/',
                          'http://%s/' % req.host)
+            if isinstance(body, text_type):
+                body = body.encode('utf8')
             resp.body = body
             return resp(environ, start_response)
         elif '__application__' in environ['PATH_INFO']:
@@ -77,7 +80,7 @@ class StopableWSGIServer(WSGIServer):
             try:
                 conn.request('GET', '/__application__')
                 conn.getresponse()
-            except (socket.error, http_client.CannotSendRequest):
+            except (socket.error, http_client.HTTPException):
                 time.sleep(.3)
             else:
                 return True

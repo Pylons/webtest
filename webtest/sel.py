@@ -218,7 +218,7 @@ class SeleniumApp(testapp.TestApp):
 
     def __init__(self, app=None, url=None, timeout=30000,
                  extra_environ=None, relative_to=None, **kwargs):
-        self.app = None
+        self.app = self.server = None
         if app:
             super(SeleniumApp, self).__init__(app, relative_to=relative_to)
             self.server = StopableWSGIServer.create(app)
@@ -245,7 +245,7 @@ class SeleniumApp(testapp.TestApp):
         if req.method != 'GET':
             raise testapp.AppError('Only GET are allowed')
         if self.app:
-            req.host = '%s:%s' % self.app.bind
+            req.host = '%s:%s' % (self.server.adj.host, self.server.adj.port)
         self.browser.captureNetworkTraffic('json')
         for h, v in req.headers.items():
             if h.lower() not in ('host',):
@@ -355,10 +355,10 @@ class TestResponse(testapp.TestResponse):
 
     text = property(_text__get)
 
-    def __contains__(self, item):
-        if isinstance(item, Element):
-            return item.isElementPresent()
-        return super(TestResponse, self).__contains__(item)
+    def __contains__(self, s):
+        if isinstance(s, Element):
+            return s.isElementPresent()
+        return s in self.text
 
     @property
     def doc(self):
