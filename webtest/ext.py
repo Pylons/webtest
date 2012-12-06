@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 __doc__ = '''Allow to run an external process to test your application'''
 from webtest import app as testapp
 from webtest.sel import _free_port
@@ -6,16 +7,20 @@ from webtest.sel import WSGIApplication
 from webtest.sel import WSGIServer
 from webtest.sel import WSGIRequestHandler
 from six.moves import http_client
-from webtest.compat import to_bytes
 from contextlib import contextmanager
 from wsgiref import simple_server
 from six import binary_type
 import subprocess
 import threading
+import logging
 import socket
 import time
 import sys
+import re
 import os
+
+log = logging.getLogger('nose.casperjs')
+stderr = sys.stderr
 
 
 class TestApp(testapp.TestApp):
@@ -83,10 +88,13 @@ class TestApp(testapp.TestApp):
 
 
 @contextmanager
-def casperjs(test_app):
+def casperjs(test_app, timeout=60):
     """A context manager to run a test with a :class:`webtest.ext.TestApp`"""
     app = TestApp(test_app.app)
     binary = app.get_binary('casperjs')
+
+    _re_result = re.compile(
+            r'.*([0-9]+ tests executed, [0-9]+ passed, ([0-9]+) failed).*')
 
     def run(script, *args):
         dirname = os.path.dirname(sys._getframe(1).f_code.co_filename)
@@ -96,15 +104,37 @@ def casperjs(test_app):
             p = subprocess.Popen(cmd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-            p.wait()
-            output = p.stdout.read()
-            if to_bytes('FAIL') in output:
-                if isinstance(output, binary_type):
-                    output = output.decode('utf8', 'replace')
-                print(output)
+            end = time.time() + timeout
+            while time.time() < end:
+                ret = p.poll()
+                if ret is not None:
+                    end = time.time() + 100
+                    break
+                time.sleep(.3)
+            if time.time() < end:
+                try:
+                    p.kill()
+                except OSError:
+                    pass
 
+            output = p.stdout.read()
+            if isinstance(output, binary_type):
+                output = output.decode('utf8', 'replace')
+
+            fail = True
+            match = _re_result.match(output.replace('\n', ' '))
+            if match is not None:
+                text, failed = match.groups()
+                if int(failed):
+                    fail = True
+                else:
+                    fail = False
+                    stderr.write(text + ' ')
+
+            if fail:
+                print(output)
                 raise AssertionError(
-                        'Failure while running %s' % ' '.join(cmd))
+                    'Failure while running %s' % ' '.join(cmd))
 
     try:
         yield run
