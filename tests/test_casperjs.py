@@ -48,5 +48,5 @@ def application(environ, start_response):
 
 def test_casperjs():
     app = webtest.TestApp(application)
-    with webtest.casperjs(app, timeout=2) as run:
+    with webtest.casperjs(app) as run:
         run('test_casperjs.js')
