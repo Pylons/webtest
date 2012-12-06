@@ -6,7 +6,8 @@ python:
   - pypy
 install:
   - deactivate
-  - python$TRAVIS_PYTHON_VERSION bootstrap-py3k.py -d
+  - "if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then python$TRAVIS_PYTHON_VERSION bootstrap-py3k.py -d; fi"
+  - "if [[ $TRAVIS_PYTHON_VERSION == 'pypy' ]]; then $TRAVIS_PYTHON_VERSION bootstrap-py3k.py -d; fi"
   - bin/buildout
 script:
   - ./bin/nosetests -s -v
