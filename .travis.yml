@@ -3,7 +3,7 @@ python:
   - 2.6
   - 2.7
   - 3.2
-#  - pypy
+  - pypy
 install:
   - deactivate
   - python$TRAVIS_PYTHON_VERSION bootstrap-py3k.py -d
