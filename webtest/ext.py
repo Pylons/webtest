@@ -2,18 +2,13 @@
 from __future__ import unicode_literals
 __doc__ = '''Allow to run an external process to test your application'''
 from webtest import app as testapp
-from webtest.sel import _free_port
-from webtest.sel import WSGIApplication
-from webtest.sel import WSGIServer
-from webtest.sel import WSGIRequestHandler
-from six.moves import http_client
+from webtest.http import StopableWSGIServer
 from contextlib import contextmanager
-from wsgiref import simple_server
 from six import binary_type
 import subprocess
-import threading
 import logging
-import socket
+import tempfile
+import shutil
 import time
 import sys
 import re
@@ -29,39 +24,14 @@ class TestApp(testapp.TestApp):
 
     def __init__(self, app=None, url=None, timeout=30000,
                  extra_environ=None, relative_to=None, **kwargs):
-        if app:
-            super(TestApp, self).__init__(app, relative_to=relative_to)
-            self._run_server(self.app)
-            self.application_url = self.app.url
-            os.environ['APPLICATION_URL'] = self.application_url
+        super(TestApp, self).__init__(app, relative_to=relative_to)
+        self.server = StopableWSGIServer.create(app)
+        self.server.wait()
+        self.application_url = self.server.application_url
+        os.environ['APPLICATION_URL'] = self.application_url
         self.extra_environ = extra_environ or {}
         self.timeout = timeout
         self.test_app = self
-
-    def _run_server(self, app):
-        """Run a wsgi server in a separate thread"""
-        ip, port = _free_port()
-        self.app = app = WSGIApplication(app, (ip, port))
-
-        def run():
-            httpd = simple_server.make_server(
-                            ip, port, app,
-                            server_class=WSGIServer,
-                            handler_class=WSGIRequestHandler)
-            httpd.serve_forever()
-
-        app.thread = threading.Thread(target=run)
-        app.thread.start()
-        conn = http_client.HTTPConnection(ip, port)
-        time.sleep(.5)
-        for i in range(100):
-            try:
-                conn.request('GET', '/__application__')
-                conn.getresponse()
-            except (socket.error, http_client.CannotSendRequest):
-                time.sleep(.3)
-            else:
-                break
 
     def get_binary(self, name):
         if os.path.isfile(name):
@@ -74,17 +44,11 @@ class TestApp(testapp.TestApp):
 
     def close(self):
         """Close WSGI server if needed"""
-        if self.app:
-            conn = http_client.HTTPConnection(*self.app.bind)
-            for i in range(100):
-                try:
-                    conn.request('GET', '/__kill_application__')
-                    conn.getresponse()
-                except socket.error:
-                    conn.close()
-                    break
-                else:
-                    time.sleep(.3)
+        if self.server:
+            self.server.shutdown()
+
+_re_result = re.compile(
+            r'.*([0-9]+ tests executed, [0-9]+ passed, ([0-9]+) failed).*')
 
 
 @contextmanager
@@ -92,17 +56,17 @@ def casperjs(test_app, timeout=60):
     """A context manager to run a test with a :class:`webtest.ext.TestApp`"""
     app = TestApp(test_app.app)
     binary = app.get_binary('casperjs')
-
-    _re_result = re.compile(
-            r'.*([0-9]+ tests executed, [0-9]+ passed, ([0-9]+) failed).*')
+    tempdir = tempfile.mkdtemp(prefix='casperjs')
 
     def run(script, *args):
         dirname = os.path.dirname(sys._getframe(1).f_code.co_filename)
+        log = os.path.join(tempdir, script + '.log')
         script = os.path.join(dirname, script)
         if binary:
+            stdout = open(log, 'ab+')
             cmd = [binary, 'test'] + list(args) + [script]
             p = subprocess.Popen(cmd,
-                    stdout=subprocess.PIPE,
+                    stdout=stdout,
                     stderr=subprocess.PIPE)
             end = time.time() + timeout
             while time.time() < end:
@@ -117,7 +81,10 @@ def casperjs(test_app, timeout=60):
                 except OSError:
                     pass
 
-            output = p.stdout.read()
+            if os.path.isfile(log):
+                with open(log) as fd:
+                    output = fd.read()
+
             if isinstance(output, binary_type):
                 output = output.decode('utf8', 'replace')
 
@@ -139,4 +106,5 @@ def casperjs(test_app, timeout=60):
     try:
         yield run
     finally:
+        shutil.rmtree(tempdir)
         app.close()

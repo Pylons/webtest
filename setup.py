@@ -51,6 +51,7 @@ setup(name='WebTest',
       install_requires=[
         'six',
         'WebOb',
+        'waitress',
       ],
       test_suite='nose.collector',
       tests_require=tests_require,

@@ -23,11 +23,12 @@ import threading
 import subprocess
 from functools import wraps
 from webtest import app as testapp
-from wsgiref import simple_server
 from contextlib import contextmanager
 from six.moves import http_client
 from six.moves import BaseHTTPServer
 from six.moves import SimpleHTTPServer
+from webtest.http import StopableWSGIServer
+from webtest.http import _free_port
 from six import binary_type
 from six import PY3
 from webtest.compat import urlencode
@@ -220,8 +221,9 @@ class SeleniumApp(testapp.TestApp):
         self.app = None
         if app:
             super(SeleniumApp, self).__init__(app, relative_to=relative_to)
-            self._run_server(self.app)
-            url = self.app.url
+            self.server = StopableWSGIServer.create(app)
+            self.server.wait()
+            url = self.server.application_url
         assert is_available()
         self.session_id = None
         self._browser = Selenium()
@@ -296,44 +298,10 @@ class SeleniumApp(testapp.TestApp):
         else:
             raise LookupError('No response found')
 
-    def _run_server(self, app):
-        """Run a wsgi server in a separate thread"""
-        ip, port = _free_port()
-        self.app = app = WSGIApplication(app, (ip, port))
-
-        def run():
-            httpd = simple_server.make_server(
-                            ip, port, app,
-                            server_class=WSGIServer,
-                            handler_class=WSGIRequestHandler)
-            httpd.serve_forever()
-
-        app.thread = threading.Thread(target=run)
-        app.thread.start()
-        conn = http_client.HTTPConnection(ip, port)
-        time.sleep(.5)
-        for i in range(100):
-            try:
-                conn.request('GET', '/__application__')
-                conn.getresponse()
-            except (socket.error, http_client.CannotSendRequest):
-                time.sleep(.3)
-            else:
-                break
-
     def close(self):
         """Close selenium and the WSGI server if needed"""
-        if self.app:
-            conn = http_client.HTTPConnection(*self.app.bind)
-            for i in range(100):
-                try:
-                    conn.request('GET', '/__kill_application__')
-                    conn.getresponse()
-                except socket.error:
-                    conn.close()
-                    break
-                else:
-                    time.sleep(.3)
+        if self.server:
+            self.server.shutdown()
         if 'SELENIUM_KEEP_OPEN' not in os.environ:
             self.browser.stop()
         if 'SELENIUM_PID' in os.environ:
@@ -479,7 +447,7 @@ class Element(object):
         return self.getValue()
 
     def value__set(self, value):
-        value = _get_value(value)
+        value = json.dumps(value)
         script = """(function() {
         s.doFireEvent(l, "focus");
         s.doType(l, %s);
@@ -575,7 +543,7 @@ class Document(object):
     def __contains__(self, s):
         if isinstance(s, Element):
             return s.exist()
-        return self.browser.isTextPresent(_get_value(s))
+        return self.browser.isTextPresent(json.dumps(s))
 
     def __call__(self, locator):
         return Element(locator)
@@ -818,61 +786,6 @@ class Form(testapp.Form, Element):
 ###############
 
 
-class WSGIApplication(object):
-    """A WSGI middleware to handle special calls used to run a test app"""
-
-    def __init__(self, app, bind):
-        self.app = app
-        self.serve_forever = True
-        self.bind = bind
-        self.url = 'http://%s:%s/' % bind
-        self.thread = None
-
-    def __call__(self, environ, start_response):
-        if '__kill_application__' in environ['PATH_INFO']:
-            self.serve_forever = False
-            resp = webob.Response()
-            return resp(environ, start_response)
-        elif '__file__' in environ['PATH_INFO']:
-            req = webob.Request(environ)
-            resp = webob.Response()
-            resp.content_type = 'text/html; charset=UTF-8'
-            filename = req.params.get('__file__')
-            body = open(filename).read()
-            body.replace('http://localhost/',
-                         'http://%s/' % req.host)
-            if PY3:
-                resp.text = body
-            else:
-                resp.body = body
-            return resp(environ, start_response)
-        elif '__application__' in environ['PATH_INFO']:
-            resp = webob.Response()
-            return resp(environ, start_response)
-        return self.app(environ, start_response)
-
-    def __repr__(self):
-        return '<WSGIApplication %r at %s>' % (self.app, self.url)
-
-
-class WSGIRequestHandler(simple_server.WSGIRequestHandler):
-    """A WSGIRequestHandler who log to a logger"""
-
-    def log_message(self, format, *args):
-        log.debug("%s - - [%s] %s" %
-                  (self.address_string(),
-                  self.log_date_time_string(),
-                  format % args))
-
-
-class WSGIServer(simple_server.WSGIServer):
-    """A WSGIServer"""
-
-    def serve_forever(self):
-        while self.application.serve_forever:
-            self.handle_request()
-
-
 class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """Handle a simple file"""
 
@@ -888,10 +801,6 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 ###############
 # Misc
 ###############
-
-
-def _get_value(s):
-    return json.dumps(s)
 
 
 def _get_command(cmd):
@@ -917,15 +826,6 @@ def _eval_xpath(tag, locator=None, index=None, **kwargs):
     if index is not None:
         locator += '[%s]' % (index + 1,)
     return locator
-
-
-def _free_port():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('', 0))
-    ip, port = s.getsockname()
-    s.close()
-    ip = os.environ.get('SELENIUM_BIND', '127.0.0.1')
-    return ip, port
 
 
 def is_available():
