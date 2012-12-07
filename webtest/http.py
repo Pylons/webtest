@@ -10,7 +10,7 @@ import time
 import os
 
 
-def _free_port():
+def get_free_port():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('', 0))
     ip, port = s.getsockname()
@@ -19,11 +19,24 @@ def _free_port():
     return ip, port
 
 
+def check_server(host, port, path_info='/', timeout=3, retries=30):
+    conn = http_client.HTTPConnection(host, port, timeout=timeout)
+    time.sleep(.3)
+    for i in range(retries):
+        try:
+            conn.request('GET', path_info)
+            res = conn.getresponse()
+            return res.status
+        except (socket.error, http_client.HTTPException):
+            time.sleep(.3)
+    return 0
+
+
 class StopableWSGIServer(WSGIServer):
 
     def __init__(self, application, *args, **kwargs):
         super(StopableWSGIServer, self).__init__(self.wrapper, *args, **kwargs)
-        self.main_thread = None
+        self.runner = None
         self.test_app = application
         self.application_url = 'http://%s:%s/' % (self.adj.host, self.adj.port)
 
@@ -33,12 +46,15 @@ class StopableWSGIServer(WSGIServer):
             resp = webob.Response()
             resp.content_type = 'text/html; charset=UTF-8'
             filename = req.params.get('__file__')
-            body = open(filename, 'r').read()
-            body.replace('http://localhost/',
-                         'http://%s/' % req.host)
-            if isinstance(body, text_type):
-                body = body.encode('utf8')
-            resp.body = body
+            if os.path.isfile(filename):
+                body = open(filename, 'r').read()
+                body.replace('http://localhost/',
+                             'http://%s/' % req.host)
+                if isinstance(body, text_type):
+                    body = body.encode('utf8')
+                resp.body = body
+            else:
+                resp.status = '404 Not Found'
             return resp(environ, start_response)
         elif '__application__' in environ['PATH_INFO']:
             return webob.Response('server started')(environ, start_response)
@@ -58,34 +74,26 @@ class StopableWSGIServer(WSGIServer):
             for trigger in triggers:
                 trigger.handle_close()
         self.maintenance(0)
-        while not self.task_dispatcher.shutdown():
-            pass
+        self.task_dispatcher.shutdown()
+        return True
 
     @classmethod
     def create(cls, application, **kwargs):
-        host, port = _free_port()
+        host, port = get_free_port()
         kwargs['port'] = port
         if 'host' not in kwargs:
             kwargs['host'] = host
         server = cls(application, **kwargs)
-        thread = threading.Thread(target=server.run)
-        server.main_thread = thread
-        thread.start()
+        server.runner = threading.Thread(target=server.run)
+        server.runner.start()
         return server
 
-    def wait(self):
-        conn = http_client.HTTPConnection(self.adj.host, self.adj.port)
-        time.sleep(.5)
-        for i in range(100):
-            try:
-                conn.request('GET', '/__application__')
-                conn.getresponse()
-            except (socket.error, http_client.HTTPException):
-                time.sleep(.3)
-            else:
-                return True
+    def wait(self, retries=30):
+        running = check_server(self.adj.host, self.adj.port,
+                               '/__application__', retries=retries)
+        if running:
+            return True
         try:
             self.shutdown()
-        except:
-            pass
-        return False
+        finally:
+            return False

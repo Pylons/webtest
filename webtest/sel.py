@@ -11,9 +11,7 @@ Most interesting is :class:`~webtest.sel.SeleniumApp` and the
 import os
 import cgi
 import sys
-import time
 import signal
-import socket
 import types
 import webob
 import logging
@@ -27,8 +25,7 @@ from contextlib import contextmanager
 from six.moves import http_client
 from six.moves import BaseHTTPServer
 from six.moves import SimpleHTTPServer
-from webtest.http import StopableWSGIServer
-from webtest.http import _free_port
+from webtest import http
 from six import binary_type
 from six import PY3
 from webtest.compat import urlencode
@@ -221,7 +218,7 @@ class SeleniumApp(testapp.TestApp):
         self.app = self.server = None
         if app:
             super(SeleniumApp, self).__init__(app, relative_to=relative_to)
-            self.server = StopableWSGIServer.create(app)
+            self.server = http.StopableWSGIServer.create(app)
             self.server.wait()
             url = self.server.application_url
         assert is_available()
@@ -667,7 +664,7 @@ class File(Field):
 
     def _run_server(self, filename):
         """Run a simple server in a separate thread"""
-        ip, port = _free_port()
+        ip, port = http.get_free_port()
 
         def run():
             FileHandler.filename = filename
@@ -833,24 +830,12 @@ def is_available():
     running"""
     host = os.environ.get('SELENIUM_HOST', '127.0.0.1')
     port = int(os.environ.get('SELENIUM_PORT', 4444))
-    try:
-        conn = http_client.HTTPConnection(host, port)
-        conn.request('GET', '/')
-    except socket.error:
+    if not http.check_server(host, port, retries=1):
         if 'SELENIUM_JAR' not in os.environ:
             return False
         else:
             jar = os.environ['SELENIUM_JAR']
             p = subprocess.Popen(['java', '-jar', jar])
             os.environ['SELENIUM_PID'] = str(p.pid)
-            for i in range(30):
-                time.sleep(.3)
-                try:
-                    conn = http_client.HTTPConnection(host, port)
-                    conn.request('GET', '/')
-                except socket.error:
-                    pass
-                else:
-                    return True
-            return False
+            return http.check_server(host, port)
     return True
