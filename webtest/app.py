@@ -586,9 +586,6 @@ class TestResponse(Response):
             raise AttributeError(
                 "Not a JSON response body (content-type: %s)"
                 % self.content_type)
-        if loads is None:
-            raise ImportError(
-                "You must have simplejson installed to use response.json")
         return loads(self.testbody)
 
     json = property(json, doc=json.__doc__)
