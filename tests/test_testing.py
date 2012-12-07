@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import webtest
 from webtest.debugapp import debug_app
 from webtest.compat import PY3
@@ -6,12 +7,11 @@ from webtest.compat import to_bytes
 from webtest.compat import print_stderr
 from webtest.app import AppError
 from tests.compat import unittest
-from tests.compat import u
 import webbrowser
 
 
 def test_print_unicode():
-    print_stderr(u('°C'))
+    print_stderr('°C')
 
 
 class TestTesting(unittest.TestCase):
@@ -42,9 +42,15 @@ class TestTesting(unittest.TestCase):
         self.assertEqual(res.body, to_bytes(''))
 
     def test_post_unicode(self):
-        res = self.app.post('/', params=dict(a=u('é')),
+        res = self.app.post('/', params=dict(a='é'),
                content_type='application/x-www-form-urlencoded;charset=utf8')
         res.mustcontain('a=%C3%A9')
+
+    def test_post_unicode_body(self):
+        res = self.app.post('/', params='é',
+               content_type='text/plain; charset=utf8')
+        self.assertTrue(res.body.endswith(b'\xc3\xa9'))
+        res.mustcontain('é')
 
     def test_post_params(self):
         res = self.app.post('/', params=dict(a=1))
@@ -117,7 +123,7 @@ class TestTesting(unittest.TestCase):
     def test_print_stderr(self):
         res = self.app.get('/')
         res.charset = 'utf-8'
-        res.text = u('°C')
+        res.text = '°C'
         print_stderr(str(res))
 
         res.charset = None
@@ -126,7 +132,7 @@ class TestTesting(unittest.TestCase):
     def test_app_error(self):
         res = self.app.get('/')
         res.charset = 'utf-8'
-        res.text = u('°C')
+        res.text = '°C'
         AppError('%s %s %s %s', res.status, '', res.request.url, res)
         res.charset = None
         AppError('%s %s %s %s', res.status, '', res.request.url, res)
@@ -134,7 +140,7 @@ class TestTesting(unittest.TestCase):
     def test_exception_repr(self):
         res = self.app.get('/')
         res.charset = 'utf-8'
-        res.text = u('°C')
+        res.text = '°C'
         if not PY3:
             unicode(AssertionError(res))
         str(AssertionError(res))

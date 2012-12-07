@@ -26,18 +26,15 @@ def debug_app(environ, start_response):
             value = repr(value)
         parts.append(str('%s: %s\n') % (name, value))
 
-    if req.content_length:
-        req_body = req.body
-    else:
-        req_body = ''
-    if req_body:
-        parts.append('-- Body ----------\n')
-        if not isinstance(req_body, six.string_types):
-            req_body = req_body.decode('ascii')
-        parts.append(req_body)
     body = ''.join(parts)
+    if not isinstance(body, six.binary_type):
+        body = body.encode('ascii')
 
-    if status[:3] in ('204', '304') and not req_body:
+    if req.content_length:
+        body += six.b('-- Body ----------\n')
+        body += req.body
+
+    if status[:3] in ('204', '304') and not req.content_length:
         body = ''
 
     headers = [

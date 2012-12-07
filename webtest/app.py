@@ -791,15 +791,16 @@ class TestApp(object):
 
         if content_type is not None:
             environ['CONTENT_TYPE'] = content_type
-        environ['CONTENT_LENGTH'] = str(len(params))
         environ['REQUEST_METHOD'] = str(method)
+        url = str(url)
         url = self._remove_fragment(url)
         req = self.RequestClass.blank(url, environ)
-        if headers:
-            req.headers.update(headers)
         if isinstance(params, text_type):
             params = params.encode(req.charset or 'utf8')
         req.environ['wsgi.input'] = BytesIO(params)
+        req.content_length = len(params)
+        if headers:
+            req.headers.update(headers)
         return self.do_request(req, status=status,
                                expect_errors=expect_errors)
 
@@ -1062,6 +1063,11 @@ class TestApp(object):
         serialized arguments, and simultaneously set the request
         method to ``POST``
         """
+        if isinstance(url_or_req, text_type):
+            url_or_req = str(url_or_req)
+        for (k, v) in req_params.items():
+            if isinstance(v, text_type):
+                req_params[k] = str(v)
         if isinstance(url_or_req, string_types):
             req = self.RequestClass.blank(url_or_req, **req_params)
         else:
