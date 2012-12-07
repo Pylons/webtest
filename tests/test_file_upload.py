@@ -10,31 +10,9 @@ import six
 import webtest
 
 
-def get_files_page(uploaded_files):
-    file_parts = [b"""
-<html>
-    <head><title>display page</title></head>
-    <body>
-"""]
-    file_parts = []
-    for uploaded_file in uploaded_files:
-        filename = to_bytes(uploaded_file.filename)
-        value = to_bytes(uploaded_file.value, 'ascii')
-        file_parts.append(b"""
-        <p>You selected '""" + filename + b"""'</p>
-        <p>with contents: '""" + value + b"""'</p>
-""")
-    file_parts.append(b"""    </body>
-</html>
-""")
-    return b''.join(file_parts)
+class SingleUploadFileApp(object):
 
-
-def single_upload_file_app(environ, start_response):
-    req = Request(environ)
-    status = str("200 OK")
-    if req.method == "GET":
-        body = b"""
+    body = b"""
 <html>
     <head><title>form page</title></head>
     <body>
@@ -46,62 +24,56 @@ def single_upload_file_app(environ, start_response):
     </body>
 </html>
 """
-    else:
-        uploaded_files = req.POST.getall("file-field")
-        body = get_files_page(uploaded_files)
-    headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    assert(isinstance(body, binary_type))
-    return [body]
 
-
-def upload_binary_app(environ, start_response):
-    req = Request(environ)
-    status = str("200 OK")
-    if req.method == "GET":
-        body = b"""
+    def __call__(self, environ, start_response):
+        req = Request(environ)
+        status = str("200 OK")
+        if req.method == "GET":
+            body = self.body
+        else:
+            body = b"""
 <html>
-    <head><title>form page</title></head>
+    <head><title>display page</title></head>
     <body>
-        <form method="POST" id="binary_upload_form"
-              enctype="multipart/form-data">
-            <input name="binary-file-field" type="file" />
-            <input name="button" type="submit" value="binary" />
-        </form>
+        """ + self.get_files_page(req) + b"""
     </body>
 </html>
 """
-    else:
-        uploaded_files = req.POST.getall("binary-file-field")
-        data = uploaded_files[0].value
+        headers = [
+            ('Content-Type', 'text/html; charset=utf-8'),
+            ('Content-Length', str(len(body)))]
+        start_response(status, headers)
+        assert(isinstance(body, binary_type))
+        return [body]
+
+    def get_files_page(self, req):
+        file_parts = []
+        uploaded_files = [(k, v) for k, v in req.POST.items() if 'file' in k]
+        uploaded_files = sorted(uploaded_files)
+        for name, uploaded_file in uploaded_files:
+            filename = to_bytes(uploaded_file.filename)
+            value = to_bytes(uploaded_file.value, 'ascii')
+            file_parts.append(b"""
+        <p>You selected '""" + filename + b"""'</p>
+        <p>with contents: '""" + value + b"""'</p>
+""")
+        return b''.join(file_parts)
+
+
+class UploadBinaryApp(SingleUploadFileApp):
+
+    def get_files_page(self, req):
+        uploaded_files = [(k, v) for k, v in req.POST.items() if 'file' in k]
+        data = uploaded_files[0][1].value
         if PY3:
             data = struct.unpack(b'255h', data[:510])
         else:
             data = struct.unpack(str('255h'), data)
-        data = b','.join([to_bytes(str(i)) for i in data])
-        body = b"""
-<html>
-    <head><title>display page</title></head>
-    <body>
-        """ + data + b"""
-    </body>
-</html>
-"""
-    headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    assert(isinstance(body, binary_type))
-    return [body]
+        return b','.join([to_bytes(str(i)) for i in data])
 
 
-def multiple_upload_file_app(environ, start_response):
-    req = Request(environ)
-    status = str("200 OK")
-    if req.method == "GET":
-        body = b"""
+class MultipleUploadFileApp(SingleUploadFileApp):
+    body = b"""
 <html>
     <head><title>form page</title></head>
     <body>
@@ -114,17 +86,6 @@ def multiple_upload_file_app(environ, start_response):
     </body>
 </html>
 """
-    else:
-        uploaded_file_1 = req.POST.get("file-field-1")
-        uploaded_file_2 = req.POST.get("file-field-2")
-        uploaded_files = [uploaded_file_1, uploaded_file_2]
-        body = get_files_page(uploaded_files)
-    headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    assert(isinstance(body, binary_type))
-    return [body]
 
 
 class TestFileUpload(unittest.TestCase):
@@ -144,11 +105,11 @@ class TestFileUpload(unittest.TestCase):
                       display, display)
 
     def test_no_uploads_error(self):
-        app = webtest.TestApp(single_upload_file_app)
+        app = webtest.TestApp(SingleUploadFileApp())
         app.get('/').forms["file_upload_form"].upload_fields()
 
     def test_upload_without_file(self):
-        app = webtest.TestApp(single_upload_file_app)
+        app = webtest.TestApp(SingleUploadFileApp())
         upload_form = app.get('/').forms["file_upload_form"]
         upload_form.submit()
 
@@ -159,7 +120,7 @@ class TestFileUpload(unittest.TestCase):
         if PY3:
             uploaded_file_contents = to_bytes(uploaded_file_contents)
 
-        app = webtest.TestApp(single_upload_file_app)
+        app = webtest.TestApp(SingleUploadFileApp())
         res = app.get('/')
         self.assertEqual(res.status_int, 200)
         self.assertEqual(res.headers['content-type'],
@@ -179,7 +140,7 @@ class TestFileUpload(unittest.TestCase):
         if PY3:
             uploaded_file_contents = to_bytes(uploaded_file_contents)
 
-        app = webtest.TestApp(single_upload_file_app)
+        app = webtest.TestApp(SingleUploadFileApp())
         res = app.get('/')
         self.assertEqual(res.status_int, 200)
         self.assertEqual(res.headers['content-type'],
@@ -194,10 +155,10 @@ class TestFileUpload(unittest.TestCase):
 
     def test_file_upload_binary(self):
         binary_data = struct.pack(str('255h'), *range(0, 255))
-        app = webtest.TestApp(upload_binary_app)
+        app = webtest.TestApp(UploadBinaryApp())
         res = app.get('/')
-        single_form = res.forms["binary_upload_form"]
-        single_form.set("binary-file-field", ('my_file.dat', binary_data))
+        single_form = res.forms["file_upload_form"]
+        single_form.set("file-field", ('my_file.dat', binary_data))
         display = single_form.submit("button")
         self.assertIn(','.join([str(n) for n in range(0, 255)]), display)
 
@@ -212,7 +173,7 @@ class TestFileUpload(unittest.TestCase):
         if PY3:
             uploaded_file2_contents = to_bytes(uploaded_file2_contents)
 
-        app = webtest.TestApp(multiple_upload_file_app)
+        app = webtest.TestApp(MultipleUploadFileApp())
         res = app.get('/')
         self.assertEqual(res.status_int, 200)
         self.assertEqual(res.headers['content-type'],
