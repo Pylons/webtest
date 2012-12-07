@@ -8,4 +8,6 @@ fi
 
 chmod +x parts/casperjs/*/bin/*js
 
+file parts/casperjs/phantomjs*/bin/phantomjs
+
 python -c "import os; print(os.uname())"
