@@ -1,10 +1,9 @@
-import webob
-
 import webtest
 from webtest.debugapp import debug_app
 from tests.compat import unittest
 
-class TestFragemts(unittest.TestCase):
+
+class TestFragments(unittest.TestCase):
 
     def test_url_without_fragments(self):
         app = webtest.TestApp(debug_app)
