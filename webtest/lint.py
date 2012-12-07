@@ -131,10 +131,10 @@ METADATA_TYPE = PY3 and (str, binary_type) or (str,)
 
 
 def to_string(value):
-        if not isinstance(value, string_types):
-            return value.decode('latin1')
-        else:
-            return value
+    if not isinstance(value, string_types):
+        return value.decode('latin1')
+    else:
+        return value
 
 
 class WSGIWarning(Warning):
@@ -397,6 +397,7 @@ def check_status(status):
     assert type(status) in METADATA_TYPE, (
         "Status must be a %s (not %r)" % (METADATA_TYPE, status))
     # Implicitly check that we can turn it into an integer:
+    status = to_string(status)
     status_code = status.split(None, 1)[0]
     assert len(status_code) == 3, (
         "Status codes must be three characters: %r" % status_code)
