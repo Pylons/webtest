@@ -372,6 +372,7 @@ API
 ====
 
 .. include:: modules/webtest.txt
+.. include:: modules/http.txt
 .. include:: modules/ext.txt
 .. include:: modules/sel.txt
 

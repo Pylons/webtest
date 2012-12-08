@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+__doc__ = """This module contains some helpers to deal with the real http
+world."""
 from waitress.server import WSGIServer
 from six.moves import http_client
 from six import text_type
@@ -20,6 +22,7 @@ def get_free_port():
 
 
 def check_server(host, port, path_info='/', timeout=3, retries=30):
+    """Perform a request until the server reply"""
     conn = http_client.HTTPConnection(host, port, timeout=timeout)
     time.sleep(.3)
     for i in range(retries):
@@ -33,6 +36,12 @@ def check_server(host, port, path_info='/', timeout=3, retries=30):
 
 
 class StopableWSGIServer(WSGIServer):
+    """StopableWSGIServer is a WSGIServer which run in a separated thread. This
+    allow to use tools like casperjs or selenium.
+
+    Server instance have an ``application_url`` attribute formated with the
+    server host and port.
+    """
 
     def __init__(self, application, *args, **kwargs):
         super(StopableWSGIServer, self).__init__(self.wrapper, *args, **kwargs)
@@ -41,6 +50,12 @@ class StopableWSGIServer(WSGIServer):
         self.application_url = 'http://%s:%s/' % (self.adj.host, self.adj.port)
 
     def wrapper(self, environ, start_response):
+        """Wrap the wsgi application to override some path:
+
+        ``/__application__``: allow to ping the server.
+
+        ``/__file__?__file__={path}``: serve the file found at ``path``
+        """
         if '__file__' in environ['PATH_INFO']:
             req = webob.Request(environ)
             resp = webob.Response()
@@ -67,6 +82,7 @@ class StopableWSGIServer(WSGIServer):
             self.task_dispatcher.shutdown()
 
     def shutdown(self):
+        """Shutdown the server"""
         # avoid showing traceback related to asyncore
         self.logger.setLevel(logging.FATAL)
         while self._map:
@@ -79,6 +95,8 @@ class StopableWSGIServer(WSGIServer):
 
     @classmethod
     def create(cls, application, **kwargs):
+        """Start a server to serve ``application``. Return a server
+        instance."""
         host, port = get_free_port()
         kwargs['port'] = port
         if 'host' not in kwargs:
@@ -89,6 +107,7 @@ class StopableWSGIServer(WSGIServer):
         return server
 
     def wait(self, retries=30):
+        """Wait until the server is started"""
         running = check_server(self.adj.host, self.adj.port,
                                '/__application__', retries=retries)
         if running:
