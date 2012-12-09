@@ -1,0 +1,10 @@
+:mod:`webtest.http` -- HTTP client/server
+--------------------------------------------------------
+
+.. automodule:: webtest.http
+
+.. autoclass:: StopableWSGIServer
+   :members:
+
+.. autofunction:: check_server
+

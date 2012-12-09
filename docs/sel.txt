@@ -44,7 +44,7 @@ Those value are used if found in environment:
 - ``SELENIUM_DRIVER``: The driver used to start the browser. Usualy something
   in ``*chrome``, ``*firefox``, ``*googlechrome``. Default to
   ``*googlechrome``. You can get the full list by running::
-  
+
     $ java -jar selenium-server.jar -interactive
     cmd=getNewBrowserSession
 
@@ -61,12 +61,12 @@ Examples
 Testing a wsgi application
 ***************************
 
-.. literalinclude:: ../../tests/test_selenium.py
+.. literalinclude:: ../tests/test_selenium.py
    :pyobject: TestApp
 
 Testing the jquery.ui website
 *****************************
 
-.. literalinclude:: ../../tests/test_selenium.py
+.. literalinclude:: ../tests/test_selenium.py
    :pyobject: TestJQueryUI
 

@@ -1,0 +1,9 @@
+===============================================================
+:mod:`webtest.debugapp` -- A wsgi application used for testing
+===============================================================
+
+.. automodule:: webtest.debugapp
+
+.. literalinclude:: ../webtest/debugapp.py
+   :pyobject: debug_app
+

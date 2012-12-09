@@ -1,4 +1,4 @@
-from webob import Request, Response
+import webob
 import six
 
 
@@ -6,9 +6,10 @@ __all__ = ['debug_app']
 
 
 def debug_app(environ, start_response):
-    req = Request(environ)
+    """The WSGI application used for testing"""
+    req = webob.Request(environ)
     if req.path_info == '/form.html' and req.method == 'GET':
-        resp = Response(content_type='text/html')
+        resp = webob.Response(content_type='text/html')
         resp.body = six.b('''<html><body>
         <form action="/form-submit" method="POST">
             <input type="text" name="name">
@@ -46,7 +47,7 @@ def debug_app(environ, start_response):
             header_name = name[len('header-'):]
             headers.append((header_name, str(value)))
 
-    resp = Response()
+    resp = webob.Response()
     resp.status = status
     resp.headers.update(headers)
     if req.method != 'HEAD':
@@ -58,8 +59,7 @@ def debug_app(environ, start_response):
 
 
 def make_debug_app(global_conf):
-    """
-    An application that displays the request environment, and does
+    """An application that displays the request environment, and does
     nothing else (useful for debugging and test purposes).
     """
     return debug_app
