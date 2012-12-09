@@ -1,5 +1,6 @@
-:mod:`webtest.ext` -- Using an external process
------------------------------------------------
+=======================================
+Running tests using an external process
+=======================================
 
 .. automodule:: webtest.ext
 
@@ -10,7 +11,7 @@
 
 
 Using casperjs to run tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 The js part:
 

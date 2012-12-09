@@ -73,7 +73,8 @@ class TestResponse(Response):
     request = None
     _forms_indexed = None
 
-    def forms__get(self):
+    @property
+    def forms(self):
         """
         Returns a dictionary of :class:`~webtest.Form` objects.  Indexes are
         both in order (from zero) and by form id (if the form is given an id).
@@ -82,12 +83,11 @@ class TestResponse(Response):
             self._parse_forms()
         return self._forms_indexed
 
-    forms = property(forms__get,
-                     doc="""
-                     A list of :class:`~webtest.Form`s found on the page
-                     """)
-
-    def form__get(self):
+    @property
+    def form(self):
+        """Returns a single :class:`~webtest.Form` instance; it is an
+        error if there are multiple forms on the page.
+        """
         forms_ = self.forms
         if not forms_:
             raise TypeError(
@@ -97,12 +97,6 @@ class TestResponse(Response):
             raise TypeError(
                 "You used response.form, but more than one form exists")
         return forms_[0]
-
-    form = property(form__get,
-                    doc="""
-                    Returns a single :class:`~webtest.Form` instance; it is an
-                    error if there are multiple forms on the page.
-                    """)
 
     @property
     def testbody(self):

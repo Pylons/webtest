@@ -1,5 +1,6 @@
-:mod:`webtest.http` -- HTTP client/server
---------------------------------------------------------
+============================
+HTTP client/server utilities
+============================
 
 .. automodule:: webtest.http
 

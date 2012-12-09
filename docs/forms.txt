@@ -1,0 +1,77 @@
+================
+Form Submissions
+================
+
+.. automodule:: webtest.forms
+
+Fill a form
+===========
+
+You can fill out and submit forms from your tests.  First you get the
+form:
+
+.. code-block:: python
+
+    >>> res = app.get('/form.html')
+    >>> form = res.form
+
+Then you fill it in fields:
+
+.. code-block:: python
+
+    >>> print(form.action)
+    /form-submit
+    >>> print(form.method)
+    POST
+    >>> # dict of fields
+    >>> form.fields.values() #doctest: +SKIP
+    [(u'name', [<Text name="name">]), (u'submit', [<Submit name="submit">])]
+    >>> form['name'] = 'Bob'
+    >>> # When names don't point to a single field:
+    >>> form.set('name', 'Bob', index=0)
+
+Select fields can only be set to valid values (i.e., values in an
+``<option>``) but you can also use
+``form['select-field'].force_value('value')`` to enter values not
+present in an option.
+
+Submit a form
+==============
+
+Then you can submit:
+
+.. code-block:: python
+
+    >>> # Submit with no particular submit button pressed:
+    >>> res = form.submit()
+    >>> # Or submit a button:
+    >>> res = form.submit('submit')
+    >>> print(res)
+    Response: 200 OK
+    Content-Type: text/plain
+    ...
+    -- Body ----------
+    name=Bob&submit=Submit%21
+
+API
+===
+
+.. autoclass:: Form
+   :members:
+
+.. autoclass:: Field
+
+.. autoclass:: Select
+
+.. autoclass:: Radio
+
+.. autoclass:: Checkbox
+
+.. autoclass:: Text
+
+.. autoclass:: Textarea
+
+.. autoclass:: Hidden
+
+.. autoclass:: Submit
+

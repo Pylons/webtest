@@ -1,6 +1,6 @@
-========================================================
-:mod:`webtest` -- Functional Testing of Web Applications
-========================================================
+======================================
+Functional Testing of Web Applications
+======================================
 
 TestApp
 =======
@@ -62,7 +62,7 @@ These do PUT and DELETE requests.
 
 
 Modifying the Environment & Simulating Authentication
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------------
 
 The best way to simulate authentication is if your application looks
 in ``environ['REMOTE_USER']`` to see if someone is authenticated.
@@ -79,7 +79,7 @@ If you want *all* your requests to have this key, do:
     app = TestApp(my_app, extra_environ=dict(REMOTE_USER='bob'))
 
 What Is Tested By Default
-~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 A key concept behind WebTest is that there's lots of things you
 shouldn't have to check everytime you do a request.  It is assumed
@@ -100,6 +100,9 @@ To indicate another status is expected, use the keyword argument
 
 If you expect errors to be printed, use ``expect_errors=True``.
 
+TestApp api
+-----------
+
 .. automodule:: webtest
 
 .. autoclass:: TestApp
@@ -107,8 +110,8 @@ If you expect errors to be printed, use ``expect_errors=True``.
 
 .. autoexception:: AppError
 
-The Response Object
--------------------
+The TestResponse Object
+========================
 
 The response object is based on `webob.Response
 <http://docs.webob.org/en/latest/reference.html#response>`_ with some additions
@@ -173,85 +176,8 @@ The added methods:
 
 .. _form-submissions:
 
-Response API
-~~~~~~~~~~~~
-
-Some of the return values return instances of these classes:
-
-.. autoclass:: TestResponse
-   :members:
-
-.. autoclass:: TestRequest
-   :members:
-
-Form Submissions
-================
-
-You can fill out and submit forms from your tests.  First you get the
-form:
-
-.. code-block:: python
-
-    >>> res = app.get('/form.html')
-    >>> form = res.form
-
-Then you fill it in fields:
-
-.. code-block:: python
-
-    >>> print(form.action)
-    /form-submit
-    >>> print(form.method)
-    POST
-    >>> # dict of fields
-    >>> form.fields.values() #doctest: +SKIP
-    [(u'name', [<Text name="name">]), (u'submit', [<Submit name="submit">])]
-    >>> form['name'] = 'Bob'
-    >>> # When names don't point to a single field:
-    >>> form.set('name', 'Bob', index=0)
-
-Then you can submit:
-
-.. code-block:: python
-
-    >>> # Submit with no particular submit button pressed:
-    >>> res = form.submit()
-    >>> # Or submit a button:
-    >>> res = form.submit('submit')
-    >>> print(res)
-    Response: 200 OK
-    Content-Type: text/plain
-    ...
-    -- Body ----------
-    name=Bob&submit=Submit%21
-
-Select fields can only be set to valid values (i.e., values in an
-``<option>``) but you can also use
-``form['select-field'].force_value('value')`` to enter values not
-present in an option.
-
-
-.. autoclass:: Form
-   :members:
-
-.. autoclass:: Field
-
-.. autoclass:: Select
-
-.. autoclass:: Radio
-
-.. autoclass:: Checkbox
-
-.. autoclass:: Text
-
-.. autoclass:: Textarea
-
-.. autoclass:: Hidden
-
-.. autoclass:: Submit
-
 Parsing the Body
-================
+----------------
 
 There are several ways to get parsed versions of the response.  These
 are the attributes:
@@ -325,6 +251,13 @@ Examples:
     >>> res.pyquery('message').text() #doctest: +SKIP
     'hey!'
 
+TestResponse API
+----------------
+
+Some of the return values return instances of these classes:
+
+.. autoclass:: TestResponse
+   :members:
 
 Framework Hooks
 ===============

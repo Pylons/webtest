@@ -1,5 +1,6 @@
-:mod:`webtest.sel` -- Functional Testing with Selenium
---------------------------------------------------------
+================================
+Functional Testing with Selenium
+================================
 
 .. automodule:: webtest.sel
 
@@ -13,7 +14,7 @@
 
 
 Response API
-~~~~~~~~~~~~
+============
 
 Some of the return values return instances of these classes:
 
@@ -30,7 +31,7 @@ Some of the return values return instances of these classes:
    :members:
 
 Environment variables
-~~~~~~~~~~~~~~~~~~~~~
+=====================
 
 Those value are used if found in environment:
 
@@ -56,16 +57,16 @@ Those value are used if found in environment:
   selenium.
 
 Examples
-~~~~~~~~
+========
 
 Testing a wsgi application
-***************************
+---------------------------
 
 .. literalinclude:: ../tests/test_selenium.py
    :pyobject: TestApp
 
 Testing the jquery.ui website
-*****************************
+-----------------------------
 
 .. literalinclude:: ../tests/test_selenium.py
    :pyobject: TestJQueryUI

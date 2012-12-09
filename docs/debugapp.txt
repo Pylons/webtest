@@ -1,6 +1,6 @@
-===============================================================
-:mod:`webtest.debugapp` -- A wsgi application used for testing
-===============================================================
+=================
+Debug application
+=================
 
 .. automodule:: webtest.debugapp
 

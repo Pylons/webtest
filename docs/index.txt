@@ -1,5 +1,6 @@
+=================================
 Testing Applications with WebTest
-+++++++++++++++++++++++++++++++++
+=================================
 
 :author: Ian Bicking <ianb@colorstudy.com>
 :maintainer: Gael Pasgrimaud <gael@gawel.org>
@@ -64,11 +65,12 @@ Contents
 
 .. toctree::
 
-   app.txt
    webtest.txt
-   http.txt
+   forms.txt
    ext.txt
    sel.txt
+   http.txt
+   debugapp.txt
 
 .. include:: news.txt
 .. include:: license.txt
