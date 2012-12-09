@@ -2,6 +2,11 @@
 Form Submissions
 ================
 
+..
+  >>> from webtest.debugapp import debug_app
+  >>> from webtest import TestApp
+  >>> app = TestApp(debug_app)
+
 .. automodule:: webtest.forms
 
 Fill a form
