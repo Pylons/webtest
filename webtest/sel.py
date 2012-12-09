@@ -21,6 +21,7 @@ import threading
 import subprocess
 from functools import wraps
 from webtest import app as testapp
+from webtest import forms
 from contextlib import contextmanager
 from six.moves import http_client
 from six.moves import BaseHTTPServer
@@ -551,7 +552,7 @@ class Document(object):
 ###########
 
 
-class Field(testapp.Field, Element):
+class Field(forms.Field, Element):
 
     classes = {}
 
@@ -699,13 +700,13 @@ class Textarea(Text):
 Field.classes['textarea'] = Textarea
 
 
-class Hidden(Text, testapp.Hidden):
+class Hidden(Text, forms.Hidden):
     """Field representing ``<input type="hidden">``"""
 
 Field.classes['hidden'] = Hidden
 
 
-class Submit(Field, testapp.Submit):
+class Submit(Field, forms.Submit):
     """Field representing ``<input type="submit">`` and ``<button>``"""
 
     settable = False
@@ -734,7 +735,7 @@ class Forms(object):
         return Form(self.resp, key)
 
 
-class Form(testapp.Form, Element):
+class Form(forms.Form, Element):
     """See :class:`~webtest.Form`"""
 
     FieldClass = Field
