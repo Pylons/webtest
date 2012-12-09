@@ -1,12 +1,10 @@
 #coding: utf-8
 from __future__ import unicode_literals
 import webtest
-from webtest.app import _parse_attrs
+from webtest.utils import parse_attrs
 from webob import Request
-from webtest.compat import to_bytes
 from webtest.compat import PY3
 from tests.compat import unittest
-from tests.compat import u
 
 
 def links_app(environ, start_response):
@@ -31,7 +29,8 @@ def links_app(environ, start_response):
             </html>
             """,
 
-       '/foo/': '<html><body>This is foo. <a href="bar">Bar</a> </body></html>',
+       '/foo/': ('<html><body>This is foo. <a href="bar">Bar</a> '
+                 '</body></html>'),
        '/foo/bar': '<html><body>This is foobar.</body></html>',
        '/bar': '<html><body>This is bar.</body></html>',
        '/baz/': '<html><body>This is baz.</body></html>',
@@ -72,14 +71,20 @@ class TestClick(unittest.TestCase):
     def test_click(self):
         app = webtest.TestApp(links_app)
         self.assertIn('This is foo.', app.get('/').click('Foo'))
-        self.assertIn('This is foobar.', app.get('/').click('Foo').click('Bar'))
+        self.assertIn('This is foobar.',
+               app.get('/').click('Foo').click('Bar'))
         self.assertIn('This is bar.', app.get('/').click('Bar'))
-        self.assertIn('This is baz.', app.get('/').click('Baz')) # should skip non-clickable links
+        # should skip non-clickable links
+        self.assertIn('This is baz.',
+               app.get('/').click('Baz'))
         self.assertIn('This is baz.', app.get('/').click(linkid='id_baz'))
         self.assertIn('This is baz.', app.get('/').click(href='baz/'))
-        self.assertIn('This is baz.', app.get('/').click(anchor="<a href='baz/' id='id_baz'>Baz</a>"))
-        self.assertIn('This is spam.', app.get('/').click('Click me!', index=0))
-        self.assertIn('Just eggs.', app.get('/').click('Click me!', index=1))
+        self.assertIn('This is baz.',
+               app.get('/').click(anchor="<a href='baz/' id='id_baz'>Baz</a>"))
+        self.assertIn('This is spam.',
+               app.get('/').click('Click me!', index=0))
+        self.assertIn('Just eggs.',
+               app.get('/').click('Click me!', index=1))
 
         def multiple_links():
             app.get('/').click('Click me!')
@@ -121,17 +126,21 @@ class TestClick(unittest.TestCase):
         self.assertIn('This is foo.', resp.click('Менделеев'))
         self.assertIn('This is baz.', resp.click(anchor=".*title='Поэт'.*"))
 
-    def test_parse_attrs(self):
-        self.assertEqual(_parse_attrs("href='foo'"), {'href': 'foo'})
-        self.assertEqual(_parse_attrs('href="foo"'), {'href': 'foo'})
-        self.assertEqual(_parse_attrs('href=""'), {'href': ''})
-        self.assertEqual(_parse_attrs('href="foo" id="bar"'), {'href': 'foo', 'id': 'bar'})
-        self.assertEqual(_parse_attrs('href="foo" id="bar"'), {'href': 'foo', 'id': 'bar'})
-        self.assertEqual(_parse_attrs("href='foo' id=\"bar\" "), {'href': 'foo', 'id': 'bar'})
-        self.assertEqual(_parse_attrs("href='foo' id='bar' "), {'href': 'foo', 'id': 'bar'})
-        self.assertEqual(_parse_attrs("tag='foo\"'"), {'tag': 'foo"'})
+    def testparse_attrs(self):
+        self.assertEqual(parse_attrs("href='foo'"), {'href': 'foo'})
+        self.assertEqual(parse_attrs('href="foo"'), {'href': 'foo'})
+        self.assertEqual(parse_attrs('href=""'), {'href': ''})
+        self.assertEqual(parse_attrs('href="foo" id="bar"'),
+                         {'href': 'foo', 'id': 'bar'})
+        self.assertEqual(parse_attrs('href="foo" id="bar"'),
+                         {'href': 'foo', 'id': 'bar'})
+        self.assertEqual(parse_attrs("href='foo' id=\"bar\" "),
+                         {'href': 'foo', 'id': 'bar'})
+        self.assertEqual(parse_attrs("href='foo' id='bar' "),
+                         {'href': 'foo', 'id': 'bar'})
+        self.assertEqual(parse_attrs("tag='foo\"'"), {'tag': 'foo"'})
         self.assertEqual(
-            _parse_attrs('value="&lt;&gt;&amp;&quot;&#123;"'),
+            parse_attrs('value="&lt;&gt;&amp;&quot;&#123;"'),
                 {'value': '<>&"{'})
-        self.assertEqual(_parse_attrs('value="&sum;"'), {'value': '∑'})
-        self.assertEqual(_parse_attrs('value="&#x20ac;"'), {'value': '€'})
+        self.assertEqual(parse_attrs('value="&sum;"'), {'value': '∑'})
+        self.assertEqual(parse_attrs('value="&#x20ac;"'), {'value': '€'})
