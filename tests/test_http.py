@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from tests.compat import unittest
+from webob import Request
 from webtest.debugapp import debug_app
 from webtest import http
 
@@ -25,6 +26,24 @@ class TestServer(unittest.TestCase):
         self.assertEqual(304,
                 http.check_server(s.adj.host, s.adj.port,
                                   '/?status=304'))
+
+    def test_wsgi_wrapper(self):
+        s = self.s
+        req = Request.blank('/__application__')
+        resp = req.get_response(s.wrapper)
+        self.assertEqual(resp.status_int, 200)
+
+        req = Request.blank('/__file__?__file__=' + __file__)
+        resp = req.get_response(s.wrapper)
+        self.assertEqual(resp.status_int, 200)
+
+        req = Request.blank('/__file__?__file__=XXX')
+        resp = req.get_response(s.wrapper)
+        self.assertEqual(resp.status_int, 404)
+
+        req = Request.blank('/?status=304')
+        resp = req.get_response(s.wrapper)
+        self.assertEqual(resp.status_int, 304)
 
     def tearDown(self):
         self.s.shutdown()

@@ -6,9 +6,6 @@ import webtest
 from webob import exc
 from tests.compat import u
 
-#if PY3:
-#    raise NotImplementedError
-
 files = os.path.dirname(__file__)
 
 
@@ -50,3 +47,14 @@ def test_casperjs():
     app = webtest.TestApp(application)
     with webtest.casperjs(app) as run:
         run('test_casperjs.js')
+
+
+def test_casperjs_fail():
+    app = webtest.TestApp(application)
+    with webtest.casperjs(app) as run:
+        try:
+            run('test_casperjs_fail.js')
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError('test does not fail')

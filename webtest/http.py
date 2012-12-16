@@ -3,12 +3,12 @@ __doc__ = """This module contains some helpers to deal with the real http
 world."""
 from waitress.server import WSGIServer
 from six.moves import http_client
-from six import text_type
 import threading
 import logging
 import socket
 import webob
 import time
+import six
 import os
 
 
@@ -62,11 +62,9 @@ class StopableWSGIServer(WSGIServer):
             resp.content_type = 'text/html; charset=UTF-8'
             filename = req.params.get('__file__')
             if os.path.isfile(filename):
-                body = open(filename, 'r').read()
-                body.replace('http://localhost/',
-                             'http://%s/' % req.host)
-                if isinstance(body, text_type):
-                    body = body.encode('utf8')
+                body = open(filename, 'rb').read()
+                body = body.replace(six.b('http://localhost/'),
+                                    six.b('http://%s/' % req.host))
                 resp.body = body
             else:
                 resp.status = '404 Not Found'
@@ -76,10 +74,7 @@ class StopableWSGIServer(WSGIServer):
         return self.test_app(environ, start_response)
 
     def run(self):
-        try:
-            self.asyncore.loop(.5, map=self._map)
-        except (SystemExit, KeyboardInterrupt):
-            self.task_dispatcher.shutdown()
+        self.asyncore.loop(.5, map=self._map)
 
     def shutdown(self):
         """Shutdown the server"""

@@ -34,8 +34,6 @@ class TestApp(testapp.TestApp):
         self.test_app = self
 
     def get_binary(self, name):
-        if os.path.isfile(name):
-            return name
         for path in (os.getcwd(), '/usr/local', '/usr', '/opt'):
             filename = os.path.join(path, 'bin', name)
             if os.path.isfile(filename):
