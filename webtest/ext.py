@@ -38,7 +38,6 @@ class TestApp(testapp.TestApp):
             filename = os.path.join(path, 'bin', name)
             if os.path.isfile(filename):
                 return filename
-        return None
 
     def close(self):
         """Close WSGI server if needed"""
