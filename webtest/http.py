@@ -96,6 +96,8 @@ class StopableWSGIServer(WSGIServer):
         kwargs['port'] = port
         if 'host' not in kwargs:
             kwargs['host'] = host
+        if 'expose_tracebacks' not in kwargs:
+            kwargs['expose_tracebacks'] = True
         server = cls(application, **kwargs)
         server.runner = threading.Thread(target=server.run)
         server.runner.start()

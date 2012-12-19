@@ -105,7 +105,7 @@ class TestTesting(unittest.TestCase):
         res = self.app.get('/?status=303%20Redirect&header-location=/foo')
         self.assertEqual(res.status_int, 303)
         print(res.location)
-        self.assertEqual(res.location, 'http://localhost/foo')
+        self.assertEqual(res.location, 'http://localhost/foo', res)
         self.assertEqual(res.headers['location'], 'http://localhost/foo')
         res = res.follow()
         self.assertEqual(res.request.url, 'http://localhost/foo')

@@ -45,6 +45,9 @@ def debug_app(environ, start_response):
     for name, value in req.GET.items():
         if name.startswith('header-'):
             header_name = name[len('header-'):]
+            if isinstance(header_name, six.text_type):
+                header_name = str(header_name)
+            header_name = header_name.title()
             headers.append((header_name, str(value)))
 
     resp = webob.Response()
