@@ -45,7 +45,7 @@ class TestApp(testapp.TestApp):
             self.server.shutdown()
 
 _re_result = re.compile(
-            r'.*([0-9]+ tests executed, [0-9]+ passed, ([0-9]+) failed).*')
+   r'.*([0-9]+ tests executed in [0-9\.]+s, [0-9]+ passed, ([0-9]+) failed).*')
 
 
 @contextmanager

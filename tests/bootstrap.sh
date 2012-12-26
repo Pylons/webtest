@@ -1,5 +1,8 @@
 #!/bin/bash
 
+if [ -x bin/casperjs ]; then
+  bin/casperjs | grep "CasperJS version 1.0" || rm -Rf bin/casperjs parts/casperjs/
+fi
 
 if ! [ -x bin/casperjs ]; then
     python2.7 bootstrap.py -d

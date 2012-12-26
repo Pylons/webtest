@@ -102,8 +102,8 @@ class TestTesting(unittest.TestCase):
         assert self.filename.startswith('file://'), self.filename
 
     def test_303(self):
-        res = self.app.get('/?status=303%20Redirect&header-location=/foo')
-        self.assertEqual(res.status_int, 303)
+        res = self.app.get('/?status=302%20Redirect&header-location=/foo')
+        self.assertEqual(res.status_int, 302)
         print(res.location)
         self.assertEqual(res.location, 'http://localhost/foo', res)
         self.assertEqual(res.headers['location'], 'http://localhost/foo')
