@@ -551,10 +551,9 @@ class Form(object):
         for name, field in self.field_order:
             if name is None:
                 continue
-            if submit_name is not None and name == submit_name and \
-                current_index == index:
-                submit.append((name, field.value_if_submitted()))
-            elif submit_name is not None and name == submit_name:
+            if submit_name is not None and name == submit_name:
+                if current_index == index:
+                    submit.append((name, field.value_if_submitted()))
                 current_index += 1
             else:
                 value = field.value
