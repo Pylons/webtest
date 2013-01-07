@@ -78,5 +78,7 @@ API
 
 .. autoclass:: Hidden
 
+.. autoclass:: File
+
 .. autoclass:: Submit
 
