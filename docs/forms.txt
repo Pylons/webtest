@@ -4,27 +4,44 @@ Form Submissions
 
 .. automodule:: webtest.forms
 
-Fill a form
-===========
+Get a form
+==========
 
-You can fill out and submit forms from your tests.  First you get the
-form:
+If you have a single html form in your page, just use the ``.form`` attribute:
 
 .. code-block:: python
 
     >>> res = app.get('/form.html')
     >>> form = res.form
 
+You can use the form index if your html contains more than one form:
+
+.. code-block:: python
+
+    >>> form = res.forms[0]
+
+Or the form id:
+
+.. code-block:: python
+
+    >>> form = res.forms['myform']
+
 You can check form attributes:
 
 .. code-block:: python
 
+    >>> print(form.id)
+    myform
     >>> print(form.action)
     /form-submit
     >>> print(form.method)
     POST
 
-Fields are a dict like object:
+Fill a form
+===========
+
+You can fill out and submit forms from your tests. Fields are a dict like
+object:
 
 .. code-block:: python
 
