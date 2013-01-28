@@ -1,0 +1,59 @@
+============================
+Testing json apis
+============================
+
+Webtest provide some facilities to test json api.
+
+The ``*_json`` method will transform data to json before POST/PUT and add the
+correct ``Content-Type``.
+
+Also Response have an attribute ``.json`` to allow you to retrieve json
+contents as a python dict.
+
+POST
+====
+
+.. source-code:: python
+
+    >>> resp = app.post_json('/resource/', dict(id=1, value='value'))
+    >>> print(resp.request)
+    POST /resource/ HTTP/1.0
+    Content-Length: 27
+    Content-Type: application/json
+    ...
+    {"id": 1, "value": "value"}
+
+    >>> print(resp.json)
+    {u'id': 1, u'value': u'value'}
+
+PUT
+===
+
+.. source-code:: python
+
+    >>> resp = app.put_json('/resource/1/', dict(id=1, value='new value'))
+    >>> print(resp.request)
+    PUT /resource/1/ HTTP/1.0
+    Content-Length: 31
+    Content-Type: application/json
+    ...
+    {"id": 1, "value": "new value"}
+
+    >>> print(resp.json)
+    {u'id': 1, u'value': u'new value'}
+
+GET
+===
+
+.. source-code:: python
+
+    >>> resp = app.get('/resource/1/')
+    >>> print(resp.request)
+    GET /resource/1/ HTTP/1.0
+    ...
+
+    >>> print(resp.json)
+    {u'id': 1, u'value': u'new value'}
+
+
+
