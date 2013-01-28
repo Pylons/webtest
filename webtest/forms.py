@@ -3,13 +3,28 @@ __doc__ = """Helpers to fill and submit forms"""
 from webtest.compat import OrderedDict
 from webtest import utils
 import re
+import os
 
 
 class Upload(object):
-    """A file to upload"""
-    def __init__(self, filename, file_content=None):
+    """A file to upload::
+
+        >>> Upload('filename.txt', 'data')
+        <Upload "filename.txt">
+        >>> Upload(__file__)
+        <Upload "forms.py">
+    """
+    def __init__(self, filename, content=None):
         self.filename = filename
-        self.file_content = file_content
+        self.content = content
+        if content is None and os.path.isfile(filename):
+            self.filename = os.path.basename(filename)
+            fd = open(filename, 'rb')
+            self.content = fd.read()
+            fd.close()
+
+    def __repr__(self):
+        return '<Upload "%s">' % self.filename
 
 
 class Field(object):
