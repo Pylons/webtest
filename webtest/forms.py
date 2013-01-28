@@ -194,13 +194,13 @@ class Checkbox(Field):
 
     def __init__(self, *args, **attrs):
         super(Checkbox, self).__init__(*args, **attrs)
-        self.checked = 'checked' in attrs
+        self._checked = 'checked' in attrs
 
     def value__set(self, value):
-        self.checked = not not value
+        self._checked = not not value
 
     def value__get(self):
-        if self.checked:
+        if self._checked:
             if self._value is None:
                 return 'on'
             else:
@@ -209,6 +209,14 @@ class Checkbox(Field):
             return None
 
     value = property(value__get, value__set)
+
+    def checked__get(self):
+        return bool(self._checked)
+
+    def checked__set(self, value):
+        self._checked = not not value
+
+    checked = property(checked__get, checked__set)
 
 Field.classes['checkbox'] = Checkbox
 
