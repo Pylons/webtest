@@ -15,7 +15,7 @@ form:
     >>> res = app.get('/form.html')
     >>> form = res.form
 
-Then you fill it in fields:
+You can check form attributes:
 
 .. code-block:: python
 
@@ -23,12 +23,29 @@ Then you fill it in fields:
     /form-submit
     >>> print(form.method)
     POST
+
+Fields are a dict like object:
+
+.. code-block:: python
+
     >>> # dict of fields
     >>> form.fields.values() #doctest: +SKIP
-    [(u'text', [<Text name="text">]), (u'submit', [<Submit name="submit">])]
-    >>> form['text'] = 'Bob'
+    [(u'text', [<Text name="text">]), ..., (u'submit', [<Submit name="submit">])]
+
+You can check the current value:
+
+.. code-block:: python
+
+    >>> print(form['text'].value)
+    Foo
+
+Then you fill it in fields:
+
+.. code-block:: python
+
+    >>> form['text'] = 'Bar'
     >>> # When names don't point to a single field:
-    >>> form.set('text', 'Bob', index=0)
+    >>> form.set('text', 'Bar', index=0)
 
 Select fields can only be set to valid values (i.e., values in an
 ``<option>``) but you can also use
@@ -38,7 +55,7 @@ present in an option.
 Submit a form
 ==============
 
-Then you can submit:
+Then you can submit the form:
 
 .. code-block:: python
 
@@ -49,9 +66,20 @@ Then you can submit:
     >>> print(res)
     Response: 200 OK
     Content-Type: text/plain
-    text=Bob
+    text=Bar
     ...
     submit=Submit
+
+You can also use a specific submit button:
+
+.. code-block:: python
+
+    >>> res = form.submit('submit', index=1)
+    >>> print(res)
+    Response: 200 OK
+    Content-Type: text/plain
+    ...
+    submit=Submit 2
 
 API
 ===
