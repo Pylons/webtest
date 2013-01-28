@@ -4,7 +4,6 @@ from webtest.compat import urlencode
 from six import binary_type
 from six import text_type
 from six import PY3
-import os
 import re
 
 
@@ -19,41 +18,6 @@ def stringify(value):
         return value.decode('utf8')
     else:
         return str(value)
-
-
-def popget(d, key, default=None):
-    """
-    Pop the key if found (else return default)
-    """
-    if key in d:
-        return d.pop(key)
-    return default
-
-
-def space_prefix(pref, full, sep=None, indent=None, include_sep=True):
-    """
-    Anything shared by pref and full will be replaced with spaces
-    in full, and full returned.
-    """
-    if sep is None:
-        sep = os.path.sep
-    pref = pref.split(sep)
-    full = full.split(sep)
-    padding = []
-    while pref and full and pref[0] == full[0]:
-        if indent is None:
-            padding.append(' ' * (len(full[0]) + len(sep)))
-        else:
-            padding.append(' ' * indent)
-        full.pop(0)
-        pref.pop(0)
-    if padding:
-        if include_sep:
-            return ''.join(padding) + sep + sep.join(full)
-        else:
-            return ''.join(padding) + sep.join(full)
-    else:
-        return sep.join(full)
 
 
 entity_pattern = re.compile(r"&(\w+|#\d+|#[xX][a-fA-F0-9]+);")
