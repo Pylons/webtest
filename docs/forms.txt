@@ -47,6 +47,19 @@ Then you fill it in fields:
     >>> # When names don't point to a single field:
     >>> form.set('text', 'Bar', index=0)
 
+Field types
+============
+
+Textarea
+--------
+
+.. code-block:: python
+
+    >>> print(form['textarea'].value)
+    Some text
+    >>> form['textarea'] = 'Some other text'
+
+
 Select fields can only be set to valid values (i.e., values in an
 ``<option>``) but you can also use
 ``form['select-field'].force_value('value')`` to enter values not
