@@ -2,7 +2,7 @@
 Testing json apis
 ============================
 
-Webtest provide some facilities to test json api.
+Webtest provide some facilities to test json apis.
 
 The ``*_json`` methods will transform data to json before ``POST``/``PUT`` and
 add the correct ``Content-Type`` for you.
