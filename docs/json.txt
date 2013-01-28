@@ -13,7 +13,7 @@ contents as a python dict.
 POST
 ====
 
-.. source-code:: python
+.. code-block:: python
 
     >>> resp = app.post_json('/resource/', dict(id=1, value='value'))
     >>> print(resp.request)
@@ -29,7 +29,7 @@ POST
 PUT
 ===
 
-.. source-code:: python
+.. code-block:: python
 
     >>> resp = app.put_json('/resource/1/', dict(id=1, value='new value'))
     >>> print(resp.request)
@@ -45,7 +45,7 @@ PUT
 GET
 ===
 
-.. source-code:: python
+.. code-block:: python
 
     >>> resp = app.get('/resource/1/')
     >>> print(resp.request)
