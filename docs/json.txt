@@ -4,8 +4,8 @@ Testing json apis
 
 Webtest provide some facilities to test json api.
 
-The ``*_json`` method will transform data to json before POST/PUT and add the
-correct ``Content-Type``.
+The ``*_json`` methods will transform data to json before ``POST``/``PUT`` and
+add the correct ``Content-Type`` for you.
 
 Also Response have an attribute ``.json`` to allow you to retrieve json
 contents as a python dict.
