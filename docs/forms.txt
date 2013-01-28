@@ -50,8 +50,8 @@ Then you fill it in fields:
 Field types
 ============
 
-Textarea
---------
+Input and textarea fields
+-------------------------
 
 .. code-block:: python
 
@@ -59,11 +59,33 @@ Textarea
     Some text
     >>> form['textarea'] = 'Some other text'
 
+Select fields
+-------------
 
-Select fields can only be set to valid values (i.e., values in an
-``<option>``) but you can also use
-``form['select-field'].force_value('value')`` to enter values not
-present in an option.
+Simple select:
+
+.. code-block:: python
+
+    >>> print(form['select'].value)
+    option2
+    >>> form['select'] = 'option1'
+
+Select multiple:
+
+.. code-block:: python
+
+    >>> print(form['multiple'].value) # doctest: +SKIP
+    ['option2', 'option3']
+    >>> form['multiple'] = ['option1']
+
+Select fields can only be set to valid values (i.e., values in an ``<option>``)
+but you can also use ``.force_value()`` to enter values not present in an
+option.
+
+.. code-block:: python
+
+    >>> form['select'].force_value(['optionX'])
+    >>> form['multiple'].force_value(['optionX'])
 
 Submit a form
 ==============
