@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
+__doc__ = """Helpers to fill and submit forms"""
 from webtest.compat import OrderedDict
 from webtest import utils
 import re
 
 
 class Upload(object):
+    """A file to upload"""
     def __init__(self, filename, file_content=None):
         self.filename = filename
         self.file_content = file_content
 
 
 class Field(object):
-
-    """
-    Field object.
-    """
+    """Field object."""
 
     # Dictionary of field types (select, radio, etc) to classes
     classes = {}
@@ -39,8 +38,7 @@ class Field(object):
         self._value = value
 
     def force_value(self, value):
-        """
-        Like setting a value, except forces it even for, say, hidden
+        """Like setting a value, except forces it even for, say, hidden
         fields.
         """
         self._value = value
@@ -62,10 +60,7 @@ class NoValue(object):
 
 
 class Select(Field):
-
-    """
-    Field representing ``<select>``
-    """
+    """Field representing ``<select>``"""
 
     def __init__(self, *args, **attrs):
         super(Select, self).__init__(*args, **attrs)
@@ -112,10 +107,7 @@ Field.classes['select'] = Select
 
 
 class MultipleSelect(Field):
-
-    """
-    Field representing ``<select multiple="multiple">``
-    """
+    """Field representing ``<select multiple="multiple">``"""
 
     def __init__(self, *args, **attrs):
         super(MultipleSelect, self).__init__(*args, **attrs)
@@ -164,10 +156,7 @@ Field.classes['multiple_select'] = MultipleSelect
 
 
 class Radio(Select):
-
-    """
-    Field representing ``<input type="radio">``
-    """
+    """Field representing ``<input type="radio">``"""
 
     def value__get(self):
         if self._forced_value is not NoValue:
@@ -187,10 +176,7 @@ Field.classes['radio'] = Radio
 
 
 class Checkbox(Field):
-
-    """
-    Field representing ``<input type="checkbox">``
-    """
+    """Field representing ``<input type="checkbox">``"""
 
     def __init__(self, *args, **attrs):
         super(Checkbox, self).__init__(*args, **attrs)
@@ -214,9 +200,7 @@ Field.classes['checkbox'] = Checkbox
 
 
 class Text(Field):
-    """
-    Field representing ``<input type="text">``
-    """
+    """Field representing ``<input type="text">``"""
 
     def value__get(self):
         if self._value is None:
@@ -230,9 +214,7 @@ Field.classes['text'] = Text
 
 
 class File(Field):
-    """
-    Field representing ``<input type="file">``
-    """
+    """Field representing ``<input type="file">``"""
 
     ## FIXME: This doesn't actually handle file uploads and enctype
     def value__get(self):
@@ -247,25 +229,19 @@ Field.classes['file'] = File
 
 
 class Textarea(Text):
-    """
-    Field representing ``<textarea>``
-    """
+    """Field representing ``<textarea>``"""
 
 Field.classes['textarea'] = Textarea
 
 
 class Hidden(Text):
-    """
-    Field representing ``<input type="hidden">``
-    """
+    """Field representing ``<input type="hidden">``"""
 
 Field.classes['hidden'] = Hidden
 
 
 class Submit(Field):
-    """
-    Field representing ``<input type="submit">`` and ``<button>``
-    """
+    """Field representing ``<input type="submit">`` and ``<button>``"""
 
     settable = False
 
@@ -285,9 +261,7 @@ Field.classes['image'] = Submit
 
 
 class Form(object):
-
-    """
-    This object represents a form that has been found in a page.
+    """This object represents a form that has been found in a page.
     This has a couple useful attributes:
 
     ``text``:
@@ -417,17 +391,14 @@ class Form(object):
             "No <form> tag found")
 
     def __setitem__(self, name, value):
-        """
-        Set the value of the named field.  If there is 0 or multiple
-        fields by that name, it is an error.
+        """Set the value of the named field. If there is 0 or multiple fields
+        by that name, it is an error.
 
-        Setting the value of a ``<select>`` selects the given option
-        (and confirms it is an option).  Setting radio fields does the
-        same.  Checkboxes get boolean values.  You cannot set hidden
-        fields or buttons.
+        Setting the value of a ``<select>`` selects the given option (and
+        confirms it is an option). Setting radio fields does the same.
+        Checkboxes get boolean values. You cannot set hidden fields or buttons.
 
-        Use ``.set()`` if there is any ambiguity and you must provide
-        an index.
+        Use ``.set()`` if there is any ambiguity and you must provide an index.
         """
         fields = self.fields.get(name)
         assert fields is not None, (
@@ -439,9 +410,7 @@ class Form(object):
         fields[0].value = value
 
     def __getitem__(self, name):
-        """
-        Get the named field object (ambiguity is an error).
-        """
+        """Get the named field object (ambiguity is an error)."""
         fields = self.fields.get(name)
         assert fields is not None, (
             "No field by the name %r found" % name)
@@ -468,9 +437,7 @@ class Form(object):
                              "%r as no associated label" % field)
 
     def set(self, name, value, index=None):
-        """
-        Set the given name, using ``index`` to disambiguate.
-        """
+        """Set the given name, using ``index`` to disambiguate."""
         if index is None:
             self[name] = value
         else:
@@ -481,9 +448,8 @@ class Form(object):
             field.value = value
 
     def get(self, name, index=None, default=utils.NoDefault):
-        """
-        Get the named/indexed field object, or ``default`` if no field
-        is found.
+        """Get the named/indexed field object, or ``default`` if no field is
+        found.
         """
         fields = self.fields.get(name)
         if fields is None and default is not utils.NoDefault:
@@ -498,17 +464,14 @@ class Form(object):
             return field
 
     def select(self, name, value, index=None):
-        """
-        Like ``.set()``, except also confirms the target is a
-        ``<select>``.
+        """Like ``.set()``, except also confirms the target is a ``<select>``.
         """
         field = self.get(name, index=index)
         assert isinstance(field, Select)
         field.value = value
 
     def submit(self, name=None, index=None, **args):
-        """
-        Submits the form.  If ``name`` is given, then also select that
+        """Submits the form.  If ``name`` is given, then also select that
         button (using ``index`` to disambiguate)``.
 
         Any extra keyword arguments are passed to the ``.get()`` or
@@ -523,10 +486,9 @@ class Form(object):
                                   params=fields, **args)
 
     def upload_fields(self):
-        """
-        Return a list of file field tuples of the form:
+        """Return a list of file field tuples of the form:
             (field name, file name)
-        or
+        or:
             (field name, file name, file contents).
         """
         uploads = []
@@ -537,9 +499,8 @@ class Form(object):
         return uploads
 
     def submit_fields(self, name=None, index=None):
-        """
-        Return a list of ``[(name, value), ...]`` for the current
-        state of the form.
+        """Return a list of ``[(name, value), ...]`` for the current state of
+        the form.
         """
         submit = []
         # Use another name here so we can keep function param the same for BWC.
