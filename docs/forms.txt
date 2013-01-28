@@ -70,6 +70,12 @@ Field types
 Input and textarea fields
 -------------------------
 
+.. autoclass:: Text
+
+.. autoclass:: Textarea
+
+.. autoclass:: Hidden
+
 .. code-block:: python
 
     >>> print(form['textarea'].value)
@@ -78,6 +84,8 @@ Input and textarea fields
 
 Select fields
 -------------
+
+.. autoclass:: Select
 
 Simple select:
 
@@ -104,15 +112,50 @@ option.
     >>> form['select'].force_value(['optionX'])
     >>> form['multiple'].force_value(['optionX'])
 
-Radio
------
+Checkbox
+--------
+
+.. autoclass:: Checkbox
+
+You can check if the checkbox is checked and is value:
 
 .. code-block:: python
 
+    >>> print(form['checkbox'].checked)
+    False
+    >>> print(form['checkbox'].value)
+    None
+
+You can change the status with the value::
+
+    >>> form['checkbox'] = True
+
+Or with the checked attribute::
+
+    >>> form['checkbox'].checked =True
+
+If the checkbox is checked then you'll get the value::
+
+    >>> print(form['checkbox'].checked)
+    True
+    >>> print(form['checkbox'].value)
+    checkbox 1
+
+Radio
+-----
+
+.. autoclass:: Radio
+
+.. code-block:: python
+
+    >>> print(form['radio'].value)
+    Radio 2
     >>> form['radio'] = 'Radio 1'
 
 File
 ----
+
+.. autoclass:: File
 
 You can deal with file upload by using the Upload class:
 
@@ -124,6 +167,8 @@ You can deal with file upload by using the Upload class:
 
 Submit a form
 ==============
+
+.. autoclass:: Submit
 
 Then you can submit the form:
 
@@ -157,21 +202,4 @@ API
 .. autoclass:: Form
    :members:
 
-.. autoclass:: Field
-
-.. autoclass:: Select
-
-.. autoclass:: Radio
-
-.. autoclass:: Checkbox
-
-.. autoclass:: Text
-
-.. autoclass:: Textarea
-
-.. autoclass:: Hidden
-
-.. autoclass:: File
-
-.. autoclass:: Submit
 
