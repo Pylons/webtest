@@ -111,6 +111,17 @@ Radio
 
     >>> form['radio'] = 'Radio 1'
 
+File
+----
+
+You can deal with file upload by using the Upload class:
+
+.. code-block:: python
+
+    >>> from webtest import Upload
+    >>> form['file'] = Upload('README.rst', b'data')
+    >>> form['file'] = Upload('README.rst')
+
 Submit a form
 ==============
 

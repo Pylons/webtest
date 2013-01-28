@@ -981,8 +981,8 @@ class TestApp(object):
                     _append_file([key] + list(value.value))
             elif isinstance(value, forms.Upload):
                 file_info = [key, value.filename]
-                if value.file_content is not None:
-                    file_info.append(value.file_content)
+                if value.content is not None:
+                    file_info.append(value.content)
                 _append_file(file_info)
             else:
                 if isinstance(value, text_type):
