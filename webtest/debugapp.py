@@ -8,15 +8,14 @@ __all__ = ['DebugApp', 'debug_app']
 class DebugApp(object):
     """The WSGI application used for testing"""
 
-    def __init__(self, form=None, show_environ=True, show_headers=True):
+    def __init__(self, form=None, show_form=False):
         if os.path.isfile(form):
             fd = open(form, 'rb')
             self.form = fd.read()
             fd.close()
         else:
             self.form = form
-        self.show_environ = show_environ
-        self.show_headers = show_headers
+        self.show_form = show_form
 
     def __call__(self, environ, start_response):
         req = webob.Request(environ)
@@ -30,19 +29,23 @@ class DebugApp(object):
         status = str(req.GET.get('status', '200 OK'))
 
         parts = []
-        if self.show_environ:
+        if not self.show_form:
             for name, value in sorted(environ.items()):
                 if name.upper() != name:
                     value = repr(value)
                 parts.append(str('%s: %s\n') % (name, value))
 
-        body = ''.join(parts)
-        if not isinstance(body, six.binary_type):
-            body = body.encode('ascii')
+            body = ''.join(parts)
+            if not isinstance(body, six.binary_type):
+                body = body.encode('ascii')
 
-        if req.content_length:
-            body += six.b('-- Body ----------\n')
-            body += req.body
+            if req.content_length:
+                body += six.b('-- Body ----------\n')
+                body += req.body
+        else:
+            body = ''
+            for name, value in req.POST.items():
+                body += '%s=%s\n' % (name, value)
 
         if status[:3] in ('204', '304') and not req.content_length:
             body = ''
@@ -51,7 +54,7 @@ class DebugApp(object):
             ('Content-Type', str('text/plain')),
             ('Content-Length', str(len(body)))]
 
-        if self.show_headers:
+        if not self.show_form:
             for name, value in req.GET.items():
                 if name.startswith('header-'):
                     header_name = name[len('header-'):]

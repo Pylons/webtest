@@ -2,11 +2,6 @@
 Form Submissions
 ================
 
-..
-  >>> from webtest.debugapp import debug_app
-  >>> from webtest import TestApp
-  >>> app = TestApp(debug_app)
-
 .. automodule:: webtest.forms
 
 Fill a form
@@ -30,10 +25,10 @@ Then you fill it in fields:
     POST
     >>> # dict of fields
     >>> form.fields.values() #doctest: +SKIP
-    [(u'name', [<Text name="name">]), (u'submit', [<Submit name="submit">])]
-    >>> form['name'] = 'Bob'
+    [(u'text', [<Text name="text">]), (u'submit', [<Submit name="submit">])]
+    >>> form['text'] = 'Bob'
     >>> # When names don't point to a single field:
-    >>> form.set('name', 'Bob', index=0)
+    >>> form.set('text', 'Bob', index=0)
 
 Select fields can only be set to valid values (i.e., values in an
 ``<option>``) but you can also use
@@ -54,9 +49,9 @@ Then you can submit:
     >>> print(res)
     Response: 200 OK
     Content-Type: text/plain
+    text=Bob
     ...
-    -- Body ----------
-    name=Bob&submit=Submit%21
+    submit=Submit
 
 API
 ===
