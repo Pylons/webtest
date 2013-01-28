@@ -81,8 +81,8 @@ debug_app = DebugApp(form=six.b('''<html><body>
 </form></body></html>'''))
 
 
-def make_debug_app(global_conf):
+def make_debug_app(global_conf, **local_conf):
     """An application that displays the request environment, and does
     nothing else (useful for debugging and test purposes).
     """
-    return debug_app
+    return DebugApp(**local_conf)

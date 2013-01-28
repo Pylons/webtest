@@ -87,6 +87,13 @@ option.
     >>> form['select'].force_value(['optionX'])
     >>> form['multiple'].force_value(['optionX'])
 
+Radio
+-----
+
+.. code-block:: python
+
+    >>> form['radio'] = 'Radio 1'
+
 Submit a form
 ==============
 
