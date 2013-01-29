@@ -50,6 +50,8 @@ PATCH
     >>> resp = app.patch_json('/resource/1/', dict(value='value'))
     >>> print(resp.request)
     PATCH /resource/1/ HTTP/1.0
+    Content-Length: 18
+    Content-Type: application/json
     ...
 
     >>> print(resp.json)
