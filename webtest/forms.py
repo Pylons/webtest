@@ -510,7 +510,9 @@ class Form(object):
     def upload_fields(self):
         """Return a list of file field tuples of the form:
             (field name, file name)
+
         or:
+
             (field name, file name, file contents).
         """
         uploads = []
