@@ -122,13 +122,16 @@ The inherited attributes that are most interesting:
 ``response.status``:
     The text status of the response, e.g., ``"200 OK"``.
 
+``response.status_int``:
+    The text status_int of the response, e.g., ``200``.
+
 ``response.headers``:
     A dictionary-like object of the headers in the response.
 
 ``response.body``:
     The text body of the response.
 
-``response.unicode_body``:
+``response.text``:
     The unicode text body of the response.
 
 ``response.request``:
@@ -147,7 +150,7 @@ The added methods:
     Returns True if the string is found in the response body.
     Whitespace is normalized for this test.
 
-``response.mustcontain(string1, string2, ...)``:
+``response.mustcontain(string1, string2, no=string3)``:
     Raises an error if any of the strings are not found in the
     response.  It also prints out the response in that case, so
     you can see the real response.
