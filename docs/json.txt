@@ -42,6 +42,19 @@ PUT
     >>> print(resp.json)
     {u'id': 1, u'value': u'new value'}
 
+PATCH
+======
+
+.. code-block:: python
+
+    >>> resp = app.patch_json('/resource/1/', dict(value='value'))
+    >>> print(resp.request)
+    PATCH /resource/1/ HTTP/1.0
+    ...
+
+    >>> print(resp.json)
+    {u'id': 1, u'value': u'value'}
+
 GET
 ===
 
@@ -53,7 +66,5 @@ GET
     ...
 
     >>> print(resp.json)
-    {u'id': 1, u'value': u'new value'}
-
-
+    {u'id': 1, u'value': u'value'}
 

@@ -12,8 +12,8 @@ import json
 def app(environ, start_response):
     req = Request(environ)
     resp = Response(content_type='application/json')
-    if req.method == 'GET':
-        resp.body = json.dumps(dict(id=1, value='new value'))
+    if req.method in ('GET', 'PATCH'):
+        resp.body = json.dumps(dict(id=1, value='value'))
     else:
         resp.body = req.body
     return resp(environ, start_response)
