@@ -14,8 +14,8 @@ must set that up manually in your tests.)
 
     >>> from webtest import TestApp
     >>> from webtest.debugapp import debug_app
-    >>> app = TestApp(debug_app)
-    >>> res = app.get('/form.html')
+    >>> testapp = TestApp(debug_app)
+    >>> res = testapp.get('/form.html')
     >>> res.status
     '200 OK'
     >>> res.form
@@ -209,43 +209,40 @@ Examples:
 
 .. code-block:: python
 
-    >>> from webtest import TestRequest
-    >>> from webtest import TestResponse
-    >>> res = TestResponse(content_type='text/html', body=b'''
-    ... <html><body><div id="content">hey!</div></body>''')
-    >>> res.request = TestRequest.blank('/')
+    >>> res = app.get('/page.html')
     >>> res.html #doctest: +SKIP
     <BLANKLINE>
     <html><body><div id="content">hey!</div></body></html>
-    >>> res.html.__class__ #doctest: +SKIP
-    <class 'BeautifulSoup.BeautifulSoup'>
+    >>> res.html.__class__
+    <class '...BeautifulSoup'>
+
     >>> res.lxml
     <Element html at ...>
     >>> res.lxml.xpath('//body/div')[0].text
     'hey!'
-    >>> res = TestResponse(content_type='application/json',
-    ...                    body=b'{"a":1,"b":2}')
-    >>> res.request = TestRequest.blank('/')
+
+    >>> res = app.get('/object.json')
     >>> sorted(res.json.values())
     [1, 2]
-    >>> res = TestResponse(content_type='application/xml',
-    ...                    body=b'<xml><message>hey!</message></xml>')
-    >>> res.request = TestRequest.blank('/')
+
+    >>> res = app.get('/document.xml')
     >>> res.xml
     <Element ...>
     >>> res.xml[0].tag
     'message'
     >>> res.xml[0].text
     'hey!'
+
     >>> res.lxml
     <Element xml at ...>
     >>> res.lxml[0].tag
     'message'
     >>> res.lxml[0].text
     'hey!'
-    >>> res.pyquery('message') #doctest: +SKIP
+
+    >>> res.pyquery('message')
     [<message>]
-    >>> res.pyquery('message').text() #doctest: +SKIP
+    >>> res.pyquery('message').text()
     'hey!'
 
 TestResponse API
