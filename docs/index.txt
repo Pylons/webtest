@@ -23,12 +23,16 @@ This library is licensed under an `MIT-style license <license.html>`_.
 Installation
 ============
 
-You can use pip or easy_install to get the latest stable release::
+You can use pip or easy_install to get the latest stable release:
+
+.. code-block:: sh
 
     $ pip install WebTest
     $ easy_install WebTest
 
-Or if you want the development version::
+Or if you want the development version:
+
+.. code-block:: sh
 
     $ pip install https://nodeload.github.com/Pylons/webtest/tar.gz/master
 
@@ -62,7 +66,7 @@ run WSGI applications and verify the output.
 Quick start
 ===========
 
-The main class it :class:`webtest.TestApp` which wrap your WSGI application and
+The main class it :class:`~webtest.TestApp` which wrap your WSGI application and
 allow you to perform HTTP request on it.
 
 Here is a basic application::
@@ -73,7 +77,7 @@ Here is a basic application::
     ...     start_response('200 Ok', headers)
     ...     return [body]
 
-Wrap it into a :class:`webtest.TestApp`::
+Wrap it into a :class:`~webtest.TestApp`::
 
     >>> from webtest import TestApp
     >>> app = TestApp(application)
