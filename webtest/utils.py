@@ -1,14 +1,43 @@
 # -*- coding: utf-8 -*-
 from webtest.compat import name2codepoint
 from webtest.compat import urlencode
+from json import dumps
 from six import binary_type
 from six import text_type
 from six import PY3
+import functools
 import re
 
 
 class NoDefault(object):
-    pass
+    def __repr__(self):
+        return '<NoDefault>'
+
+NoDefault = NoDefault()
+
+
+def json_method(method):
+    """Do a %(method)s request.  Very like the ``.%(lmethod)s()`` method.
+
+    ``params`` are dumps to json and put in the body of the request.
+    Content-Type is set to ``application/json``.
+
+    Returns a ``webob.Response`` object.
+    """
+
+    @functools.wraps(json_method)
+    def wrapper(self, url, params=NoDefault, **kw):
+        content_type = 'application/json'
+        kw['content_type'] = content_type
+        if params is not NoDefault:
+            params = dumps(params)
+        return self._gen_request(method, url, params=params, **kw)
+
+    subst = dict(lmethod=method.lower(), method=method)
+    wrapper.__doc__ = json_method.__doc__ % subst
+    wrapper.__name__ = str('%(lmethod)s_json')
+
+    return wrapper
 
 
 def stringify(value):
