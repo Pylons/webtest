@@ -5,22 +5,6 @@ Functional Testing of Web Applications
 TestApp
 =======
 
-The most important object in WebTest is :class:`~webtest.TestApp`, the wrapper
-for WSGI applications.  To use it, you simply instantiate it with your WSGI
-application. (Note: if your WSGI application requires any configuration, you
-must set that up manually in your tests.)
-
-.. code-block:: python
-
-    >>> from webtest import TestApp
-    >>> from webtest.debugapp import debug_app
-    >>> testapp = TestApp(debug_app)
-    >>> res = testapp.get('/form.html')
-    >>> res.status
-    '200 OK'
-    >>> res.form
-    <Form />
-
 Making Requests
 ---------------
 
