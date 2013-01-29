@@ -35,7 +35,7 @@ from webtest.compat import PY3
 from webtest import forms
 from webtest import utils
 from webtest import lint
-from webob import Request, Response
+import webob
 
 __all__ = ['TestApp', 'TestRequest']
 
@@ -47,7 +47,7 @@ class AppError(Exception):
             message = message.decode('utf8')
         str_args = ()
         for arg in args:
-            if isinstance(arg, Response):
+            if isinstance(arg, webob.Response):
                 body = arg.body
                 if isinstance(body, binary_type):
                     if arg.charset:
@@ -64,7 +64,7 @@ class AppError(Exception):
         Exception.__init__(self, message)
 
 
-class TestResponse(Response):
+class TestResponse(webob.Response):
 
     """
     Instances of this class are return by ``TestApp``
@@ -626,7 +626,7 @@ class TestResponse(Response):
         webbrowser.open_new(url)
 
 
-class TestRequest(Request):
+class TestRequest(webob.Request):
 
     # for py.test
     disabled = True
@@ -868,6 +868,24 @@ class TestApp(object):
         if params is not utils.NoDefault:
             params = dumps(params)
         return self._gen_request('PUT', url, params=params, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=None,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type)
+
+    def patch_json(self, url, params=utils.NoDefault, headers=None,
+                   extra_environ=None, status=None, expect_errors=False):
+        """
+        Do a PATCH request.  Very like the ``.post()`` method.
+        ``params`` are dumps to json and put in the body of the request.
+        Content-Type is set to ``application/json``.
+
+        Returns a ``webob.Response`` object.
+        """
+        content_type = 'application/json'
+        if params is not utils.NoDefault:
+            params = dumps(params)
+        return self._gen_request('PATCH', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
                                  expect_errors=expect_errors,
