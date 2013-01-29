@@ -7,6 +7,7 @@ from webob import Request
 from webob import Response
 import json
 import six
+import sys
 
 
 def application(environ, start_response):
@@ -25,9 +26,14 @@ def application(environ, start_response):
 
 
 def setup_test(test):
+    ver = sys.version_info[:2]
     test.globs.update(app=TestApp(application))
     for example in test.examples:
-        example.options[ELLIPSIS] = 1
-        example.options[NORMALIZE_WHITESPACE] = 1
+        if "'xml'" in example.want and ver == (2, 6):
+            # minidom node do not render the same in 2.6
+            example.options[SKIP] = 1
+        else:
+            example.options[ELLIPSIS] = 1
+            example.options[NORMALIZE_WHITESPACE] = 1
 
 setup_test.__test__ = False
