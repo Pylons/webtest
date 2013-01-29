@@ -59,6 +59,47 @@ ensure the entire programming system works together.
 WebTest helps you create tests by providing a convenient interface to
 run WSGI applications and verify the output.
 
+Quick start
+===========
+
+The main class it :class:`webtest.TestApp` which wrap your WSGI application and
+allow you to perform HTTP request on it.
+
+Here is a basic application::
+
+    >>> def application(environ, start_response):
+    ...     headers = [('Content-Type', 'text/html; charset=utf8'),
+    ...                ('Content-Length', str(len(body)))]
+    ...     start_response('200 Ok', headers)
+    ...     return [body]
+
+Wrap it into a :class:`webtest.TestApp`::
+
+    >>> from webtest import TestApp
+    >>> app = TestApp(application)
+
+Then you can get the response of a HTTP GET::
+
+    >>> resp = app.get('/')
+
+And check the result. Like like reponse's status::
+
+    >>> assert resp.status == '200 Ok'
+    >>> assert resp.status_int == 200
+
+Response's headers::
+
+    >>> assert resp.content_type == 'text/html'
+    >>> assert resp.content_length > 0
+
+Or response's body::
+
+    >>> resp.mustcontain('<html>')
+    >>> assert 'form' in resp
+
+WebTest can do much more. In particular it can handle :doc:`forms` and :doc:`json`.
+
+
 Contents
 ========
 
