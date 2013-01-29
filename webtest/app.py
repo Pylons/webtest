@@ -900,7 +900,7 @@ class TestApp(object):
     post_json = utils.json_method('POST')
     put_json = utils.json_method('PUT')
     patch_json = utils.json_method('PATCH')
-    delete_json = utils.json_method('PATCH')
+    delete_json = utils.json_method('DELETE')
 
     def encode_multipart(self, params, files):
         """

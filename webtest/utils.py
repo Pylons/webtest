@@ -17,7 +17,8 @@ NoDefault = NoDefault()
 
 
 def json_method(method):
-    """Do a %(method)s request.  Very like the ``.%(lmethod)s()`` method.
+    """Do a %(method)s request.  Very like the
+    :class:`~webtest.TestApp.%(lmethod)s` method.
 
     ``params`` are dumps to json and put in the body of the request.
     Content-Type is set to ``application/json``.
@@ -28,10 +29,14 @@ def json_method(method):
     @functools.wraps(json_method)
     def wrapper(self, url, params=NoDefault, **kw):
         content_type = 'application/json'
-        kw['content_type'] = content_type
         if params is not NoDefault:
             params = dumps(params)
-        return self._gen_request(method, url, params=params, **kw)
+        kw.update(
+            params=params,
+            content_type=content_type,
+            upload_files=None,
+           )
+        return self._gen_request(method, url, **kw)
 
     subst = dict(lmethod=method.lower(), method=method)
     wrapper.__doc__ = json_method.__doc__ % subst
