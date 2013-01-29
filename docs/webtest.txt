@@ -48,7 +48,7 @@ can pass in a dictionary (or dictionary-like object), or a string
 body (dictionary objects are turned into HTML form submissions).
 
 You can also pass in the keyword argument upload_files, which is a
-list of ``[(fieldname, filename, fild_content)]``.  File uploads use a
+list of ``[(fieldname, filename, field_content)]``.  File uploads use a
 different form submission data type to pass the structured data.
 
 For other verbs you can use:
