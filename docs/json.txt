@@ -1,5 +1,5 @@
 ============================
-Testing json apis
+JSON api testing
 ============================
 
 Webtest provide some facilities to test json apis.
