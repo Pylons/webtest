@@ -1,11 +1,35 @@
 # -*- coding: utf-8 -*-
-from webtest.compat import name2codepoint
-from webtest.compat import urlencode
+from webtest.compat import MutableMapping, name2codepoint, urlencode
 from six import binary_type
 from six import text_type
 from six import PY3
 import os
 import re
+
+
+class CleverCookieDict(MutableMapping):
+    def __init__(self, morsels):
+        self.morsels = morsels
+
+    def __getitem__(self, k):
+        return self.morsels[k].value
+
+    def __setitem__(self, k, v):
+        morsel = self.morsels.setdefault(k, Morsel())
+        morsel.set(k, v)
+
+    def __delitem__(self, k):
+        del self.morsels[k]
+
+    def __iter__(self):
+        return iter(self.morsels)
+
+    def __len__(self):
+        return len(self.morsels)
+
+    def __repr__(self):
+        return "{0.__class__.__name__}({1!r})".format(
+            self, dict((k, v.value) for k, v in self.morsels.items()))
 
 
 class NoDefault(object):
