@@ -671,15 +671,10 @@ class TestApp(object):
         self.use_unicode = use_unicode
         self.reset()
 
-    @property
-    def cookies(self):
-        """
-        Retrieve a (read-only) view of the current cookies and their values.
-
-        """
-
-        return dict((name, morsel.value)
-                    for name, morsel in self.morsels.items())
+    def morsels(self, d):
+        self._morsels = d
+        self.cookies = utils.CleverCookieDict(d)
+    morsels = property(lambda self: self._morsels, morsels)
 
     def reset(self):
         """
