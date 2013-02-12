@@ -41,6 +41,12 @@ else:
     import urlparse
 
 
+try:
+    from collections.abc import MutableMapping
+except ImportError:
+    from collections import MutableMapping
+
+
 def print_stderr(value):
     if not PY3:
         if isinstance(value, text_type):
