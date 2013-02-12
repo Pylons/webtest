@@ -1,3 +1,5 @@
+import datetime
+
 import webtest
 from webob import Request
 from tests.compat import unittest
@@ -45,6 +47,18 @@ def cookie_app3(environ, start_response):
     return [to_bytes(body)]
 
 
+def cookie_app4(environ, start_response):
+    status = to_bytes("200 OK")
+    body = ''
+    headers = [
+        ('Content-Type', 'text/html'),
+        ('Content-Length', str(len(body))),
+        ('Set-Cookie', 'spam=eggs; Expires=Tue, 15-Jan-2013 21:47:38 GMT;'),
+    ]
+    start_response(status, headers)
+    return [to_bytes(body)]
+
+
 class TestCookies(unittest.TestCase):
 
     def test_cookies(self):
@@ -83,3 +97,14 @@ class TestCookies(unittest.TestCase):
         self.assertFalse(bool(app.cookies),
                      'Response should not have set cookies')
         resp.mustcontain('Cookie: spam=eggs')
+
+    def test_expires_cookies(self):
+        app = webtest.TestApp(cookie_app4)
+        self.assertTrue(not app.cookies,
+                        'App should initially contain no cookies')
+
+        app.get('/', now=lambda : datetime.datetime(2000, 1, 1))
+        self.assertTrue(app.cookies, 'Response should have set cookies')
+
+        app.get('/', now=lambda : datetime.datetime(3000, 1, 1))
+        self.assertFalse(app.cookies, 'Response should have unset cookies')

@@ -9,6 +9,8 @@ Most interesting is TestApp
 """
 from __future__ import unicode_literals
 
+from datetime import datetime
+from email.utils import parsedate
 import random
 import warnings
 import mimetypes
@@ -668,12 +670,17 @@ class TestApp(object):
         self.use_unicode = use_unicode
         self.reset()
 
+    def morsels(self, d):
+        self._morsels = d
+        self.cookies = utils.CleverCookieDict(d)
+    morsels = property(lambda self: self._morsels, morsels)
+
     def reset(self):
         """
         Resets the state of the application; currently just clears
         saved cookies.
         """
-        self.cookies = {}
+        self.morsels = {}
 
     def _make_environ(self, extra_environ=None):
         environ = self.extra_environ.copy()
@@ -687,7 +694,7 @@ class TestApp(object):
         return urlparse.urlunsplit((scheme, netloc, path, query, ""))
 
     def get(self, url, params=None, headers=None, extra_environ=None,
-            status=None, expect_errors=False):
+            status=None, expect_errors=False, now=None):
         """
         Get the given url (well, actually a path like
         ``'/page.html'``).
@@ -715,6 +722,12 @@ class TestApp(object):
             ``wsgi.errors`` it will be an error.  If it is true, then
             non-200/3xx responses are also okay.
 
+        ``now``:
+            A callable that will be expected to return the current datetime. If
+            none is provided, ``datetime.datetime.now`` is used. The resulting
+            datetime will be used to decide whether to expire any cookies
+            before the request is made.
+
         Returns a :class:`webtest.TestResponse` object.
         """
         environ = self._make_environ(extra_environ)
@@ -738,11 +751,11 @@ class TestApp(object):
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,
-                               expect_errors=expect_errors)
+                               expect_errors=expect_errors, now=now)
 
     def _gen_request(self, method, url, params=utils.NoDefault, headers=None,
                            extra_environ=None, status=None, upload_files=None,
-                           expect_errors=False, content_type=None):
+                           expect_errors=False, content_type=None, now=None):
         """
         Do a generic request.
         """
@@ -794,11 +807,11 @@ class TestApp(object):
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,
-                               expect_errors=expect_errors)
+                               expect_errors=expect_errors, now=now)
 
     def post(self, url, params='', headers=None, extra_environ=None,
              status=None, upload_files=None, expect_errors=False,
-             content_type=None):
+             content_type=None, now=None):
         """
         Do a POST request.  Very like the ``.get()`` method.
         ``params`` are put in the body of the request.
@@ -822,11 +835,12 @@ class TestApp(object):
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
-                                 content_type=content_type)
+                                 content_type=content_type,
+                                 now=now)
 
     def put(self, url, params='', headers=None, extra_environ=None,
             status=None, upload_files=None, expect_errors=False,
-            content_type=None):
+            content_type=None, now=None):
         """
         Do a PUT request.  Very like the ``.post()`` method.
         ``params`` are put in the body of the request, if params is a
@@ -840,11 +854,12 @@ class TestApp(object):
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
-                                 content_type=content_type)
+                                 content_type=content_type,
+                                 now=now)
 
     def patch(self, url, params='', headers=None, extra_environ=None,
             status=None, upload_files=None, expect_errors=False,
-            content_type=None):
+            content_type=None, now=None):
         """
         Do a PATCH request.  Very like the ``.post()`` method.
         ``params`` are put in the body of the request, if params is a
@@ -858,10 +873,11 @@ class TestApp(object):
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
-                                 content_type=content_type)
+                                 content_type=content_type,
+                                 now=now)
 
     def delete(self, url, params='', headers=None, extra_environ=None,
-               status=None, expect_errors=False, content_type=None):
+               status=None, expect_errors=False, content_type=None, now=None):
         """
         Do a DELETE request.  Very like the ``.get()`` method.
 
@@ -871,10 +887,11 @@ class TestApp(object):
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
                                  expect_errors=expect_errors,
-                                 content_type=content_type)
+                                 content_type=content_type,
+                                 now=now)
 
     def options(self, url, headers=None, extra_environ=None,
-               status=None, expect_errors=False):
+               status=None, expect_errors=False, now=None):
         """
         Do a OPTIONS request.  Very like the ``.get()`` method.
 
@@ -883,10 +900,11 @@ class TestApp(object):
         return self._gen_request('OPTIONS', url, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
-                                 expect_errors=expect_errors)
+                                 expect_errors=expect_errors,
+                                 now=now)
 
     def head(self, url, headers=None, extra_environ=None,
-               status=None, expect_errors=False):
+               status=None, expect_errors=False, now=None):
         """
         Do a HEAD request.  Very like the ``.get()`` method.
 
@@ -895,7 +913,8 @@ class TestApp(object):
         return self._gen_request('HEAD', url, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
-                                 expect_errors=expect_errors)
+                                 expect_errors=expect_errors,
+                                 now=now)
 
     post_json = utils.json_method('POST')
     put_json = utils.json_method('PUT')
@@ -994,7 +1013,7 @@ class TestApp(object):
                 "you gave: %r"
                 % repr(file_info)[:100])
 
-    def request(self, url_or_req, status=None, expect_errors=False,
+    def request(self, url_or_req, status=None, expect_errors=False, now=None,
                 **req_params):
         """
         Creates and executes a request.  You may either pass in an
@@ -1033,9 +1052,12 @@ class TestApp(object):
         req.environ['paste.throw_errors'] = True
         for name, value in self.extra_environ.items():
             req.environ.setdefault(name, value)
-        return self.do_request(req, status=status, expect_errors=expect_errors)
+        return self.do_request(req,
+                               status=status,
+                               expect_errors=expect_errors,
+                               now=now)
 
-    def do_request(self, req, status, expect_errors):
+    def do_request(self, req, status, expect_errors, now=None):
         """
         Executes the given request (``req``), with the expected
         ``status``.  Generally ``.get()`` and ``.post()`` are used
@@ -1050,24 +1072,37 @@ class TestApp(object):
         ``TestRequest.blank()``, which will be set on the request.
         These can be arguments like ``content_type``, ``accept``, etc.
         """
+
+        if now is None:
+            now = datetime.now
+
         __tracebackhide__ = True # NOQA
         errors = StringIO()
         req.environ['wsgi.errors'] = errors
         script_name = req.environ.get('SCRIPT_NAME', '')
         if script_name and req.path_info.startswith(script_name):
             req.path_info = req.path_info[len(script_name):]
-        cookies = self.cookies or {}
-        cookies = list(cookies.items())
+
+        now_dt = now()
+        self.morsels = dict((n, m) for n, m in self.morsels.items()
+                            if not _is_expired(m, now_dt))
+        morsels = list(self.morsels.items())
+
         if 'Cookie' in req.headers:
-            req_cookies = req.headers['Cookie'].split(str(';'))
-            req_cookies = [i.strip() for i in req_cookies]
-            req_cookies = [i.split(str('='), 1) for i in req_cookies]
-            cookies.extend(req_cookies)
-        if cookies:
+            cookie = req.headers['Cookie']
+            try:
+                c = SimpleCookie(cookie)
+            except CookieError:
+                raise CookieError(
+                    "Could not parse cookie header %r" % (cookie,))
+            morsels.extend(c.items())
+
+        if morsels:
             cookie_header = str('').join([
-                str('%s=%s; ') % (name, cookie_quote(value))
-                for name, value in cookies])
+                str('%s=%s; ') % (name, cookie_quote(morsel.value))
+                for name, morsel in morsels])
             req.environ['HTTP_COOKIE'] = cookie_header
+
         req.environ['paste.testing'] = True
         req.environ['paste.testing_variables'] = {}
         app = lint.middleware(self.app)
@@ -1100,9 +1135,11 @@ class TestApp(object):
             except CookieError:
                 raise CookieError(
                     "Could not parse cookie header %r" % (header,))
+            now_dt = now()
             for key, morsel in c.items():
-                self.cookies[key] = morsel.value
-                res.cookies_set[key] = morsel.value
+                if not _is_expired(morsel, now_dt):
+                    self.morsels[key] = morsel
+                    res.cookies_set[key] = morsel.value
         return res
 
     def _check_status(self, status, res):
@@ -1137,3 +1174,8 @@ class TestApp(object):
         if errors:
             raise AppError(
                 "Application had errors logged:\n%s", errors)
+
+
+def _is_expired(morsel, now):
+    expires = morsel["expires"]
+    return expires and datetime(*parsedate(expires)[:6]) < now
