@@ -1,0 +1,24 @@
+<html>
+  <body>
+    <form id="myform" action="/form-submit" method="POST" enctype="multipart/form-data">
+      <input type="text" name="text" value="Foo" />
+      <textarea name="textarea">Some text</textarea>
+      <select name="select">
+        <option value="option1">Option 1</option>
+        <option value="option2" selected="selected">Option 2</option>
+      </select>
+      <select name="multiple" multiple="multiple">
+        <option value="option1">Option 1</option>
+        <option value="option2" selected="selected">Option 2</option>
+        <option value="option3" selected="selected">Option 3</option>
+      </select>
+      <input type="radio" name="radio" value="Radio 1" />
+      <input type="radio" name="radio" value="Radio 2" checked="checked"/>
+      <input type="checkbox" name="checkbox" value="checkbox 1" />
+      <input type="hidden" name="hidden" value="1" />
+      <input type="file" name="file" value="" />
+      <input type="submit" name="submit" value="Submit" />
+      <input type="submit" name="submit" value="Submit 2" />
+    </form>
+  </body>
+</html>

@@ -2,48 +2,175 @@
 Form Submissions
 ================
 
-..
-  >>> from webtest.debugapp import debug_app
-  >>> from webtest import TestApp
-  >>> app = TestApp(debug_app)
-
 .. automodule:: webtest.forms
 
-Fill a form
-===========
+Get a form
+==========
 
-You can fill out and submit forms from your tests.  First you get the
-form:
+If you have a single html form in your page, just use the ``.form`` attribute:
 
 .. code-block:: python
 
     >>> res = app.get('/form.html')
     >>> form = res.form
 
-Then you fill it in fields:
+You can use the form index if your html contains more than one form:
 
 .. code-block:: python
 
+    >>> form = res.forms[0]
+
+Or the form id:
+
+.. code-block:: python
+
+    >>> form = res.forms['myform']
+
+You can check form attributes:
+
+.. code-block:: python
+
+    >>> print(form.id)
+    myform
     >>> print(form.action)
     /form-submit
     >>> print(form.method)
     POST
+
+Fill a form
+===========
+
+You can fill out and submit forms from your tests. Fields are a dict like
+object:
+
+.. code-block:: python
+
     >>> # dict of fields
     >>> form.fields.values() #doctest: +SKIP
-    [(u'name', [<Text name="name">]), (u'submit', [<Submit name="submit">])]
-    >>> form['name'] = 'Bob'
-    >>> # When names don't point to a single field:
-    >>> form.set('name', 'Bob', index=0)
+    [(u'text', [<Text name="text">]), ..., (u'submit', [<Submit name="submit">])]
 
-Select fields can only be set to valid values (i.e., values in an
-``<option>``) but you can also use
-``form['select-field'].force_value('value')`` to enter values not
-present in an option.
+You can check the current value:
+
+.. code-block:: python
+
+    >>> print(form['text'].value)
+    Foo
+
+Then you fill it in fields:
+
+.. code-block:: python
+
+    >>> form['text'] = 'Bar'
+    >>> # When names don't point to a single field:
+    >>> form.set('text', 'Bar', index=0)
+
+Field types
+============
+
+Input and textarea fields
+-------------------------
+
+.. autoclass:: Text
+
+.. autoclass:: Textarea
+
+.. autoclass:: Hidden
+
+.. code-block:: python
+
+    >>> print(form['textarea'].value)
+    Some text
+    >>> form['textarea'] = 'Some other text'
+
+Select fields
+-------------
+
+.. autoclass:: Select
+
+Simple select:
+
+.. code-block:: python
+
+    >>> print(form['select'].value)
+    option2
+    >>> form['select'] = 'option1'
+
+Select multiple:
+
+.. code-block:: python
+
+    >>> print(form['multiple'].value) # doctest: +SKIP
+    ['option2', 'option3']
+    >>> form['multiple'] = ['option1']
+
+Select fields can only be set to valid values (i.e., values in an ``<option>``)
+but you can also use ``.force_value()`` to enter values not present in an
+option.
+
+.. code-block:: python
+
+    >>> form['select'].force_value(['optionX'])
+    >>> form['multiple'].force_value(['optionX'])
+
+Checkbox
+--------
+
+.. autoclass:: Checkbox
+
+You can check if the checkbox is checked and is value:
+
+.. code-block:: python
+
+    >>> print(form['checkbox'].checked)
+    False
+    >>> print(form['checkbox'].value)
+    None
+
+You can change the status with the value::
+
+    >>> form['checkbox'] = True
+
+Or with the checked attribute::
+
+    >>> form['checkbox'].checked =True
+
+If the checkbox is checked then you'll get the value::
+
+    >>> print(form['checkbox'].checked)
+    True
+    >>> print(form['checkbox'].value)
+    checkbox 1
+
+Radio
+-----
+
+.. autoclass:: Radio
+
+.. code-block:: python
+
+    >>> print(form['radio'].value)
+    Radio 2
+    >>> form['radio'] = 'Radio 1'
+
+File
+----
+
+.. autoclass:: File
+
+You can deal with file upload by using the Upload class:
+
+.. code-block:: python
+
+    >>> from webtest import Upload
+    >>> form['file'] = Upload('README.rst', b'data')
+    >>> form['file'] = Upload('README.rst')
 
 Submit a form
 ==============
 
-Then you can submit:
+.. autoclass:: Submit
+
+Then you can submit the form:
 
 .. code-block:: python
 
@@ -54,9 +181,20 @@ Then you can submit:
     >>> print(res)
     Response: 200 OK
     Content-Type: text/plain
+    text=Bar
     ...
-    -- Body ----------
-    name=Bob&submit=Submit%21
+    submit=Submit
+
+You can also use a specific submit button:
+
+.. code-block:: python
+
+    >>> res = form.submit('submit', index=1)
+    >>> print(res)
+    Response: 200 OK
+    Content-Type: text/plain
+    ...
+    submit=Submit 2
 
 API
 ===
@@ -64,19 +202,4 @@ API
 .. autoclass:: Form
    :members:
 
-.. autoclass:: Field
-
-.. autoclass:: Select
-
-.. autoclass:: Radio
-
-.. autoclass:: Checkbox
-
-.. autoclass:: Text
-
-.. autoclass:: Textarea
-
-.. autoclass:: Hidden
-
-.. autoclass:: Submit
 

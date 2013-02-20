@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from webtest.compat import MutableMapping, name2codepoint, urlencode
+from json import dumps
 from six import binary_type
 from six import text_type
 from six import PY3
-import os
+import functools
 import re
 
 
@@ -33,7 +34,39 @@ class CleverCookieDict(MutableMapping):
 
 
 class NoDefault(object):
-    pass
+    def __repr__(self):
+        return '<NoDefault>'
+
+NoDefault = NoDefault()
+
+
+def json_method(method):
+    """Do a %(method)s request.  Very like the
+    :class:`~webtest.TestApp.%(lmethod)s` method.
+
+    ``params`` are dumps to json and put in the body of the request.
+    Content-Type is set to ``application/json``.
+
+    Returns a ``webob.Response`` object.
+    """
+
+    @functools.wraps(json_method)
+    def wrapper(self, url, params=NoDefault, **kw):
+        content_type = 'application/json'
+        if params is not NoDefault:
+            params = dumps(params)
+        kw.update(
+            params=params,
+            content_type=content_type,
+            upload_files=None,
+           )
+        return self._gen_request(method, url, **kw)
+
+    subst = dict(lmethod=method.lower(), method=method)
+    wrapper.__doc__ = json_method.__doc__ % subst
+    wrapper.__name__ = str('%(lmethod)s_json')
+
+    return wrapper
 
 
 def stringify(value):
@@ -43,41 +76,6 @@ def stringify(value):
         return value.decode('utf8')
     else:
         return str(value)
-
-
-def popget(d, key, default=None):
-    """
-    Pop the key if found (else return default)
-    """
-    if key in d:
-        return d.pop(key)
-    return default
-
-
-def space_prefix(pref, full, sep=None, indent=None, include_sep=True):
-    """
-    Anything shared by pref and full will be replaced with spaces
-    in full, and full returned.
-    """
-    if sep is None:
-        sep = os.path.sep
-    pref = pref.split(sep)
-    full = full.split(sep)
-    padding = []
-    while pref and full and pref[0] == full[0]:
-        if indent is None:
-            padding.append(' ' * (len(full[0]) + len(sep)))
-        else:
-            padding.append(' ' * indent)
-        full.pop(0)
-        pref.pop(0)
-    if padding:
-        if include_sep:
-            return ''.join(padding) + sep + sep.join(full)
-        else:
-            return ''.join(padding) + sep.join(full)
-    else:
-        return sep.join(full)
 
 
 entity_pattern = re.compile(r"&(\w+|#\d+|#[xX][a-fA-F0-9]+);")

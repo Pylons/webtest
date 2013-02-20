@@ -31,13 +31,12 @@ from webtest.compat import string_types
 from webtest.compat import binary_type
 from webtest.compat import text_type
 from webtest.compat import to_bytes
-from webtest.compat import dumps
 from webtest.compat import loads
 from webtest.compat import PY3
 from webtest import forms
 from webtest import utils
 from webtest import lint
-from webob import Request, Response
+import webob
 
 __all__ = ['TestApp', 'TestRequest']
 
@@ -49,7 +48,7 @@ class AppError(Exception):
             message = message.decode('utf8')
         str_args = ()
         for arg in args:
-            if isinstance(arg, Response):
+            if isinstance(arg, webob.Response):
                 body = arg.body
                 if isinstance(body, binary_type):
                     if arg.charset:
@@ -66,7 +65,7 @@ class AppError(Exception):
         Exception.__init__(self, message)
 
 
-class TestResponse(Response):
+class TestResponse(webob.Response):
 
     """
     Instances of this class are return by ``TestApp``
@@ -628,7 +627,7 @@ class TestResponse(Response):
         webbrowser.open_new(url)
 
 
-class TestRequest(Request):
+class TestRequest(webob.Request):
 
     # for py.test
     disabled = True
@@ -754,12 +753,18 @@ class TestApp(object):
         return self.do_request(req, status=status,
                                expect_errors=expect_errors, now=now)
 
-    def _gen_request(self, method, url, params=str(''), headers=None,
+    def _gen_request(self, method, url, params=utils.NoDefault, headers=None,
                            extra_environ=None, status=None, upload_files=None,
                            expect_errors=False, content_type=None, now=None):
         """
         Do a generic request.
         """
+
+        if method == 'DELETE' and params is not utils.NoDefault:
+            warnings.warn(('You are not supposed to send a body in a '
+                           'DELETE request. Most web servers will ignore it'),
+                           lint.WSGIWarning)
+
         environ = self._make_environ(extra_environ)
 
         inline_uploads = []
@@ -833,26 +838,6 @@ class TestApp(object):
                                  content_type=content_type,
                                  now=now)
 
-    def post_json(self, url, params=utils.NoDefault, headers=None,
-                  extra_environ=None, status=None, expect_errors=False,
-                  now=None):
-        """
-        Do a POST request.  Very like the ``.get()`` method.
-        ``params`` are dumps to json and put in the body of the request.
-        Content-Type is set to ``application/json``.
-
-        Returns a ``webob.Response`` object.
-        """
-        content_type = 'application/json'
-        if params is not utils.NoDefault:
-            params = dumps(params)
-        return self._gen_request('POST', url, params=params, headers=headers,
-                                 extra_environ=extra_environ, status=status,
-                                 upload_files=None,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 now=now)
-
     def put(self, url, params='', headers=None, extra_environ=None,
             status=None, upload_files=None, expect_errors=False,
             content_type=None, now=None):
@@ -872,22 +857,21 @@ class TestApp(object):
                                  content_type=content_type,
                                  now=now)
 
-    def put_json(self, url, params=utils.NoDefault, headers=None,
-                 extra_environ=None, status=None, expect_errors=False,
-                 now=None):
+    def patch(self, url, params='', headers=None, extra_environ=None,
+            status=None, upload_files=None, expect_errors=False,
+            content_type=None, now=None):
         """
-        Do a PUT request.  Very like the ``.post()`` method.
-        ``params`` are dumps to json and put in the body of the request.
-        Content-Type is set to ``application/json``.
+        Do a PATCH request.  Very like the ``.post()`` method.
+        ``params`` are put in the body of the request, if params is a
+        tuple, dictionary, list, or iterator it will be urlencoded and
+        placed in the body as with a POST, if it is string it will not
+        be encoded, but placed in the body directly.
 
         Returns a ``webob.Response`` object.
         """
-        content_type = 'application/json'
-        if params is not utils.NoDefault:
-            params = dumps(params)
-        return self._gen_request('PUT', url, params=params, headers=headers,
+        return self._gen_request('PATCH', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
-                                 upload_files=None,
+                                 upload_files=upload_files,
                                  expect_errors=expect_errors,
                                  content_type=content_type,
                                  now=now)
@@ -899,33 +883,6 @@ class TestApp(object):
 
         Returns a ``webob.Response`` object.
         """
-        if params:
-            warnings.warn(('You are not supposed to send a body in a '
-                           'DELETE request. Most web servers will ignore it'),
-                           lint.WSGIWarning)
-        return self._gen_request('DELETE', url, params=params, headers=headers,
-                                 extra_environ=extra_environ, status=status,
-                                 upload_files=None,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 now=now)
-
-    def delete_json(self, url, params=utils.NoDefault, headers=None,
-                    extra_environ=None, status=None, expect_errors=False,
-                    now=None):
-        """
-        Do a DELETE request.  Very like the ``.get()`` method.
-        Content-Type is set to ``application/json``.
-
-        Returns a ``webob.Response`` object.
-        """
-        if params:
-            warnings.warn(('You are not supposed to send a body in a '
-                           'DELETE request. Most web servers will ignore it'),
-                           lint.WSGIWarning)
-        content_type = str('application/json')
-        if params is not utils.NoDefault:
-            params = dumps(params)
         return self._gen_request('DELETE', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
@@ -958,6 +915,11 @@ class TestApp(object):
                                  upload_files=None,
                                  expect_errors=expect_errors,
                                  now=now)
+
+    post_json = utils.json_method('POST')
+    put_json = utils.json_method('PUT')
+    patch_json = utils.json_method('PATCH')
+    delete_json = utils.json_method('DELETE')
 
     def encode_multipart(self, params, files):
         """
@@ -1005,8 +967,8 @@ class TestApp(object):
                     _append_file([key] + list(value.value))
             elif isinstance(value, forms.Upload):
                 file_info = [key, value.filename]
-                if value.file_content is not None:
-                    file_info.append(value.file_content)
+                if value.content is not None:
+                    file_info.append(value.content)
                 _append_file(file_info)
             else:
                 if isinstance(value, text_type):

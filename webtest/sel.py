@@ -507,10 +507,10 @@ class Document(object):
 
     def get(self, tag, **kwargs):
         """Return an element matching ``tag``, an ``attribute`` and an
-        ``index``.  For example::
+        ``index``. For example:
 
-          resp.doc.get('input', name='go') => xpath=//input[@name="go"]
-          resp.doc.get('li', description='Item') => xpath=//li[.="Item"]
+            resp.doc.get('input', name='go') => xpath=//input[@name="go"]
+            resp.doc.get('li', description='Item') => xpath=//li[.="Item"]
         """
         locator = _eval_xpath(tag, **kwargs)
         return Element(self.resp, locator)

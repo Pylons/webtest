@@ -5,5 +5,5 @@ Debug application
 .. automodule:: webtest.debugapp
 
 .. literalinclude:: ../webtest/debugapp.py
-   :pyobject: debug_app
+   :pyobject: DebugApp
 
