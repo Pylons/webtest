@@ -16,3 +16,4 @@ docs/_themes/
 .pydevproject
 .settings/
 .coverage
+eggs
