@@ -102,8 +102,6 @@ class Select(Field):
             else:
                 if self.options:
                     return self.options[0][0]
-                else:
-                    return None
 
     value = property(value__get, value__set)
 
@@ -256,11 +254,11 @@ class Submit(Field):
     def value__get(self):
         return None
 
-    def value__set(self,value):
+    def value__set(self, value):
         raise AttributeError(
             "You cannot set the value of the <%s> field %r"
             % (self.tag, self.name))
- 
+
     value = property(value__get, value__set)
 
     def value_if_submitted(self):

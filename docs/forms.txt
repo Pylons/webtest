@@ -82,6 +82,10 @@ Input and textarea fields
     Some text
     >>> form['textarea'] = 'Some other text'
 
+You can force the value of an hidden field::
+
+    >>> form['hidden'].force_value('2')
+
 Select fields
 -------------
 
@@ -140,6 +144,14 @@ If the checkbox is checked then you'll get the value::
     True
     >>> print(form['checkbox'].value)
     checkbox 1
+
+If the checkbox has no value then it will be 'on' if you checked it::
+
+    >>> print(form['checkbox2'].value)
+    None
+    >>> form['checkbox2'].checked = True
+    >>> print(form['checkbox2'].value)
+    on
 
 Radio
 -----
