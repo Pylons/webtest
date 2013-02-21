@@ -15,5 +15,5 @@ docs/_themes/
 .project
 .pydevproject
 .settings/
-.coverage
+.coverage*
 eggs

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
 import sys
 import six
 import webtest
@@ -94,6 +95,13 @@ class TestTesting(unittest.TestCase):
         self.assertRaises(AttributeError, lambda: resp.pyquery)
         self.assertRaises(AttributeError, lambda: resp.lxml)
         self.assertRaises(AttributeError, lambda: resp.xml)
+
+    def test_app_from_config_file(self):
+        config = os.path.join(os.path.dirname(__file__), 'deploy.ini')
+        app = webtest.TestApp('config:%s#main' % config)
+        resp = app.get('/')
+        self.assertEqual(resp.status_int, 200)
+
 
     def test_errors(self):
         try:
