@@ -334,7 +334,7 @@ class Form(object):
             if tag == 'textarea' and end:
                 assert in_textarea, (
                     "</textarea> with no <textarea> at %s" % match.start())
-                in_textarea[0].value = utils.html_unquote(
+                in_textarea[0].value = utils.unescape_html(
                                     self.text[in_textarea[1]:match.start()])
                 in_textarea = None
                 continue
