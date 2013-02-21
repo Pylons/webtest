@@ -643,7 +643,7 @@ class TestResponse(webob.Response):
         else:
             f.write(self.body)
         f.close()
-        if name[0] != '/':
+        if name[0] != '/':  # pragma: no cover
             # windows ...
             url = 'file:///' + name
         else:

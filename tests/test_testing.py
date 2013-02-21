@@ -87,6 +87,14 @@ class TestTesting(unittest.TestCase):
         self.assertRaises(webtest.AppError, self.app.get,
                                             '/?status=404%20Not%20Found')
 
+    def test_bad_content_type(self):
+        resp = self.app.get('/')
+        self.assertRaises(AttributeError, lambda: resp.json)
+        resp = self.app.get('/?header-content-type=application/json')
+        self.assertRaises(AttributeError, lambda: resp.pyquery)
+        self.assertRaises(AttributeError, lambda: resp.lxml)
+        self.assertRaises(AttributeError, lambda: resp.xml)
+
     def test_errors(self):
         try:
             self.app.get('/?errorlog=somelogs')
