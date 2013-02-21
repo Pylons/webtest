@@ -4,6 +4,7 @@
 # http://www.opensource.org/licenses/mit-license.php Also licenced under the
 # Apache License, 2.0: http://opensource.org/licenses/apache2.0.php Licensed to
 # PSF under a Contributor Agreement
+
 """
 Middleware to check for obedience to the WSGI specification.
 
@@ -109,6 +110,7 @@ Some of the things this checks:
   - That .close() is called (doesn't raise exception, only prints to
     sys.stderr, because we only know it isn't called when the object
     is garbage collected).
+
 """
 from __future__ import unicode_literals
 
@@ -125,7 +127,7 @@ bad_header_value_re = re.compile(r'[\000-\037]')
 valid_methods = (
     'GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'DELETE',
     'TRACE', 'PATCH',
-  )
+)
 
 METADATA_TYPE = PY3 and (str, binary_type) or (str,)
 
@@ -218,7 +220,7 @@ class InputWrapper(object):
     def readlines(self, *args):
         assert len(args) <= 1
         lines = self.input.readlines(*args)
-        assert type(lines) is type([])
+        assert isinstance(lines, list)
         for line in lines:
             assert type(line) is binary_type
         return lines

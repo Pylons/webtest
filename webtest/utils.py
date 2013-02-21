@@ -5,36 +5,10 @@ import re
 import six
 from six.moves import html_parser
 
-from webtest.compat import MutableMapping, urlencode
+from webtest.compat import urlencode
 
 
 unescape_html = html_parser.HTMLParser().unescape
-
-
-class CleverCookieDict(MutableMapping):
-    def __init__(self, morsels):
-        self.morsels = morsels
-
-    def __getitem__(self, k):
-        return self.morsels[k].value
-
-    def __setitem__(self, k, v):
-        # TODO: Morsel undefined?
-        morsel = self.morsels.setdefault(k, Morsel())
-        morsel.set(k, v)
-
-    def __delitem__(self, k):
-        del self.morsels[k]
-
-    def __iter__(self):
-        return iter(self.morsels)
-
-    def __len__(self):
-        return len(self.morsels)
-
-    def __repr__(self):
-        return "{0.__class__.__name__}({1!r})".format(
-            self, dict((k, v.value) for k, v in self.morsels.items()))
 
 
 class NoDefault(object):

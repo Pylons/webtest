@@ -1,9 +1,11 @@
 import datetime
 
-import webtest
 from webob import Request
-from tests.compat import unittest
+import mock
+
 from webtest.compat import to_bytes
+from tests.compat import unittest
+import webtest
 
 
 def cookie_app(environ, start_response):
@@ -17,21 +19,8 @@ def cookie_app(environ, start_response):
     if req.path_info != '/go/':
         headers.extend([
             ('Set-Cookie', 'spam=eggs'),
-            ('Set-Cookie', 'foo="bar;baz"'),
+            ('Set-Cookie', 'foo=bar;baz'),
         ])
-    start_response(status, headers)
-    return [to_bytes(body)]
-
-
-def cookie_app2(environ, start_response):
-    status = to_bytes("200 OK")
-    body = ''
-    headers = [
-        ('Content-Type', 'text/html'),
-        ('Content-Length', str(len(body))),
-        ('Set-Cookie', 'spam=eggs'),
-        ('Set-Cookie', 'foo="bar;baz"'),
-    ]
     start_response(status, headers)
     return [to_bytes(body)]
 
@@ -53,7 +42,7 @@ def cookie_app4(environ, start_response):
     headers = [
         ('Content-Type', 'text/html'),
         ('Content-Length', str(len(body))),
-        ('Set-Cookie', 'spam=eggs; Expires=Tue, 15-Jan-2013 21:47:38 GMT;'),
+        ('Set-Cookie', 'spam=eggs; Expires=Tue, 21-Feb-2013 17:45:00 GMT;'),
     ]
     start_response(status, headers)
     return [to_bytes(body)]
@@ -61,32 +50,22 @@ def cookie_app4(environ, start_response):
 
 class TestCookies(unittest.TestCase):
 
-    def test_cookies(self):
+    def test_response_set_cookie(self):
         app = webtest.TestApp(cookie_app)
-        self.assertTrue(not app.cookies,
+        self.assertTrue(not app.cookiejar,
                         'App should initially contain no cookies')
         app.get('/')
         cookies = app.cookies
         self.assert_(cookies, 'Response should have set cookies')
-        self.assertEqual(cookies['spam'], 'eggs')
-        self.assertEqual(cookies['foo'], 'bar;baz')
+        self.assertEqual(cookies['spam'].value, 'eggs')
+        self.assertEqual(cookies['foo'].value, 'bar')
 
-    def test_preserve_cookies(self):
+    def test_preserves_cookies(self):
         app = webtest.TestApp(cookie_app)
         res = app.get('/')
-        self.assert_(app.cookies)
+        self.assert_(app.cookiejar)
         res.click('go')
-        self.assert_(app.cookies)
-
-    def test_cookies2(self):
-        app = webtest.TestApp(cookie_app)
-        self.assertTrue(not app.cookies,
-                        'App should initially contain no cookies')
-
-        app.get('/')
-        self.assert_(app.cookies, 'Response should have set cookies')
-        self.assertIn(app.cookies['spam'], 'eggs')
-        self.assertIn(app.cookies['foo'], 'bar;baz')
+        self.assert_(app.cookiejar)
 
     def test_send_cookies(self):
         app = webtest.TestApp(cookie_app3)
@@ -94,17 +73,29 @@ class TestCookies(unittest.TestCase):
                         'App should initially contain no cookies')
 
         resp = app.get('/', headers=[('Cookie', 'spam=eggs')])
-        self.assertFalse(bool(app.cookies),
-                     'Response should not have set cookies')
+        self.assertFalse(app.cookies,
+                         'Response should not have set cookies')
         resp.mustcontain('Cookie: spam=eggs')
 
-    def test_expires_cookies(self):
+    @mock.patch('six.moves.http_cookiejar.time.time')
+    def test_expires_cookies(self, mock_time):
         app = webtest.TestApp(cookie_app4)
-        self.assertTrue(not app.cookies,
+        self.assertTrue(not app.cookiejar,
                         'App should initially contain no cookies')
 
-        app.get('/', now=lambda : datetime.datetime(2000, 1, 1))
+        mock_time.return_value = 1361464946.0
+        app.get('/')
         self.assertTrue(app.cookies, 'Response should have set cookies')
 
-        app.get('/', now=lambda : datetime.datetime(3000, 1, 1))
+        mock_time.return_value = 1461464946.0
+        app.get('/')
         self.assertFalse(app.cookies, 'Response should have unset cookies')
+
+    def test_cookies_readonly(self):
+        app = webtest.TestApp(cookie_app)
+        try:
+            app.cookies = {}
+        except:
+            pass
+        else:
+            self.fail('testapp.cookies should be read-only')

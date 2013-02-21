@@ -31,20 +31,12 @@ if PY3:
     from urllib.parse import splittype
     from urllib.parse import splithost
     import urllib.parse as urlparse
-    from http.cookies import _quote as cookie_quote
 else:
     from htmlentitydefs import name2codepoint
     from urllib import splittype
     from urllib import splithost
     from urllib import urlencode
-    from Cookie import _quote as cookie_quote
     import urlparse
-
-
-try:
-    from collections.abc import MutableMapping
-except ImportError:
-    from collections import MutableMapping
 
 
 def print_stderr(value):

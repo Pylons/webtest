@@ -9,37 +9,84 @@ Most interesting is TestApp
 """
 from __future__ import unicode_literals
 
-from datetime import datetime
-from email.utils import parsedate
-import random
-import warnings
-import mimetypes
 import cgi
-import os
-import re
 import fnmatch
+import mimetypes
+import os
+import random
+import re
+import warnings
 from bs4 import BeautifulSoup
-from webtest.compat import urlparse
-from webtest.compat import print_stderr
-from webtest.compat import StringIO
-from webtest.compat import BytesIO
-from webtest.compat import SimpleCookie, CookieError
-from webtest.compat import cookie_quote
-from webtest.compat import urlencode
-from webtest.compat import splittype
-from webtest.compat import splithost
-from webtest.compat import string_types
-from webtest.compat import binary_type
-from webtest.compat import text_type
-from webtest.compat import to_bytes
-from webtest.compat import loads
-from webtest.compat import PY3
-from webtest import forms
-from webtest import utils
-from webtest import lint
+from six.moves import http_cookiejar
+
 import webob
 
+from webtest.compat import binary_type
+from webtest.compat import BytesIO
+from webtest.compat import loads
+from webtest.compat import print_stderr
+from webtest.compat import PY3
+from webtest.compat import splithost
+from webtest.compat import splittype
+from webtest.compat import StringIO
+from webtest.compat import string_types
+from webtest.compat import text_type
+from webtest.compat import to_bytes
+from webtest.compat import urlencode
+from webtest.compat import urlparse
+from webtest import forms
+from webtest import lint
+from webtest import utils
+
 __all__ = ['TestApp', 'TestRequest']
+
+
+class RequestCookieAdapter(object):
+    """
+    this class merely provides the methods required for a
+    cookielib.CookieJar to work on a webob.Request
+
+    potential for yak shaving...very high
+    """
+    def __init__(self, request):
+        self._request = request
+
+    def is_unverifiable(self):
+        return True  # sure? Why not?
+
+    @property
+    def unverifiable(self):
+        return True
+
+    def get_full_url(self):
+        return self._request.url
+
+    def get_origin_req_host(self):
+        return self._request.host
+
+    def add_unredirected_header(self, key, header):
+        self._request.headers[key] = header
+
+    def has_header(self, key):
+        return key in self._request.headers
+
+
+class ResponseCookieAdapter(object):
+    """
+    cookielib.CookieJar to work on a webob.Response
+    """
+    def __init__(self, response):
+        self._response = response
+
+    def info(self):
+        return self
+
+    def getheaders(self, header):
+        return self._response.headers.getall(header)
+
+    def get_all(self, headers, default):  # NOQA
+        # This is undocumented method that Python 3 cookielib uses
+        return self._response.headers.getall(headers)
 
 
 class AppError(Exception):
@@ -175,7 +222,6 @@ class TestResponse(webob.Response):
         You can use multiple criteria to essentially assert multiple
         aspects about the link, e.g., where the link's destination is.
         """
-        __tracebackhide__ = True # NOQA
         found_html, found_desc, found_attrs = self._find_element(
             tag='a', href_attr='href',
             href_extract=None,
@@ -193,7 +239,6 @@ class TestResponse(webob.Response):
         This kind of button should look like
         ``<button onclick="...location.href='url'...">``.
         """
-        __tracebackhide__ = True  # NOQA
         found_html, found_desc, found_attrs = self._find_element(
             tag='button', href_attr='onclick',
             href_extract=re.compile(r"location\.href='(.*?)'"),
@@ -324,12 +369,12 @@ class TestResponse(webob.Response):
             href = to_str(href)
 
             if 'params' in args:
-                args['params'] = [tuple(map(to_str, p)) \
-                                        for p in args['params']]
+                args['params'] = [tuple(map(to_str, p))
+                                  for p in args['params']]
 
             if 'upload_files' in args:
-                args['upload_files'] = [map(to_str, f) \
-                                            for f in args['upload_files']]
+                args['upload_files'] = [map(to_str, f)
+                                        for f in args['upload_files']]
 
             if 'content_type' in args:
                 args['content_type'] = to_str(args['content_type'])
@@ -420,7 +465,7 @@ class TestResponse(webob.Response):
 
     def __str__(self):
         simple_body = str('\n').join([l for l in self.testbody.splitlines()
-                                 if l.strip()])
+                                     if l.strip()])
         headers = [(n.title(), v)
                    for n, v in self.headerlist
                    if n.lower() != 'content-length']
@@ -497,7 +542,7 @@ class TestResponse(webob.Response):
                 import ElementTree
             except ImportError:
                 try:
-                    from elementtree import ElementTree # NOQA
+                    from elementtree import ElementTree  # NOQA
                 except ImportError:
                     raise ImportError(
                         ("You must have ElementTree installed "
@@ -585,7 +630,7 @@ class TestResponse(webob.Response):
         import webbrowser
         import tempfile
         f = tempfile.NamedTemporaryFile(prefix='webtest-page',
-                                         suffix='.html')
+                                        suffix='.html')
         name = f.name
         f.close()
         f = open(name, 'w')
@@ -603,9 +648,6 @@ class TestResponse(webob.Response):
 
 
 class TestRequest(webob.Request):
-
-    # for py.test
-    disabled = True
     ResponseClass = TestResponse
 
 
@@ -624,14 +666,19 @@ class TestApp(object):
     ``relative_to`` is a directory, and filenames used for file
     uploads are calculated relative to this.  Also ``config:``
     URIs that aren't absolute.
+
+    ``cookiejar`` is a `cookielib.CookieJar` instance that keeps cookies
+    across requets. See official Python documentation for the API.
+
+    ``cookies`` is a convenient shortcut for a dict of all cookies in
+    ``cookiejar``.
+
     """
 
-    # for py.test
-    disabled = True
     RequestClass = TestRequest
 
     def __init__(self, app, extra_environ=None, relative_to=None,
-                       use_unicode=True):
+                 use_unicode=True):
         if isinstance(app, string_types):
             from paste.deploy import loadapp
             # @@: Should pick up relative_to from calling module's
@@ -643,19 +690,18 @@ class TestApp(object):
             extra_environ = {}
         self.extra_environ = extra_environ
         self.use_unicode = use_unicode
-        self.reset()
+        self.cookiejar = http_cookiejar.CookieJar()
 
-    def morsels(self, d):
-        self._morsels = d
-        self.cookies = utils.CleverCookieDict(d)
-    morsels = property(lambda self: self._morsels, morsels)
+    @property
+    def cookies(self):
+        return dict([(cookie.name, cookie) for cookie in self.cookiejar])
 
     def reset(self):
         """
         Resets the state of the application; currently just clears
         saved cookies.
         """
-        self.morsels = {}
+        self.cookiejar.clear()
 
     def _make_environ(self, extra_environ=None):
         environ = self.extra_environ.copy()
@@ -669,7 +715,7 @@ class TestApp(object):
         return urlparse.urlunsplit((scheme, netloc, path, query, ""))
 
     def get(self, url, params=None, headers=None, extra_environ=None,
-            status=None, expect_errors=False, now=None):
+            status=None, expect_errors=False):
         """
         Get the given url (well, actually a path like
         ``'/page.html'``).
@@ -697,17 +743,9 @@ class TestApp(object):
             ``wsgi.errors`` it will be an error.  If it is true, then
             non-200/3xx responses are also okay.
 
-        ``now``:
-            A callable that will be expected to return the current datetime. If
-            none is provided, ``datetime.datetime.now`` is used. The resulting
-            datetime will be used to decide whether to expire any cookies
-            before the request is made.
-
         Returns a :class:`webtest.TestResponse` object.
         """
         environ = self._make_environ(extra_environ)
-        # Hide from py.test:
-        __tracebackhide__ = True # NOQA
         url = str(url)
         url = self._remove_fragment(url)
         if params:
@@ -726,11 +764,11 @@ class TestApp(object):
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,
-                               expect_errors=expect_errors, now=now)
+                               expect_errors=expect_errors)
 
     def _gen_request(self, method, url, params=utils.NoDefault, headers=None,
-                           extra_environ=None, status=None, upload_files=None,
-                           expect_errors=False, content_type=None, now=None):
+                     extra_environ=None, status=None, upload_files=None,
+                     expect_errors=False, content_type=None):
         """
         Do a generic request.
         """
@@ -759,7 +797,7 @@ class TestApp(object):
         else:
             params = utils.encode_params(params, content_type)
             if upload_files or \
-                (content_type and \
+                (content_type and
                  to_bytes(content_type).startswith(b'multipart')):
                 params = cgi.parse_qsl(params, keep_blank_values=True)
                 content_type, params = self.encode_multipart(
@@ -782,11 +820,11 @@ class TestApp(object):
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,
-                               expect_errors=expect_errors, now=now)
+                               expect_errors=expect_errors)
 
     def post(self, url, params='', headers=None, extra_environ=None,
              status=None, upload_files=None, expect_errors=False,
-             content_type=None, now=None):
+             content_type=None):
         """
         Do a POST request.  Very like the ``.get()`` method.
         ``params`` are put in the body of the request.
@@ -811,11 +849,11 @@ class TestApp(object):
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
                                  content_type=content_type,
-                                 now=now)
+                                 )
 
     def put(self, url, params='', headers=None, extra_environ=None,
             status=None, upload_files=None, expect_errors=False,
-            content_type=None, now=None):
+            content_type=None):
         """
         Do a PUT request.  Very like the ``.post()`` method.
         ``params`` are put in the body of the request, if params is a
@@ -830,11 +868,11 @@ class TestApp(object):
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
                                  content_type=content_type,
-                                 now=now)
+                                 )
 
     def patch(self, url, params='', headers=None, extra_environ=None,
-            status=None, upload_files=None, expect_errors=False,
-            content_type=None, now=None):
+              status=None, upload_files=None, expect_errors=False,
+              content_type=None):
         """
         Do a PATCH request.  Very like the ``.post()`` method.
         ``params`` are put in the body of the request, if params is a
@@ -849,10 +887,10 @@ class TestApp(object):
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
                                  content_type=content_type,
-                                 now=now)
+                                 )
 
     def delete(self, url, params='', headers=None, extra_environ=None,
-               status=None, expect_errors=False, content_type=None, now=None):
+               status=None, expect_errors=False, content_type=None):
         """
         Do a DELETE request.  Very like the ``.get()`` method.
 
@@ -863,10 +901,10 @@ class TestApp(object):
                                  upload_files=None,
                                  expect_errors=expect_errors,
                                  content_type=content_type,
-                                 now=now)
+                                 )
 
     def options(self, url, headers=None, extra_environ=None,
-               status=None, expect_errors=False, now=None):
+                status=None, expect_errors=False):
         """
         Do a OPTIONS request.  Very like the ``.get()`` method.
 
@@ -876,10 +914,10 @@ class TestApp(object):
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
                                  expect_errors=expect_errors,
-                                 now=now)
+                                 )
 
     def head(self, url, headers=None, extra_environ=None,
-               status=None, expect_errors=False, now=None):
+             status=None, expect_errors=False):
         """
         Do a HEAD request.  Very like the ``.get()`` method.
 
@@ -889,7 +927,7 @@ class TestApp(object):
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
                                  expect_errors=expect_errors,
-                                 now=now)
+                                 )
 
     post_json = utils.json_method('POST')
     put_json = utils.json_method('PUT')
@@ -920,9 +958,9 @@ class TestApp(object):
                 try:
                     value = value.encode('ascii')
                 except:
-                    raise TypeError((
+                    raise TypeError(
                             'You are trying to upload some non ascii content.'
-                            'Please encode it first'))
+                            'Please encode it first')
             fcontent = to_bytes(fcontent)
             fcontent = fcontent or b'application/octet-stream'
             lines.extend([
@@ -979,7 +1017,7 @@ class TestApp(object):
             content = file_info[2]
             if not isinstance(content, binary_type):
                 raise ValueError('File content must be %s not %s'
-                        % (binary_type, type(content)))
+                                 % (binary_type, type(content)))
             return file_info
         else:
             raise ValueError(
@@ -988,7 +1026,7 @@ class TestApp(object):
                 "you gave: %r"
                 % repr(file_info)[:100])
 
-    def request(self, url_or_req, status=None, expect_errors=False, now=None,
+    def request(self, url_or_req, status=None, expect_errors=False,
                 **req_params):
         """
         Creates and executes a request.  You may either pass in an
@@ -1030,9 +1068,9 @@ class TestApp(object):
         return self.do_request(req,
                                status=status,
                                expect_errors=expect_errors,
-                               now=now)
+                               )
 
-    def do_request(self, req, status, expect_errors, now=None):
+    def do_request(self, req, status, expect_errors):
         """
         Executes the given request (``req``), with the expected
         ``status``.  Generally ``.get()`` and ``.post()`` are used
@@ -1048,51 +1086,33 @@ class TestApp(object):
         These can be arguments like ``content_type``, ``accept``, etc.
         """
 
-        if now is None:
-            now = datetime.now
-
-        __tracebackhide__ = True # NOQA
         errors = StringIO()
         req.environ['wsgi.errors'] = errors
         script_name = req.environ.get('SCRIPT_NAME', '')
         if script_name and req.path_info.startswith(script_name):
             req.path_info = req.path_info[len(script_name):]
 
-        now_dt = now()
-        self.morsels = dict((n, m) for n, m in self.morsels.items()
-                            if not _is_expired(m, now_dt))
-        morsels = list(self.morsels.items())
-
-        if 'Cookie' in req.headers:
-            cookie = req.headers['Cookie']
-            try:
-                c = SimpleCookie(cookie)
-            except CookieError:
-                raise CookieError(
-                    "Could not parse cookie header %r" % (cookie,))
-            morsels.extend(c.items())
-
-        if morsels:
-            cookie_header = str('').join([
-                str('%s=%s; ') % (name, cookie_quote(morsel.value))
-                for name, morsel in morsels])
-            req.environ['HTTP_COOKIE'] = cookie_header
-
         req.environ['paste.testing'] = True
         req.environ['paste.testing_variables'] = {}
+
+        # verify wsgi compatibility
         app = lint.middleware(self.app)
+
         ## FIXME: should it be an option to not catch exc_info?
         res = req.get_response(app, catch_exc_info=True)
+        # set a few handy attributes
         res._use_unicode = self.use_unicode
         res.request = req
         res.app = app
         res.test_app = self
+
         # We do this to make sure the app_iter is exausted:
         try:
             res.body
         except TypeError:
             pass
         res.errors = errors.getvalue()
+
         for name, value in req.environ['paste.testing_variables'].items():
             if hasattr(res, name):
                 raise ValueError(
@@ -1103,22 +1123,14 @@ class TestApp(object):
         if not expect_errors:
             self._check_status(status, res)
             self._check_errors(res)
-        res.cookies_set = {}
-        for header in res.headers.getall('set-cookie'):
-            try:
-                c = SimpleCookie(header)
-            except CookieError:
-                raise CookieError(
-                    "Could not parse cookie header %r" % (header,))
-            now_dt = now()
-            for key, morsel in c.items():
-                if not _is_expired(morsel, now_dt):
-                    self.morsels[key] = morsel
-                    res.cookies_set[key] = morsel.value
+
+        # merge cookies back in
+        self.cookiejar.extract_cookies(ResponseCookieAdapter(res),
+                                        RequestCookieAdapter(req))
+
         return res
 
     def _check_status(self, status, res):
-        __tracebackhide__ = True # NOQA
         if status == '*':
             return
         res_status = res.status
@@ -1149,8 +1161,3 @@ class TestApp(object):
         if errors:
             raise AppError(
                 "Application had errors logged:\n%s", errors)
-
-
-def _is_expired(morsel, now):
-    expires = morsel["expires"]
-    return expires and datetime(*parsedate(expires)[:6]) < now
