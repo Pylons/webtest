@@ -50,10 +50,7 @@ except ImportError:
 def print_stderr(value):
     if not PY3:
         if isinstance(value, text_type):
-            try:
-                value = value.encode('utf8')
-            except:
-                value = repr(value)
+            value = value.encode('utf8')
     six.print_(value, file=sys.stderr)
 
 try:
