@@ -79,6 +79,9 @@ class ResponseCookieAdapter(object):
     def getheaders(self, header):
         return self._response.headers.getall(header)
 
+    def get_all(self):
+        return self._response.headers.getall()
+
 
 class AppError(Exception):
 
