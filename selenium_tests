@@ -1,5 +1,0 @@
-#!/bin/bash
-export PATH=$PWD/bin:$PATH
-JAR="selenium-server-standalone-2.25.0.jar"
-[ ! -f "$JAR" ] && curl -O "http://selenium.googlecode.com/files/$JAR"
-SELENIUM_DRIVER="*firefox" tox $@ tests/test_selenium.py
