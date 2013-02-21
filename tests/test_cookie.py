@@ -90,3 +90,12 @@ class TestCookies(unittest.TestCase):
         mock_time.return_value = 1461464946.0
         app.get('/')
         self.assertFalse(app.cookies, 'Response should have unset cookies')
+
+    def test_cookies_readonly(self):
+        app = webtest.TestApp(cookie_app)
+        try:
+            app.cookies = {}
+        except:
+            pass
+        else:
+            self.fail('testapp.cookies should be read-only')
