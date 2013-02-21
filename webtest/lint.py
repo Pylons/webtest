@@ -489,20 +489,13 @@ def check_exc_info(exc_info):
 
 
 def check_iterator(iterator):
-    if PY3:
-        # Technically a bytes is legal, which is why it's a really bad
-        # idea, because it may cause the response to be returned
-        # character-by-character
-        assert not isinstance(iterator, bytes), (
-            "You should not return a bytes as your application iterator, "
-            "instead return a single-item list containing that string.")
-    else:
-        # Technically a string is legal, which is why it's a really bad
-        # idea, because it may cause the response to be returned
-        # character-by-character
-        assert not isinstance(iterator, str), (
-            "You should not return a string as your application iterator, "
-            "instead return a single-item list containing that string.")
+    valid_type = PY3 and bytes or str
+    # Technically a bytes (str for py2.x) is legal, which is why it's a
+    # really bad idea, because it may cause the response to be returned
+    # character-by-character
+    assert not isinstance(iterator, valid_type), (
+        "You should not return a bytes as your application iterator, "
+        "instead return a single-item list containing that string.")
 
 
 def make_middleware(application, global_conf):
