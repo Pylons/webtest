@@ -11,32 +11,34 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 from email.utils import parsedate
-import random
-import warnings
-import mimetypes
 import cgi
-import os
-import re
 import fnmatch
-from webtest.compat import urlparse
-from webtest.compat import print_stderr
-from webtest.compat import StringIO
-from webtest.compat import BytesIO
-from webtest.compat import SimpleCookie, CookieError
-from webtest.compat import cookie_quote
-from webtest.compat import urlencode
-from webtest.compat import splittype
-from webtest.compat import splithost
-from webtest.compat import string_types
+import mimetypes
+import os
+import random
+import re
+import warnings
+
+import webob
+
 from webtest.compat import binary_type
+from webtest.compat import BytesIO
+from webtest.compat import cookie_quote
+from webtest.compat import loads
+from webtest.compat import print_stderr
+from webtest.compat import PY3
+from webtest.compat import SimpleCookie, CookieError
+from webtest.compat import splithost
+from webtest.compat import splittype
+from webtest.compat import StringIO
+from webtest.compat import string_types
 from webtest.compat import text_type
 from webtest.compat import to_bytes
-from webtest.compat import loads
-from webtest.compat import PY3
+from webtest.compat import urlencode
+from webtest.compat import urlparse
 from webtest import forms
-from webtest import utils
 from webtest import lint
-import webob
+from webtest import utils
 
 __all__ = ['TestApp', 'TestRequest']
 
@@ -191,7 +193,7 @@ class TestResponse(webob.Response):
         You can use multiple criteria to essentially assert multiple
         aspects about the link, e.g., where the link's destination is.
         """
-        __tracebackhide__ = True # NOQA
+        __tracebackhide__ = True  # NOQA
         found_html, found_desc, found_attrs = self._find_element(
             tag='a', href_attr='href',
             href_extract=None,
@@ -340,12 +342,12 @@ class TestResponse(webob.Response):
             href = to_str(href)
 
             if 'params' in args:
-                args['params'] = [tuple(map(to_str, p)) \
-                                        for p in args['params']]
+                args['params'] = [tuple(map(to_str, p))
+                                  for p in args['params']]
 
             if 'upload_files' in args:
-                args['upload_files'] = [map(to_str, f) \
-                                            for f in args['upload_files']]
+                args['upload_files'] = [map(to_str, f)
+                                        for f in args['upload_files']]
 
             if 'content_type' in args:
                 args['content_type'] = to_str(args['content_type'])
@@ -436,7 +438,7 @@ class TestResponse(webob.Response):
 
     def __str__(self):
         simple_body = str('\n').join([l for l in self.testbody.splitlines()
-                                 if l.strip()])
+                                     if l.strip()])
         headers = [(n.title(), v)
                    for n, v in self.headerlist
                    if n.lower() != 'content-length']
@@ -492,7 +494,7 @@ class TestResponse(webob.Response):
             from BeautifulSoup import BeautifulSoup
         except ImportError:
             try:
-                from bs4 import BeautifulSoup # NOQA
+                from bs4 import BeautifulSoup  # NOQA
             except ImportError:
                 raise ImportError(
                     "You must have BeautifulSoup installed to use "
@@ -522,7 +524,7 @@ class TestResponse(webob.Response):
                 import ElementTree
             except ImportError:
                 try:
-                    from elementtree import ElementTree # NOQA
+                    from elementtree import ElementTree  # NOQA
                 except ImportError:
                     raise ImportError(
                         ("You must have ElementTree installed "
@@ -610,7 +612,7 @@ class TestResponse(webob.Response):
         import webbrowser
         import tempfile
         f = tempfile.NamedTemporaryFile(prefix='webtest-page',
-                                         suffix='.html')
+                                        suffix='.html')
         name = f.name
         f.close()
         f = open(name, 'w')
@@ -656,7 +658,7 @@ class TestApp(object):
     RequestClass = TestRequest
 
     def __init__(self, app, extra_environ=None, relative_to=None,
-                       use_unicode=True):
+                 use_unicode=True):
         if isinstance(app, string_types):
             from paste.deploy import loadapp
             # @@: Should pick up relative_to from calling module's
@@ -732,7 +734,7 @@ class TestApp(object):
         """
         environ = self._make_environ(extra_environ)
         # Hide from py.test:
-        __tracebackhide__ = True # NOQA
+        __tracebackhide__ = True  # NOQA
         url = str(url)
         url = self._remove_fragment(url)
         if params:
@@ -754,8 +756,8 @@ class TestApp(object):
                                expect_errors=expect_errors, now=now)
 
     def _gen_request(self, method, url, params=utils.NoDefault, headers=None,
-                           extra_environ=None, status=None, upload_files=None,
-                           expect_errors=False, content_type=None, now=None):
+                     extra_environ=None, status=None, upload_files=None,
+                     expect_errors=False, content_type=None, now=None):
         """
         Do a generic request.
         """
@@ -784,7 +786,7 @@ class TestApp(object):
         else:
             params = utils.encode_params(params, content_type)
             if upload_files or \
-                (content_type and \
+                (content_type and
                  to_bytes(content_type).startswith(b'multipart')):
                 params = cgi.parse_qsl(params, keep_blank_values=True)
                 content_type, params = self.encode_multipart(
@@ -858,8 +860,8 @@ class TestApp(object):
                                  now=now)
 
     def patch(self, url, params='', headers=None, extra_environ=None,
-            status=None, upload_files=None, expect_errors=False,
-            content_type=None, now=None):
+              status=None, upload_files=None, expect_errors=False,
+              content_type=None, now=None):
         """
         Do a PATCH request.  Very like the ``.post()`` method.
         ``params`` are put in the body of the request, if params is a
@@ -891,7 +893,7 @@ class TestApp(object):
                                  now=now)
 
     def options(self, url, headers=None, extra_environ=None,
-               status=None, expect_errors=False, now=None):
+                status=None, expect_errors=False, now=None):
         """
         Do a OPTIONS request.  Very like the ``.get()`` method.
 
@@ -904,7 +906,7 @@ class TestApp(object):
                                  now=now)
 
     def head(self, url, headers=None, extra_environ=None,
-               status=None, expect_errors=False, now=None):
+             status=None, expect_errors=False, now=None):
         """
         Do a HEAD request.  Very like the ``.get()`` method.
 
@@ -945,9 +947,9 @@ class TestApp(object):
                 try:
                     value = value.encode('ascii')
                 except:
-                    raise TypeError((
+                    raise TypeError(
                             'You are trying to upload some non ascii content.'
-                            'Please encode it first'))
+                            'Please encode it first')
             fcontent = to_bytes(fcontent)
             fcontent = fcontent or b'application/octet-stream'
             lines.extend([
@@ -1004,7 +1006,7 @@ class TestApp(object):
             content = file_info[2]
             if not isinstance(content, binary_type):
                 raise ValueError('File content must be %s not %s'
-                        % (binary_type, type(content)))
+                                 % (binary_type, type(content)))
             return file_info
         else:
             raise ValueError(
@@ -1105,13 +1107,18 @@ class TestApp(object):
 
         req.environ['paste.testing'] = True
         req.environ['paste.testing_variables'] = {}
+
+        # verify wsgi compatibility
         app = lint.middleware(self.app)
+
         ## FIXME: should it be an option to not catch exc_info?
         res = req.get_response(app, catch_exc_info=True)
+        # set a few handy attributes
         res._use_unicode = self.use_unicode
         res.request = req
         res.app = app
         res.test_app = self
+
         # We do this to make sure the app_iter is exausted:
         try:
             res.body
@@ -1143,7 +1150,7 @@ class TestApp(object):
         return res
 
     def _check_status(self, status, res):
-        __tracebackhide__ = True # NOQA
+        __tracebackhide__ = True  # NOQA
         if status == '*':
             return
         res_status = res.status
