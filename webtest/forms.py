@@ -466,19 +466,18 @@ class Form(object):
 
     def get(self, name, index=None, default=utils.NoDefault):
         """Get the named/indexed field object, or ``default`` if no field is
-        found.
+        found. Throws an AssertionError if no field is found and no default was given.
         """
         fields = self.fields.get(name)
-        if fields is None and default is not utils.NoDefault:
+        if fields is None:
+            if default is utils.NoDefault:
+                raise AssertionError(
+                    "No fields found matching %r (and no default given)" 
+                    % name)
             return default
         if index is None:
             return self[name]
-        else:
-            fields = self.fields.get(name)
-            assert fields is not None, (
-                "No fields found matching %r" % name)
-            field = fields[index]
-            return field
+        return fields[index]
 
     def select(self, name, value, index=None):
         """Like ``.set()``, except also confirms the target is a ``<select>``.
