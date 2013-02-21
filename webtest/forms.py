@@ -487,7 +487,7 @@ class Form(object):
         # This counts all fields with the submit name not just submit fields.
         current_index = 0
         for name, field in self.field_order:
-            if name is None:
+            if name is None:  # pragma: no cover
                 continue
             if submit_name is not None and name == submit_name:
                 if current_index == index:

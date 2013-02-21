@@ -15,6 +15,7 @@ PAGE_CONTENT = '''
                 <option value="value2" selected>Value 2</option>
                 <option value="value3">Value 3</option>
             </select>
+            <input type="file" name="file" />
             <input type="submit" name="submit" />
         </form>
     </body>
@@ -45,3 +46,28 @@ class TestForms(unittest.TestCase):
         form.select('select', 'value1')
 
         assert form['select'].value == 'value1'
+
+    def test_get_field_by_index(self):
+        form = webtest.Form(None, PAGE_CONTENT)
+        self.assertEqual(form['select'],
+                         form.get('select', index=0))
+
+    def test_get_non_exist_fields(self):
+        form = webtest.Form(None, PAGE_CONTENT)
+        self.assertRaises(AssertionError, form.get, 'nonfield')
+
+    def test_get_non_exist_fields_with_default(self):
+        form = webtest.Form(None, PAGE_CONTENT)
+        value = form.get('nonfield', default=1)
+        self.assertEqual(value, 1)
+
+    def test_upload_fields(self):
+        form = webtest.Form(None, PAGE_CONTENT)
+        fu = webtest.Upload(__file__)
+        form['file'] = fu
+        self.assertEqual(form.upload_fields(),
+                         [['file', __file__]])
+
+    def test_repr(self):
+        form = webtest.Form(None, PAGE_CONTENT)
+        self.assertTrue(repr(form).startswith('<Form id='))
