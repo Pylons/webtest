@@ -24,6 +24,3 @@ from webtest.forms import Submit
 from webtest.forms import Upload
 
 from webtest.ext import casperjs
-
-from webtest.sel import SeleniumApp
-from webtest.sel import selenium
