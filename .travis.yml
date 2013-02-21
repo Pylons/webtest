@@ -10,4 +10,4 @@ install:
   - "if [[ $TRAVIS_PYTHON_VERSION == 'pypy' ]]; then $TRAVIS_PYTHON_VERSION bootstrap-py3k.py -d; fi"
   - bin/buildout
 script:
-  - ./bin/nosetests -s -v
+  - ./bin/nosetests -s -v --with-coverage
