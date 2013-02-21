@@ -56,4 +56,4 @@ def print_stderr(value):
 try:
     from collections import OrderedDict
 except ImportError:
-    OrderedDict = dict
+    from ordereddict import OrderedDict
