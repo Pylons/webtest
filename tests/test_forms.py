@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from compat import unittest
+from tests.compat import unittest
 
 import webtest
 from webtest.forms import NoValue
