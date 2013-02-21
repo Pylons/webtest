@@ -401,7 +401,7 @@ def check_status(status):
     assert type(status) in METADATA_TYPE, (
         "Status must be a %s (not %r)" % (METADATA_TYPE, status))
     status = to_string(status)
-    assert len(status)>5, ("The status string (%r) should be a three-digit "
+    assert len(status) > 5, ("The status string (%r) should be a three-digit "
         "integer followed by a single space and a status explanation"
         % status)
     assert status[:3].isdigit(), ("The status string (%r) should start with"
@@ -411,7 +411,8 @@ def check_status(status):
     assert status_int >= 100, ("The status code must be greater or equal than "
         "100 (got %d)" % status_int)
     assert status[3] == ' ', ("The status string (%r) should start with three"
-        "digits and a space (4th characters is not a space here)" % status )
+        "digits and a space (4th characters is not a space here)" % status)
+
 
 def check_headers(headers):
     assert type(headers) is list, (
