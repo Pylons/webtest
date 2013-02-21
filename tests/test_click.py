@@ -1,7 +1,6 @@
 #coding: utf-8
 from __future__ import unicode_literals
 import webtest
-from webtest.utils import parse_attrs
 from webob import Request
 from webtest.compat import PY3
 from tests.compat import unittest
@@ -125,22 +124,3 @@ class TestClick(unittest.TestCase):
         self.assertIn("Тестовая страница", resp)
         self.assertIn('This is foo.', resp.click('Менделеев'))
         self.assertIn('This is baz.', resp.click(anchor=".*title='Поэт'.*"))
-
-    def testparse_attrs(self):
-        self.assertEqual(parse_attrs("href='foo'"), {'href': 'foo'})
-        self.assertEqual(parse_attrs('href="foo"'), {'href': 'foo'})
-        self.assertEqual(parse_attrs('href=""'), {'href': ''})
-        self.assertEqual(parse_attrs('href="foo" id="bar"'),
-                         {'href': 'foo', 'id': 'bar'})
-        self.assertEqual(parse_attrs('href="foo" id="bar"'),
-                         {'href': 'foo', 'id': 'bar'})
-        self.assertEqual(parse_attrs("href='foo' id=\"bar\" "),
-                         {'href': 'foo', 'id': 'bar'})
-        self.assertEqual(parse_attrs("href='foo' id='bar' "),
-                         {'href': 'foo', 'id': 'bar'})
-        self.assertEqual(parse_attrs("tag='foo\"'"), {'tag': 'foo"'})
-        self.assertEqual(
-            parse_attrs('value="&lt;&gt;&amp;&quot;&#123;"'),
-                {'value': '<>&"{'})
-        self.assertEqual(parse_attrs('value="&sum;"'), {'value': '∑'})
-        self.assertEqual(parse_attrs('value="&#x20ac;"'), {'value': '€'})
