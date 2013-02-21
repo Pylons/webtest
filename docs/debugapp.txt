@@ -2,7 +2,52 @@
 Debug application
 =================
 
-.. automodule:: webtest.debugapp
+``webtest.debugapp.debug_app`` is a faker WSGI app to help to test *webtest*.
+
+Examples of use :
+
+.. code-block:: python
+    
+    >>> import webtest
+    >>> from webtest.debugapp import debug_app
+    >>> app = webtest.TestApp(debug_app)
+    >>> app.post('/', params='foobar')
+    >>> res.body
+    CONTENT_LENGTH: 6
+    CONTENT_TYPE: application/x-www-form-urlencoded
+    HTTP_HOST: localhost:80
+    PATH_INFO: /
+    QUERY_STRING: 
+    REQUEST_METHOD: POST
+    SCRIPT_NAME: 
+    SERVER_NAME: localhost
+    SERVER_PORT: 80
+    SERVER_PROTOCOL: HTTP/1.0
+    paste.testing: True
+    paste.testing_variables: {}
+    paste.throw_errors: True
+    webob._parsed_query_vars: (GET([]), '')
+    wsgi.errors: <webtest.lint.ErrorWrapper object at 0x108db0f90>
+    wsgi.input: <webtest.lint.InputWrapper object at 0x108db0f50>
+    wsgi.multiprocess: False
+    wsgi.multithread: False
+    wsgi.run_once: False
+    wsgi.url_scheme: 'http'
+    wsgi.version: (1, 0)
+    -- Body ----------
+    foobar
+
+Here, you can see, ``foobar`` in *body* when you pass ``foobar`` in ``app.post`` ``params`` argument.
+
+You can also define the status of response :
+
+    >>> res = self.app.post('/?status=302', params='foobar')
+    >>> res.status
+    '302 Found'
+
+
+Complete ``debugapp.py`` source code
+====================================
 
 .. literalinclude:: ../webtest/debugapp.py
    :pyobject: DebugApp

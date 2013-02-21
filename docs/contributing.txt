@@ -71,3 +71,9 @@ Generate documentation
     build succeeded, 3 warnings.
 
     Build finished. The HTML pages are in _build/html.
+
+
+Tips
+====
+
+You can use :doc:`debugapp` object to test *webtest*.
