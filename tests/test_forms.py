@@ -11,15 +11,16 @@ PAGE_CONTENT = '''
     <body>
         <form method="POST" id="second_form">
             <select name="select">
-                <option value="value1">Value 1</option> 
+                <option value="value1">Value 1</option>
                 <option value="value2" selected>Value 2</option>
                 <option value="value3">Value 3</option>
-            </select>       
+            </select>
             <input type="submit" name="submit" />
         </form>
     </body>
 </html>
 '''
+
 
 class TestForms(unittest.TestCase):
     def test_set_submit_field(self):
@@ -41,8 +42,6 @@ class TestForms(unittest.TestCase):
 
     def test_form_select(self):
         form = webtest.Form(None, PAGE_CONTENT)
-        form.select('select','value1')
+        form.select('select', 'value1')
 
         assert form['select'].value == 'value1'
- 
-
