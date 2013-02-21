@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 import re
-import six
 import unittest
 
 from webtest import utils
@@ -104,20 +103,12 @@ class parse_attrsTest(unittest.TestCase):
                          {'value': '<>&"{'})
 
     def test_unescape_symbol_sum(self):
-        if six.PY3:
-            value = "∑"
-        else:
-            value = "∑".decode('utf-8')
         self.assertEqual(self.call_FUT('value="&sum;"'),
-                         {'value': value})
+                         {'value': "∑"})
 
     def test_unescape_symbol_euro(self):
-        if six.PY3:
-            value = "€"
-        else:
-            value = "€".decode('utf-8')
         self.assertEqual(self.call_FUT('value="&#x20ac;"'),
-                         {'value': value})
+                         {'value': "€"})
 
 
 class stringifyTest(unittest.TestCase):
