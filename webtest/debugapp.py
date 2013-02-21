@@ -26,6 +26,10 @@ class DebugApp(object):
 
         if 'error' in req.GET:
             raise Exception('Exception requested')
+
+        if 'errorlog' in req.GET:
+            req.environ['wsgi.errors'].write(req.GET['errorlog'])
+
         status = str(req.GET.get('status', '200 OK'))
 
         parts = []

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import sys
+import six
 import webtest
 from webtest.debugapp import debug_app
 from webtest.compat import PY3
@@ -84,6 +86,15 @@ class TestTesting(unittest.TestCase):
         self.assertRaises(Exception, self.app.get, '/?error=t')
         self.assertRaises(webtest.AppError, self.app.get,
                                             '/?status=404%20Not%20Found')
+
+    def test_errors(self):
+        try:
+            self.app.get('/?errorlog=somelogs')
+            assert(False, "An AppError should be raised")
+        except AppError:
+            e = sys.exc_info()[1]
+            assert six.text_type(e) \
+                == "Application had errors logged:\nsomelogs"
 
     def test_request_obj(self):
         res = self.app.get('/')
