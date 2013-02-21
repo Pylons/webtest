@@ -8,6 +8,11 @@ News
 
 * fix tox configuration
 
+* Implement `TestApp.cookiejar` support and kindof keep
+  `TestApp.cookies` functionality.  `TestApp.cookies`
+  should be treated as read-only.
+  [Domen Kožar]
+
 1.4.2
 -----
 
