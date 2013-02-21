@@ -122,6 +122,7 @@ Contents
    sel.txt
    http.txt
    debugapp.txt
+   contributing.txt
 
 .. include:: news.txt
 .. include:: license.txt
