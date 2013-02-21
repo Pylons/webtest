@@ -28,7 +28,10 @@ class DebugApp(object):
             raise Exception('Exception requested')
 
         if 'errorlog' in req.GET:
-            req.environ['wsgi.errors'].write(req.GET['errorlog'])
+            log = req.GET['errorlog']
+            if not six.PY3 and not isinstance(log, six.binary_type):
+                log = log.encode('utf8')
+            req.environ['wsgi.errors'].write(log)
 
         status = str(req.GET.get('status', '200 OK'))
 
