@@ -60,6 +60,8 @@ PATCH
 GET
 ===
 
+To just parse body of the response, use Response.json:
+
 .. code-block:: python
 
     >>> resp = app.get('/resource/1/')
