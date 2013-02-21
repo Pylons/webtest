@@ -52,11 +52,6 @@ class Field(object):
         """
         self._value = value
 
-    def value__get(self):
-        return self._value
-
-    value = property(value__get, value__set)
-
     def __repr__(self):
         value = '<%s name="%s"' % (self.__class__.__name__, self.name)
         if self.id:

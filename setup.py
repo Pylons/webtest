@@ -8,11 +8,15 @@ from setuptools import find_packages
 version = '1.4.4.dev0'
 
 tests_require = ['nose', 'coverage', 'mock']
+opt_install_requires = []
 
 if sys.version_info[0] == 2:
     tests_require.append('unittest2')
 else:
     tests_require.append('unittest2py3k')
+
+if sys.version_info[0:2] < (2, 7):
+    opt_install_requires.append('ordereddict')
 
 
 setup(name='WebTest',
@@ -53,7 +57,7 @@ setup(name='WebTest',
         'WebOb',
         'waitress',
         'beautifulsoup4',
-      ],
+      ] + opt_install_requires,
       test_suite='nose.collector',
       tests_require=tests_require,
       extras_require={

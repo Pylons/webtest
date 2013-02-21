@@ -398,19 +398,18 @@ def check_errors(wsgi_errors):
 def check_status(status):
     assert type(status) in METADATA_TYPE, (
         "Status must be a %s (not %r)" % (METADATA_TYPE, status))
-    # Implicitly check that we can turn it into an integer:
     status = to_string(status)
-    status_code = status.split(None, 1)[0]
-    assert len(status_code) == 3, (
-        "Status codes must be three characters: %r" % status_code)
-    status_int = int(status_code)
-    assert status_int >= 100, "Status code is invalid: %r" % status_int
-    if len(status) < 4 or status[3] != ' ':
-        warnings.warn(
-            "The status string (%r) should be a three-digit integer "
-            "followed by a single space and a status explanation"
-            % status, WSGIWarning)
+    assert len(status)>5, ("The status string (%r) should be a three-digit "
+        "integer followed by a single space and a status explanation"
+        % status)
+    assert status[:3].isdigit(), ("The status string (%r) should start with"
+        "three digits" % status)
 
+    status_int = int(status[:3])
+    assert status_int >= 100, ("The status code must be greater or equal than "
+        "100 (got %d)" % status_int)
+    assert status[3] == ' ', ("The status string (%r) should start with three"
+        "digits and a space (4th characters is not a space here)" % status )
 
 def check_headers(headers):
     assert type(headers) is list, (
