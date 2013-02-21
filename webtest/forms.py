@@ -32,8 +32,6 @@ class Field(object):
     # Dictionary of field types (select, radio, etc) to classes
     classes = {}
 
-    settable = True
-
     def __init__(self, form, tag, name, pos,
                  value=None, id=None, **attrs):
         self.form = form
@@ -45,10 +43,6 @@ class Field(object):
         self.attrs = attrs
 
     def value__set(self, value):
-        if not self.settable:
-            raise AttributeError(
-                "You cannot set the value of the <%s> field %r"
-                % (self.tag, self.name))
         self._value = value
 
     def force_value(self, value):
@@ -173,8 +167,6 @@ class Radio(Select):
     """Field representing ``<input type="radio">``"""
 
     def value__get(self):
-        if self._forced_value is not NoValue:
-            self._forced_value = NoValue
         if self.selectedIndex is not None:
             return self.options[self.selectedIndex][0]
         else:
@@ -265,12 +257,15 @@ Field.classes['hidden'] = Hidden
 class Submit(Field):
     """Field representing ``<input type="submit">`` and ``<button>``"""
 
-    settable = False
-
     def value__get(self):
         return None
 
-    value = property(value__get)
+    def value__set(self,value):
+        raise AttributeError(
+            "You cannot set the value of the <%s> field %r"
+            % (self.tag, self.name))
+ 
+    value = property(value__get, value__set)
 
     def value_if_submitted(self):
         return self._value
