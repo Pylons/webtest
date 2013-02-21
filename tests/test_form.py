@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import unittest
+from compat import unittest
 
 import webtest
 from webtest.compat import to_bytes
