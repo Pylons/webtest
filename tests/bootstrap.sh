@@ -9,7 +9,7 @@ if [ -x bin/casperjs ]; then
 fi
 
 if ! [ -x bin/casperjs ]; then
-    python2.7 bootstrap.py -d
+    python2.7 bootstrap.py
     bin/buildout install casperjs
 fi
 
