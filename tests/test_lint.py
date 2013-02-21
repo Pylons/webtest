@@ -20,7 +20,8 @@ def application(environ, start_response):
         resp.body = env_input.readline(len_body)
     elif req.path_info == '/read_lines':
         resp.body = b'-'.join(env_input.readlines(len_body))
-
+    elif req.path_info == '/close':
+        resp.body = env_input.close()
     return resp(environ, start_response)
 
 
@@ -69,3 +70,7 @@ class TestInputWrapper(unittest.TestCase):
         app = webtest.TestApp(application)
         resp = app.post('/read_lines', 'hello\nt\n')
         self.assertEqual(resp.body, b'hello\n-t\n')
+
+    def test_close(self):
+        app = webtest.TestApp(application)
+        self.assertRaises(AssertionError, app.post, 'close', 'hello')
