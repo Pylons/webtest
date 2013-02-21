@@ -55,7 +55,8 @@ class RequestCookieAdapter(object):
         return True  # sure? Why not?
 
     @property
-    def unverifiable(self):
+    def unverifiable(self):  # NOQA
+        # This is undocumented method that Python 3 cookielib uses
         return True
 
     def get_full_url(self):

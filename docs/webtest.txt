@@ -84,7 +84,7 @@ To indicate another status is expected, use the keyword argument
 
 If you expect errors to be printed, use ``expect_errors=True``.
 
-TestApp api
+TestApp API
 -----------
 
 .. automodule:: webtest
