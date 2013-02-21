@@ -193,7 +193,6 @@ class TestResponse(webob.Response):
         You can use multiple criteria to essentially assert multiple
         aspects about the link, e.g., where the link's destination is.
         """
-        __tracebackhide__ = True  # NOQA
         found_html, found_desc, found_attrs = self._find_element(
             tag='a', href_attr='href',
             href_extract=None,
@@ -211,7 +210,6 @@ class TestResponse(webob.Response):
         This kind of button should look like
         ``<button onclick="...location.href='url'...">``.
         """
-        __tracebackhide__ = True  # NOQA
         found_html, found_desc, found_attrs = self._find_element(
             tag='button', href_attr='onclick',
             href_extract=re.compile(r"location\.href='(.*?)'"),
@@ -630,9 +628,6 @@ class TestResponse(webob.Response):
 
 
 class TestRequest(webob.Request):
-
-    # for py.test
-    disabled = True
     ResponseClass = TestResponse
 
 
@@ -653,8 +648,6 @@ class TestApp(object):
     URIs that aren't absolute.
     """
 
-    # for py.test
-    disabled = True
     RequestClass = TestRequest
 
     def __init__(self, app, extra_environ=None, relative_to=None,
@@ -733,8 +726,6 @@ class TestApp(object):
         Returns a :class:`webtest.TestResponse` object.
         """
         environ = self._make_environ(extra_environ)
-        # Hide from py.test:
-        __tracebackhide__ = True  # NOQA
         url = str(url)
         url = self._remove_fragment(url)
         if params:
@@ -1078,7 +1069,6 @@ class TestApp(object):
         if now is None:
             now = datetime.now
 
-        __tracebackhide__ = True # NOQA
         errors = StringIO()
         req.environ['wsgi.errors'] = errors
         script_name = req.environ.get('SCRIPT_NAME', '')
@@ -1150,7 +1140,6 @@ class TestApp(object):
         return res
 
     def _check_status(self, status, res):
-        __tracebackhide__ = True  # NOQA
         if status == '*':
             return
         res_status = res.status
