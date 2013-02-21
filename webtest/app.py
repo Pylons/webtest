@@ -209,7 +209,7 @@ class TestResponse(webob.Response):
         This kind of button should look like
         ``<button onclick="...location.href='url'...">``.
         """
-        __tracebackhide__ = True # NOQA
+        __tracebackhide__ = True  # NOQA
         found_html, found_desc, found_attrs = self._find_element(
             tag='button', href_attr='onclick',
             href_extract=re.compile(r"location\.href='(.*?)'"),
@@ -218,7 +218,7 @@ class TestResponse(webob.Response):
             href_pattern=href,
             html_pattern=button,
             index=index, verbose=verbose)
-        return self.goto(found_attrs['uri'])
+        return self.goto(str(found_attrs['uri']))
 
     def _find_element(self, tag, href_attr, href_extract,
                       content, id,

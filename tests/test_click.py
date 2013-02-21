@@ -25,6 +25,7 @@ def links_app(environ, start_response):
                     </script>
                     <a href='/spam/'>Click me!</a>
                     <a href='/egg/'>Click me!</a>
+                    <button id="button1" onclick="location.href='/foo/'">Button</button>
                 </body>
             </html>
             """,
@@ -125,6 +126,13 @@ class TestClick(unittest.TestCase):
         self.assertIn("Тестовая страница", resp)
         self.assertIn('This is foo.', resp.click('Менделеев'))
         self.assertIn('This is baz.', resp.click(anchor=".*title='Поэт'.*"))
+
+    def test_clickbutton(self):
+        app = webtest.TestApp(links_app)
+        self.assertIn(
+            'This is foo.',
+            app.get('/').clickbutton(buttonid='button1')
+        )
 
     def testparse_attrs(self):
         self.assertEqual(parse_attrs("href='foo'"), {'href': 'foo'})
