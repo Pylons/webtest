@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
 import re
-import six
 import unittest
 
 from webtest import utils
@@ -33,13 +33,9 @@ class encode_paramsTest(unittest.TestCase):
         self.assertEquals(utils.encode_params({'foo': 'bar'}, 'ba'), 'foo=bar')
 
     def test_encode_params_charset_utf8(self):
-        if six.PY3:
-            params = {'foo': '€'}
-        else:
-            params = {u'foo': u'€'}
         # charset is using inconsistent casing on purpose, it should still work
-        self.assertEquals(utils.encode_params(params, ' CHARset=uTF-8; '),
-                          'foo=%E2%82%AC')
+        self.assertEquals(utils.encode_params({'f': '€'}, ' CHARset=uTF-8; '),
+                          'f=%E2%82%AC')
 
 
 class make_patternTest(unittest.TestCase):
@@ -107,46 +103,24 @@ class parse_attrsTest(unittest.TestCase):
                          {'value': '<>&"{'})
 
     def test_unescape_symbol_sum(self):
-        if six.PY3:
-            value = "∑"
-        else:
-            value = "∑".decode('utf-8')
         self.assertEqual(self.call_FUT('value="&sum;"'),
-                         {'value': value})
+                         {'value': "∑"})
 
     def test_unescape_symbol_euro(self):
-        if six.PY3:
-            value = "€"
-        else:
-            value = "€".decode('utf-8')
         self.assertEqual(self.call_FUT('value="&#x20ac;"'),
-                         {'value': value})
+                         {'value': "€"})
 
 
 class stringifyTest(unittest.TestCase):
 
     def test_stringify_text(self):
-        if six.PY3:
-            value = "foo"
-        else:
-            value = u"foo"
-        self.assertEquals(utils.stringify(value), value)
+        self.assertEquals(utils.stringify("foo"), "foo")
 
     def test_stringify_binary(self):
-        if six.PY3:
-            value = b"foo"
-            stringified = "foo"
-        else:
-            value = "foo"
-            stringified = u"foo"
-        self.assertEquals(utils.stringify(value), stringified)
+        self.assertEquals(utils.stringify(b"foo"), "foo")
 
     def test_stringify_other(self):
-        if six.PY3:
-            stringified = "123"
-        else:
-            stringified = u"123"
-        self.assertEquals(utils.stringify(123), stringified)
+        self.assertEquals(utils.stringify(123), "123")
 
 
 # TODO: test: json_method
