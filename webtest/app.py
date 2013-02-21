@@ -18,20 +18,23 @@ import cgi
 import os
 import re
 import fnmatch
+
+from json import loads
+
+from six import StringIO
+from six import BytesIO
+from six import string_types
+from six import binary_type
+from six import text_type
+
 from webtest.compat import urlparse
 from webtest.compat import print_stderr
-from webtest.compat import StringIO
-from webtest.compat import BytesIO
 from webtest.compat import SimpleCookie, CookieError
 from webtest.compat import cookie_quote
 from webtest.compat import urlencode
 from webtest.compat import splittype
 from webtest.compat import splithost
-from webtest.compat import string_types
-from webtest.compat import binary_type
-from webtest.compat import text_type
 from webtest.compat import to_bytes
-from webtest.compat import loads
 from webtest.compat import PY3
 from webtest import forms
 from webtest import utils

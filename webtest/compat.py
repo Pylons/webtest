@@ -3,17 +3,8 @@ import sys
 import six
 from six import PY3
 from six import text_type
-from six import binary_type
-from six import string_types
-from six.moves import http_client
 from six.moves import http_cookies
-from six.moves import BaseHTTPServer
-from six.moves import SimpleHTTPServer
-from six.moves import cStringIO
-from json import loads
-from json import dumps
 
-StringIO = BytesIO = cStringIO  # Also define BytesIO for py2.x
 SimpleCookie = http_cookies.SimpleCookie
 CookieError = http_cookies.CookieError
 
@@ -26,25 +17,24 @@ def to_bytes(value, charset='latin1'):
 
 if PY3:
     from html.entities import name2codepoint
-    from io import BytesIO
     from urllib.parse import urlencode
     from urllib.parse import splittype
     from urllib.parse import splithost
     import urllib.parse as urlparse
     from http.cookies import _quote as cookie_quote
 else:
-    from htmlentitydefs import name2codepoint
-    from urllib import splittype
-    from urllib import splithost
-    from urllib import urlencode
-    from Cookie import _quote as cookie_quote
-    import urlparse
+    from htmlentitydefs import name2codepoint  # noqa
+    from urllib import splittype  # noqa
+    from urllib import splithost  # noqa
+    from urllib import urlencode  # noqa
+    from Cookie import _quote as cookie_quote  # noqa
+    import urlparse  # noqa
 
 
 try:
     from collections.abc import MutableMapping
 except ImportError:
-    from collections import MutableMapping
+    from collections import MutableMapping  # noqa
 
 
 def print_stderr(value):
@@ -56,4 +46,4 @@ def print_stderr(value):
 try:
     from collections import OrderedDict
 except ImportError:
-    from ordereddict import OrderedDict
+    from ordereddict import OrderedDict  # noqa
