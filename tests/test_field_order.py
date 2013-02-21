@@ -1,7 +1,7 @@
 import collections
 from tests.compat import unittest
 from webtest.compat import to_bytes
-from webtest.compat import binary_type
+from six import binary_type
 from webtest.compat import PY3
 from webob import Request
 import webtest

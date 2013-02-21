@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from webob import Request
 import webtest
-from webtest.compat import binary_type
+from six import binary_type
 from webtest.compat import to_bytes
 from tests.compat import unittest
 from tests.compat import u
