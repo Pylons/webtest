@@ -2,6 +2,7 @@
 __doc__ = """Helpers to fill and submit forms"""
 from webtest.compat import OrderedDict
 from webtest import utils
+from bs4 import BeautifulSoup
 import re
 
 
@@ -312,100 +313,65 @@ class Form(object):
     def __init__(self, response, text):
         self.response = response
         self.text = text
+        self.html = BeautifulSoup(self.text)
+
+        attrs = self.html('form')[0].attrs
+        self.action = attrs.get('action', '')
+        self.method = attrs.get('method', 'GET')
+        self.id = attrs.get('id')
+        self.enctype = attrs.get('enctype',
+                                 'application/x-www-form-urlencoded')
+
         self._parse_fields()
-        self._parse_action()
 
     def _parse_fields(self):
-        in_select = None
-        in_textarea = None
         fields = OrderedDict()
         field_order = []
-        for match in self._tag_re.finditer(self.text):
-            end = match.group(1) == '/'
-            tag = match.group(2).lower()
-            if tag not in ('input', 'select', 'option', 'textarea',
-                           'button'):
-                continue
-            if tag == 'select' and end:
-                assert in_select, (
-                    '%r without starting select' % match.group(0))
-                in_select = None
-                continue
-            if tag == 'textarea' and end:
-                assert in_textarea, (
-                    "</textarea> with no <textarea> at %s" % match.start())
-                in_textarea[0].value = utils.unescape_html(
-                                    self.text[in_textarea[1]:match.start()])
-                in_textarea = None
-                continue
-            if end:
-                continue
-            attrs = utils.parse_attrs(match.group(3))
+        tags = ('input', 'select', 'textarea', 'button')
+        for pos, node in enumerate(self.html.findAll(tags)):
+            attrs = node.attrs
+            tag = node.name
+            name = None
             if 'name' in attrs:
                 name = attrs.pop('name')
-            else:
-                name = None
-            if tag == 'option':
-                in_select.options.append((attrs.get('value'),
-                                          'selected' in attrs))
-                continue
-            if tag == 'input' and attrs.get('type') == 'radio':
-                field = fields.get(name)
-                if not field:
-                    field = self.FieldClass.classes['radio'](
-                                       self, tag, name, match.start(), **attrs)
-                    fields.setdefault(name, []).append(field)
-                    field_order.append((name, field))
-                else:
-                    field = field[0]
-                    assert isinstance(field, self.FieldClass.classes['radio'])
-                field.options.append((attrs.get('value'),
-                                      'checked' in attrs))
-                continue
-            tag_type = tag
-            if tag == 'input':
-                tag_type = attrs.get('type', 'text').lower()
-            if tag_type == "select" and attrs.get("multiple"):
-                FieldClass = self.FieldClass.classes.get("multiple_select",
-                                                         self.FieldClass)
-            else:
-                FieldClass = self.FieldClass.classes.get(tag_type,
-                                                         self.FieldClass)
-            field = FieldClass(self, tag, name, match.start(), **attrs)
+
             if tag == 'textarea':
-                assert not in_textarea, (
-                    "Nested textareas: %r and %r"
-                    % (in_textarea, match.group(0)))
-                in_textarea = field, match.end()
-            elif tag == 'select':
-                assert not in_select, (
-                    "Nested selects: %r and %r"
-                    % (in_select, match.group(0)))
-                in_select = field
+                attrs['value'] = node.text
+
+            tag_type = attrs.get('type', 'text').lower()
+            if tag == 'select':
+                tag_type = 'select'
+            if tag_type == "select" and attrs.get("multiple"):
+                tag_type = "multiple_select"
+
+            FieldClass = self.FieldClass.classes.get(tag_type,
+                                                     self.FieldClass)
+            if tag == 'input':
+                if tag_type == 'radio':
+                    field = fields.get(name)
+                    if not field:
+                        field = FieldClass(self, tag, name, pos, **attrs)
+                        fields.setdefault(name, []).append(field)
+                        field_order.append((name, field))
+                    else:
+                        field = field[0]
+                        assert isinstance(field,
+                                          self.FieldClass.classes['radio'])
+                    field.options.append((attrs.get('value'),
+                                          'checked' in attrs))
+                    continue
+
+            field = FieldClass(self, tag, name, pos, **attrs)
             fields.setdefault(name, []).append(field)
             field_order.append((name, field))
+
+            if tag == 'select':
+                for option in node('option'):
+                    field.options.append((option.attrs.get('value'),
+                                          'selected' in option.attrs))
+
         self.field_order = field_order
         self.fields = fields
-
-    def _parse_action(self):
-        self.action = None
-        for match in self._tag_re.finditer(self.text):
-            end = match.group(1) == '/'
-            tag = match.group(2).lower()
-            if tag != 'form':
-                continue
-            if end:
-                break
-            attrs = utils.parse_attrs(match.group(3))
-            self.action = attrs.get('action', '')
-            self.method = attrs.get('method', 'GET')
-            self.id = attrs.get('id')
-            self.enctype = attrs.get('enctype',
-                                     'application/x-www-form-urlencoded')
-        else:
-            assert 0, "No </form> tag found"
-        assert self.action is not None, (
-            "No <form> tag found")
 
     def __setitem__(self, name, value):
         """Set the value of the named field. If there is 0 or multiple fields
@@ -466,13 +432,13 @@ class Form(object):
 
     def get(self, name, index=None, default=utils.NoDefault):
         """Get the named/indexed field object, or ``default`` if no field is
-        found. Throws an AssertionError if no field is found and no default was given.
-        """
+        found. Throws an AssertionError if no field is found and no default was
+        given."""
         fields = self.fields.get(name)
         if fields is None:
             if default is utils.NoDefault:
                 raise AssertionError(
-                    "No fields found matching %r (and no default given)" 
+                    "No fields found matching %r (and no default given)"
                     % name)
             return default
         if index is None:

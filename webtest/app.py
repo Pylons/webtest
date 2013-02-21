@@ -18,6 +18,7 @@ import cgi
 import os
 import re
 import fnmatch
+from bs4 import BeautifulSoup
 from webtest.compat import urlparse
 from webtest.compat import print_stderr
 from webtest.compat import StringIO
@@ -112,24 +113,7 @@ class TestResponse(webob.Response):
 
     def _parse_forms(self):
         forms_ = self._forms_indexed = {}
-        form_texts = []
-        started = None
-        for match in self._tag_re.finditer(self.testbody):
-            end = match.group(1) == '/'
-            tag = match.group(2).lower()
-            if tag != 'form':
-                continue
-            if end:
-                assert started, (
-                    "</form> unexpected at %s" % match.start())
-                form_texts.append(self.testbody[started:match.end()])
-                started = None
-            else:
-                assert not started, (
-                    "Nested form tags at %s" % match.start())
-                started = match.start()
-        assert not started, (
-            "Danging form: %r" % self.testbody[started:])
+        form_texts = [str(f) for f in self.html('form')]
         for i, text in enumerate(form_texts):
             form = forms.Form(self, text)
             forms_[i] = form
@@ -488,15 +472,6 @@ class TestResponse(webob.Response):
             raise AttributeError(
                 "Not an HTML response body (content-type: %s)"
                 % self.content_type)
-        try:
-            from BeautifulSoup import BeautifulSoup
-        except ImportError:
-            try:
-                from bs4 import BeautifulSoup # NOQA
-            except ImportError:
-                raise ImportError(
-                    "You must have BeautifulSoup installed to use "
-                    "response.html")
         soup = BeautifulSoup(self.testbody)
         return soup
 
