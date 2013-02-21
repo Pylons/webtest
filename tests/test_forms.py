@@ -38,3 +38,11 @@ class TestForms(unittest.TestCase):
         assert form['select']._forced_value is NoValue
         assert form['select'].value == 'value3'
         assert form['select'].selectedIndex == 2
+
+    def test_form_select(self):
+        form = webtest.Form(None, PAGE_CONTENT)
+        form.select('select','value1')
+
+        assert form['select'].value == 'value1'
+ 
+
