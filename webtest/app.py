@@ -53,6 +53,10 @@ class RequestCookieAdapter(object):
     def is_unverifiable(self):
         return True  # sure? Why not?
 
+    @property
+    def unverifiable(self):
+        return True
+
     def get_full_url(self):
         return self._request.url
 
@@ -79,8 +83,9 @@ class ResponseCookieAdapter(object):
     def getheaders(self, header):
         return self._response.headers.getall(header)
 
-    def get_all(self):
-        return self._response.headers.getall()
+    def get_all(self, headers, default):  # NOQA
+        # This is undocumented method that Python 3 cookielib uses
+        return self._response.headers.getall(headers)
 
 
 class AppError(Exception):
