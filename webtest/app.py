@@ -541,7 +541,7 @@ class TestResponse(webob.Response):
                 % self.content_type)
         try:
             from xml.etree import ElementTree
-        except ImportError:
+        except ImportError:  # pragma: no cover
             try:
                 import ElementTree
             except ImportError:
@@ -574,12 +574,12 @@ class TestResponse(webob.Response):
                 % self.content_type)
         try:
             from lxml import etree
-        except ImportError:
+        except ImportError:  # pragma: no cover
             raise ImportError(
                 "You must have lxml installed to use response.lxml")
         try:
             from lxml.html import fromstring
-        except ImportError:
+        except ImportError:  # pragma: no cover
             fromstring = etree.HTML
         ## FIXME: would be nice to set xml:base, in some fashion
         if self.content_type == 'text/html':
@@ -618,7 +618,7 @@ class TestResponse(webob.Response):
                 % self.content_type)
         try:
             from pyquery import PyQuery
-        except ImportError:
+        except ImportError:  # pragma: no cover
             raise ImportError(
                 "You must have PyQuery installed to use response.pyquery")
         d = PyQuery(self.testbody)
