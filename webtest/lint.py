@@ -91,7 +91,8 @@ Some of the things this checks:
 
 * That wsgi.errors is used properly:
 
-  - .write() and .writelines() is called with a string
+  - .write() and .writelines() is called with a string, except
+    with python3
 
   - That .close() is not called, and no other methods are provided.
 
@@ -240,7 +241,8 @@ class ErrorWrapper(object):
         self.errors = wsgi_errors
 
     def write(self, s):
-        assert type(s) is binary_type
+        if not PY3:
+            assert type(s) is binary_type
         self.errors.write(s)
 
     def flush(self):
