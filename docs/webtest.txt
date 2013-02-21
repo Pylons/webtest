@@ -118,6 +118,9 @@ The inherited attributes that are most interesting:
 ``response.text``:
     The unicode text body of the response.
 
+``response.normal_body``:
+    The whitespace-normalized [#whitespace-normalized]_ body of the response.
+
 ``response.request``:
     The `webob.Request object
     <http://docs.webob.org/en/latest/reference.html#request>`_ used to generate
@@ -159,6 +162,10 @@ The added methods:
 ``response.form``:
     If there is just a single form, this returns that.  It is an error
     if you use this and there are multiple forms.
+
+.. rubric:: Footnotes
+
+.. [#whitespace-normalized] The whitespace normalization replace sequences of whitespace characters and ``\n`` ``\r`` ``\t`` by a single space.
 
 Parsing the Body
 ----------------
