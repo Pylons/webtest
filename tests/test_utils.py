@@ -4,6 +4,43 @@ import re
 import six
 import unittest
 
+from webtest import utils
+
+
+class NoDefaultTest(unittest.TestCase):
+
+    def test_nodefault(self):
+        from webtest.utils import NoDefault
+        self.assertEquals(repr(NoDefault), '<NoDefault>')
+
+
+class encode_paramsTest(unittest.TestCase):
+
+    def test_encode_params_None(self):
+        self.assertEquals(utils.encode_params(None, None), None)
+
+    def test_encode_params_NoDefault(self):
+        self.assertEquals(utils.encode_params(utils.NoDefault, None), '')
+
+    def test_encode_params_dict_or_list(self):
+        self.assertEquals(utils.encode_params({'foo': 'bar'}, None),
+                          utils.encode_params([('foo', 'bar')], None))
+
+    def test_encode_params_no_charset(self):
+        # no content_type at all
+        self.assertEquals(utils.encode_params({'foo': 'bar'}, None), 'foo=bar')
+        # content_type without "charset=xxxx"
+        self.assertEquals(utils.encode_params({'foo': 'bar'}, 'ba'), 'foo=bar')
+
+    def test_encode_params_charset_utf8(self):
+        if six.PY3:
+            params = {'foo': '€'}
+        else:
+            params = {u'foo': u'€'}
+        # charset is using inconsistent casing on purpose, it should still work
+        self.assertEquals(utils.encode_params(params, ' CHARset=uTF-8; '),
+                          'foo=%E2%82%AC')
+
 
 class make_patternTest(unittest.TestCase):
 
@@ -86,4 +123,30 @@ class parse_attrsTest(unittest.TestCase):
                          {'value': value})
 
 
-# TODO: test: CleverCookieDict, json_method, encode_params, stringify
+class stringifyTest(unittest.TestCase):
+
+    def test_stringify_text(self):
+        if six.PY3:
+            value = "foo"
+        else:
+            value = u"foo"
+        self.assertEquals(utils.stringify(value), value)
+
+    def test_stringify_binary(self):
+        if six.PY3:
+            value = b"foo"
+            stringified = "foo"
+        else:
+            value = "foo"
+            stringified = u"foo"
+        self.assertEquals(utils.stringify(value), stringified)
+
+    def test_stringify_other(self):
+        if six.PY3:
+            stringified = "123"
+        else:
+            stringified = u"123"
+        self.assertEquals(utils.stringify(123), stringified)
+
+
+# TODO: test: json_method
