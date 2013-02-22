@@ -268,16 +268,6 @@ class WriteWrapper(object):
         self.writer(s)
 
 
-class PartialIteratorWrapper(object):
-
-    def __init__(self, wsgi_iterator):
-        self.iterator = wsgi_iterator
-
-    def __iter__(self):
-        # We want to make sure __iter__ is called
-        return IteratorWrapper(self.iterator)
-
-
 class IteratorWrapper(object):
 
     def __init__(self, wsgi_iterator, check_start_response):
