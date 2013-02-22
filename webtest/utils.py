@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from json import dumps
-import functools
 import re
 import six
 from six.moves import html_parser
@@ -30,7 +29,6 @@ def json_method(method):
     Returns a ``webob.Response`` object.
     """
 
-    @functools.wraps(json_method)
     def wrapper(self, url, params=NoDefault, **kw):
         content_type = 'application/json'
         if params is not NoDefault:
@@ -44,7 +42,7 @@ def json_method(method):
 
     subst = dict(lmethod=method.lower(), method=method)
     wrapper.__doc__ = json_method.__doc__ % subst
-    wrapper.__name__ = str('%(lmethod)s_json')
+    wrapper.__name__ = '%(lmethod)s_json' % subst
 
     return wrapper
 
@@ -83,8 +81,8 @@ def encode_params(params, content_type):
 
 
 _attr_re = re.compile(
-        r'([^= \n\r\t]+)[ \n\r\t]*(?:=[ \n\r\t]*(?:"([^"]*)"|\'([^\']*)'
-        r'\'|([^"\'][^ \n\r\t>]*)))?', re.S)
+    r'([^= \n\r\t]+)[ \n\r\t]*(?:=[ \n\r\t]*(?:"([^"]*)"|\'([^\']*)'
+    r'\'|([^"\'][^ \n\r\t>]*)))?', re.S)
 
 
 def parse_attrs(text):
