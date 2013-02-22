@@ -556,8 +556,12 @@ class TestApp(object):
         if script_name and req.path_info.startswith(script_name):
             req.path_info = req.path_info[len(script_name):]
 
+        # set framework hooks
         req.environ['paste.testing'] = True
         req.environ['paste.testing_variables'] = {}
+
+        # set request cookies
+        self.cookiejar.add_cookie_header(RequestCookieAdapter(req))
 
         # verify wsgi compatibility
         app = lint.middleware(self.app)
