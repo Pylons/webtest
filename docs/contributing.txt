@@ -54,6 +54,27 @@ Execute tests
     ----------------------------------------------------------------------
     Ran 70 tests in 14.940s
 
+Use tox to test many Python versions
+====================================
+
+`Tox <http://tox.testrun.org/>`_ installation :
+
+.. code-block:: bash
+
+    $ bin/buildout install tox
+
+Launch tests with *tox* :
+
+.. code-block:: bash
+
+    $ bin/tox
+    py26: commands succeeded
+    py27: commands succeeded
+    py32: commands succeeded
+    py33: commands succeeded
+
+To execute test on all python versions, you need to have ``python2.6``, ``python2.7``, ``python3.2`` and ``python3.3`` in your ``PATH``.
+
 
 Generate documentation
 ======================

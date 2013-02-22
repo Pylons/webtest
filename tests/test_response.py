@@ -1,8 +1,12 @@
 #coding: utf-8
 from __future__ import unicode_literals
+
+
 import webtest
+from webtest.debugapp import debug_app
 from webob import Request
 from webtest.compat import PY3
+
 from tests.compat import unittest
 
 
@@ -10,7 +14,7 @@ def links_app(environ, start_response):
     req = Request(environ)
     status = "200 OK"
     responses = {
-       '/': """
+        '/': """
             <html>
                 <head><title>page with links</title></head>
                 <body>
@@ -24,20 +28,25 @@ def links_app(environ, start_response):
                     </script>
                     <a href='/spam/'>Click me!</a>
                     <a href='/egg/'>Click me!</a>
-                    <button id="button1" onclick="location.href='/foo/'">Button</button>
+                    <button
+                        id="button1"
+                        onclick="location.href='/foo/'"
+                        >Button</button>
                 </body>
             </html>
             """,
 
-       '/foo/': ('<html><body>This is foo. <a href="bar">Bar</a> '
-                 '</body></html>'),
-       '/foo/bar': '<html><body>This is foobar.</body></html>',
-       '/bar': '<html><body>This is bar.</body></html>',
-       '/baz/': '<html><body>This is baz.</body></html>',
-       '/spam/': '<html><body>This is spam.</body></html>',
-       '/egg/': '<html><body>Just eggs.</body></html>',
+        '/foo/': (
+            '<html><body>This is foo. <a href="bar">Bar</a> '
+            '</body></html>'
+        ),
+        '/foo/bar': '<html><body>This is foobar.</body></html>',
+        '/bar': '<html><body>This is bar.</body></html>',
+        '/baz/': '<html><body>This is baz.</body></html>',
+        '/spam/': '<html><body>This is spam.</body></html>',
+        '/egg/': '<html><body>Just eggs.</body></html>',
 
-       '/utf8/': """
+        '/utf8/': """
             <html>
                 <head><title>Тестовая страница</title></head>
                 <body>
@@ -66,25 +75,42 @@ def links_app(environ, start_response):
     return [body]
 
 
-class TestClick(unittest.TestCase):
+class TestResponse(unittest.TestCase):
+    def test_mustcontains(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/', params='foobar')
+        res.mustcontain('foobar')
+        self.assertRaises(IndexError, res.mustcontain, 'not found')
+        res.mustcontain('foobar', no='not found')
+        self.assertRaises(IndexError, res.mustcontain, no='foobar')
 
     def test_click(self):
         app = webtest.TestApp(links_app)
         self.assertIn('This is foo.', app.get('/').click('Foo'))
-        self.assertIn('This is foobar.',
-               app.get('/').click('Foo').click('Bar'))
+        self.assertIn(
+            'This is foobar.',
+            app.get('/').click('Foo').click('Bar')
+        )
         self.assertIn('This is bar.', app.get('/').click('Bar'))
         # should skip non-clickable links
-        self.assertIn('This is baz.',
-               app.get('/').click('Baz'))
+        self.assertIn(
+            'This is baz.',
+            app.get('/').click('Baz')
+        )
         self.assertIn('This is baz.', app.get('/').click(linkid='id_baz'))
         self.assertIn('This is baz.', app.get('/').click(href='baz/'))
-        self.assertIn('This is baz.',
-               app.get('/').click(anchor="<a href='baz/' id='id_baz'>Baz</a>"))
-        self.assertIn('This is spam.',
-               app.get('/').click('Click me!', index=0))
-        self.assertIn('Just eggs.',
-               app.get('/').click('Click me!', index=1))
+        self.assertIn(
+            'This is baz.',
+            app.get('/').click(anchor="<a href='baz/' id='id_baz'>Baz</a>")
+        )
+        self.assertIn(
+            'This is spam.',
+            app.get('/').click('Click me!', index=0)
+        )
+        self.assertIn(
+            'Just eggs.',
+            app.get('/').click('Click me!', index=1)
+        )
 
         def multiple_links():
             app.get('/').click('Click me!')
