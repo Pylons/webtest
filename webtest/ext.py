@@ -57,7 +57,7 @@ def casperjs(test_app, timeout=60):
 
     def run(script, *args):
         dirname = os.path.dirname(sys._getframe(1).f_code.co_filename)
-        log = os.path.join(tempdir, script + '.log')
+        log = os.path.join(tempdir, os.path.basename(script) + '.log')
         script = os.path.join(dirname, script)
         if binary:
             stdout = open(log, 'ab+')
