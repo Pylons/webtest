@@ -116,6 +116,17 @@ class TestResponse(unittest.TestCase):
         )
         res.content_type = None
         self.assertEqual(repr(res), '<200 OK body="CONTENT_L...0)\\n"/523>')
+        res.location = 'http://pylons.org'
+        self.assertEqual(
+            repr(res),
+            '<200 OK location: http://pylons.org body="CONTENT_L...0)\\n"/523>'
+        )
+
+        res.body = b''
+        self.assertEqual(
+            repr(res),
+            '<200 OK location: http://pylons.org no body>'
+        )
 
     def test_mustcontains(self):
         app = webtest.TestApp(debug_app)
