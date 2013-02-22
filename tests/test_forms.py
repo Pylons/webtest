@@ -874,7 +874,18 @@ class TestFileUpload(unittest.TestCase):
     def test_invalid_uploadfiles(self):
         app = webtest.TestApp(SingleUploadFileApp())
         self.assertRaises(ValueError, app.post, '/', upload_files=[()])
-        self.assertRaises(ValueError,
+        self.assertRaises(
+            ValueError,
             app.post, '/',
             upload_files=[('name', 'filename', 'content', 'extra')]
+        )
+
+    def test_goto_uploadfiles(self):
+        app = webtest.TestApp(SingleUploadFileApp())
+        resp = app.get('/')
+        print(resp)
+        resp.goto(
+            '/',
+            method='post',
+            upload_files=[('name', 'filename', b'content')]
         )
