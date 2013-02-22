@@ -127,8 +127,8 @@ class TestCookies(unittest.TestCase):
             else:
                 self.assertEquals(dict(req.cookies),
                                   {'spam': 'eggs', 'foo': 'bar'})
-                self.assertEquals(environ['HTTP_COOKIE'],
-                                  'foo=bar; spam=eggs')
+                self.assertIn('foo=bar', environ['HTTP_COOKIE'])
+                self.assertIn('spam=eggs', environ['HTTP_COOKIE'])
             start_response(status, headers)
             return [to_bytes(body)]
 
