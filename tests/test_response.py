@@ -107,6 +107,16 @@ def links_app(environ, start_response):
 
 
 class TestResponse(unittest.TestCase):
+    def test_repr(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        self.assertEqual(
+            repr(res),
+            '<200 OK text/plain body="CONTENT_L...0)\\n"/523>'
+        )
+        res.content_type = None
+        self.assertEqual(repr(res), '<200 OK body="CONTENT_L...0)\\n"/523>')
+
     def test_mustcontains(self):
         app = webtest.TestApp(debug_app)
         res = app.post('/', params='foobar')
