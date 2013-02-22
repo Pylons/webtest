@@ -108,18 +108,29 @@ def links_app(environ, start_response):
 
 class TestResponse(unittest.TestCase):
     def test_repr(self):
+        def _repr(v):
+            br = repr(v)
+            if len(br) > 18:
+                br = br[:10] + '...' + br[-5:]
+                br += '/%s' % len(v)
+
+            return br
+
         app = webtest.TestApp(debug_app)
         res = app.post('/')
         self.assertEqual(
             repr(res),
-            '<200 OK text/plain body="CONTENT_L...0)\\n"/523>'
+            '<200 OK text/plain body=%s>' % _repr(res.body)
         )
         res.content_type = None
-        self.assertEqual(repr(res), '<200 OK body="CONTENT_L...0)\\n"/523>')
+        self.assertEqual(
+            repr(res),
+            '<200 OK body=%s>' % _repr(res.body)
+        )
         res.location = 'http://pylons.org'
         self.assertEqual(
             repr(res),
-            '<200 OK location: http://pylons.org body="CONTENT_L...0)\\n"/523>'
+            '<200 OK location: http://pylons.org body=%s>' % _repr(res.body)
         )
 
         res.body = b''
