@@ -11,6 +11,9 @@ from webtest.lint import check_headers
 from webtest.lint import check_content_type
 from webtest.lint import check_environ
 from webtest.lint import IteratorWrapper
+from webtest.lint import WriteWrapper
+
+from webtest.compat import to_bytes
 
 from six import PY3
 from six import StringIO
@@ -136,12 +139,33 @@ class TestIteratorWrapper(unittest.TestCase):
                 return None
 
             next = __next__
-            
 
             def close(self):
                 self.closed = True
+
         mock = MockIterator()
         wrapper = IteratorWrapper(mock, None)
         wrapper.close()
 
         assert mock.closed, "Original iterator has not been closed"
+
+
+class TestWriteWrapper(unittest.TestCase):
+    def test_wrong_type(self):
+        write_wrapper = WriteWrapper(None)
+        self.assertRaises(AssertionError, write_wrapper, 'not a binary')
+
+    def test_normal(self):
+        class MockWriter(object):
+            def __init__(self):
+                self.written = []
+
+            def __call__(self, s):
+                self.written.append(s)
+
+        data = to_bytes('foo')
+        mock = MockWriter()
+        write_wrapper = WriteWrapper(mock)
+        write_wrapper(data)
+        assert mock.written == [data], ("WriterWrapper should call original"
+            " writer when data is binary type")
