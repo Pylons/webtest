@@ -1,0 +1,376 @@
+# -*- coding: utf-8 -*-
+from six import binary_type
+from webob import Request
+from webob import Response
+from webtest.compat import to_bytes
+from webtest.compat import PY3
+from webtest.compat import OrderedDict
+from webtest.debugapp import debug_app
+from tests.compat import unittest
+import mock
+import webtest
+
+
+def cookie_app(environ, start_response):
+    req = Request(environ)
+    status = "200 OK"
+    body = '<html><body><a href="/go/">go</a></body></html>'
+    headers = [
+        ('Content-Type', 'text/html'),
+        ('Content-Length', str(len(body))),
+    ]
+    if req.path_info != '/go/':
+        headers.extend([
+            ('Set-Cookie', 'spam=eggs'),
+            ('Set-Cookie', 'foo=bar;baz'),
+        ])
+    start_response(status, headers)
+    return [to_bytes(body)]
+
+
+def cookie_app2(environ, start_response):
+    status = to_bytes("200 OK")
+    body = 'Cookie: %(HTTP_COOKIE)s' % environ
+    headers = [
+        ('Content-Type', 'text/html'),
+        ('Content-Length', str(len(body))),
+    ]
+    start_response(status, headers)
+    return [to_bytes(body)]
+
+
+def cookie_app3(environ, start_response):
+    status = to_bytes("200 OK")
+    body = ''
+    headers = [
+        ('Content-Type', 'text/html'),
+        ('Content-Length', str(len(body))),
+        ('Set-Cookie', 'spam=eggs; Expires=Tue, 21-Feb-2013 17:45:00 GMT;'),
+    ]
+    start_response(status, headers)
+    return [to_bytes(body)]
+
+
+class TestCookies(unittest.TestCase):
+
+    def test_response_set_cookie(self):
+        app = webtest.TestApp(cookie_app)
+        self.assertTrue(not app.cookiejar,
+                        'App should initially contain no cookies')
+        app.get('/')
+        cookies = app.cookies
+        self.assert_(cookies, 'Response should have set cookies')
+        self.assertEqual(cookies['spam'].value, 'eggs')
+        self.assertEqual(cookies['foo'].value, 'bar')
+
+    def test_preserves_cookies(self):
+        app = webtest.TestApp(cookie_app)
+        res = app.get('/')
+        self.assert_(app.cookiejar)
+        res.click('go')
+        self.assert_(app.cookiejar)
+
+    def test_send_cookies(self):
+        app = webtest.TestApp(cookie_app2)
+        self.assertTrue(not app.cookies,
+                        'App should initially contain no cookies')
+
+        resp = app.get('/', headers=[('Cookie', 'spam=eggs')])
+        self.assertFalse(app.cookies,
+                         'Response should not have set cookies')
+        resp.mustcontain('Cookie: spam=eggs')
+
+    @mock.patch('six.moves.http_cookiejar.time.time')
+    def test_expires_cookies(self, mock_time):
+        app = webtest.TestApp(cookie_app3)
+        self.assertTrue(not app.cookiejar,
+                        'App should initially contain no cookies')
+
+        mock_time.return_value = 1361464946.0
+        app.get('/')
+        self.assertTrue(app.cookies, 'Response should have set cookies')
+
+        mock_time.return_value = 1461464946.0
+        app.get('/')
+        self.assertFalse(app.cookies, 'Response should have unset cookies')
+
+    def test_cookies_readonly(self):
+        app = webtest.TestApp(cookie_app)
+        try:
+            app.cookies = {}
+        except:
+            pass
+        else:
+            self.fail('testapp.cookies should be read-only')
+
+
+class TestEnviron(unittest.TestCase):
+
+    def test_get_extra_environ(self):
+        app = webtest.TestApp(debug_app,
+                              extra_environ={'HTTP_ACCEPT_LANGUAGE': 'ru',
+                                             'foo': 'bar'})
+        res = app.get('http://localhost/')
+        self.assertIn('HTTP_ACCEPT_LANGUAGE: ru', res, res)
+        self.assertIn("foo: 'bar'", res, res)
+
+        res = app.get('http://localhost/', extra_environ={'foo': 'baz'})
+        self.assertIn('HTTP_ACCEPT_LANGUAGE: ru', res, res)
+        self.assertIn("foo: 'baz'", res, res)
+
+    def test_post_extra_environ(self):
+        app = webtest.TestApp(debug_app,
+                              extra_environ={'HTTP_ACCEPT_LANGUAGE': 'ru',
+                                             'foo': 'bar'})
+        res = app.post('http://localhost/')
+        self.assertIn('HTTP_ACCEPT_LANGUAGE: ru', res, res)
+        self.assertIn("foo: 'bar'", res, res)
+
+        res = app.post('http://localhost/', extra_environ={'foo': 'baz'})
+        self.assertIn('HTTP_ACCEPT_LANGUAGE: ru', res, res)
+        self.assertIn("foo: 'baz'", res, res)
+
+    def test_request_extra_environ(self):
+        app = webtest.TestApp(debug_app,
+                              extra_environ={'HTTP_ACCEPT_LANGUAGE': 'ru',
+                                             'foo': 'bar'})
+        res = app.request('http://localhost/', method='GET')
+        self.assertIn('HTTP_ACCEPT_LANGUAGE: ru', res, res)
+        self.assertIn("foo: 'bar'", res, res)
+
+        res = app.request('http://localhost/', method='GET',
+                          environ={'foo': 'baz'})
+        self.assertIn('HTTP_ACCEPT_LANGUAGE: ru', res, res)
+        self.assertIn("foo: 'baz'", res, res)
+
+
+deform_upload_fields_text = \
+"""
+      <input type="hidden" name="_charset_" />
+      <input type="hidden" name="__formid__" value="deform"/>
+      <input type="text" name="title" value="" id="deformField1"/>
+      <input type="hidden" name="__start__" value="fileupload:mapping"/>
+        <input type="file" name="fileupload" id="deformField2"/>
+      <input type="hidden" name="__end__" value="fileupload:mapping"/>
+      <textarea id="deformField3" name="description" rows="10" cols="60">
+      </textarea>
+      <button
+          id="deformSubmit"
+          name="Submit"
+          type="submit"
+          value="Submit">
+          Submit
+      </button>
+"""
+
+
+def get_submit_app(form_id, form_fields_text):
+    def submit_app(environ, start_response):
+        req = Request(environ)
+        status = "200 OK"
+        if req.method == "GET":
+            body = """
+<html>
+  <head><title>form page</title></head>
+  <body>
+    <form
+        id="%s"
+        action=""
+        method="POST"
+        enctype="multipart/form-data"
+        accept-charset="utf-8">
+
+      %s
+    </form>
+  </body>
+</html>
+""" % (form_id, form_fields_text)
+        else:
+            body_head = """
+<html>
+    <head><title>display page</title></head>
+    <body>
+"""
+
+            body_parts = []
+            for (name, value) in req.POST.items():
+                if hasattr(value, 'filename'):
+                    body_parts.append("%s:%s:%s\n" % (
+                        name,
+                        value.filename,
+                        value.value.decode('ascii')))
+                else:
+                    body_parts.append("%s:%s\n" % (
+                        name, value))
+
+            body_foot = """    </body>
+    </html>
+    """
+            body = body_head + "".join(body_parts) + body_foot
+        if not isinstance(body, binary_type):
+            body = body.encode('utf8')
+        headers = [
+            ('Content-Type', 'text/html; charset=utf-8'),
+            ('Content-Length', str(len(body)))]
+        start_response(status, headers)
+        return [body]
+    return submit_app
+
+
+class TestFieldOrder(unittest.TestCase):
+
+    def test_submit_with_file_upload(self):
+        uploaded_file_name = 'test.txt'
+        uploaded_file_contents = 'test content file upload'
+        if PY3:
+            uploaded_file_contents = to_bytes(uploaded_file_contents)
+
+        deform_upload_file_app = get_submit_app('deform',
+                                                deform_upload_fields_text)
+        app = webtest.TestApp(deform_upload_file_app)
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(
+            res.headers['content-type'], 'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
+        self.assertEqual(res.charset, 'utf-8')
+
+        single_form = res.forms["deform"]
+        single_form.set("title", "testtitle")
+        single_form.set("fileupload",
+                        (uploaded_file_name, uploaded_file_contents))
+        single_form.set("description", "testdescription")
+        display = single_form.submit("Submit")
+        self.assertIn(
+"""_charset_:
+__formid__:deform
+title:testtitle
+__start__:fileupload:mapping
+fileupload:test.txt:test content file upload
+__end__:fileupload:mapping
+description:testdescription
+Submit:Submit
+""", display, display)
+
+    def test_post_with_file_upload(self):
+        uploaded_file_name = 'test.txt'
+        uploaded_file_contents = 'test content file upload'
+        if PY3:
+            uploaded_file_contents = to_bytes(uploaded_file_contents)
+
+        deform_upload_file_app = get_submit_app('deform',
+            deform_upload_fields_text)
+        app = webtest.TestApp(deform_upload_file_app)
+        display = app.post("/", OrderedDict([
+            ('_charset_', ''),
+            ('__formid__', 'deform'),
+            ('title', 'testtitle'),
+            ('__start__', 'fileupload:mapping'),
+            ('fileupload', webtest.Upload(uploaded_file_name,
+                                          uploaded_file_contents)),
+            ('__end__', 'fileupload:mapping'),
+            ('description', 'testdescription'),
+            ('Submit', 'Submit')]))
+
+        self.assertIn(
+"""_charset_:
+__formid__:deform
+title:testtitle
+__start__:fileupload:mapping
+fileupload:test.txt:test content file upload
+__end__:fileupload:mapping
+description:testdescription
+Submit:Submit""", display, display)
+
+    def test_field_order_is_across_all_fields(self):
+        fields = """
+<input type="text" name="letter" value="a">
+<input type="text" name="letter" value="b">
+<input type="text" name="number" value="1">
+<input type="text" name="letter" value="c">
+<input type="text" name="number" value="2">
+<input type="submit" name="save" value="Save 1">
+<input type="text" name="letter" value="d">
+<input type="submit" name="save" value="Save 2">
+<input type="text" name="letter" value="e">
+"""
+        submit_app = get_submit_app('test', fields)
+        app = webtest.TestApp(submit_app)
+        get_res = app.get("/")
+        # Submit the form with the second submit button.
+        display = get_res.forms[0].submit('save', 1)
+        self.assertIn(
+"""letter:a
+letter:b
+number:1
+letter:c
+number:2
+letter:d
+save:Save 2
+letter:e""", display, display)
+
+
+class TestFragments(unittest.TestCase):
+
+    def test_url_without_fragments(self):
+        app = webtest.TestApp(debug_app)
+        res = app.get('http://localhost/')
+        self.assertEqual(res.status_int, 200)
+
+    def test_url_with_fragments(self):
+        app = webtest.TestApp(debug_app)
+        res = app.get('http://localhost/#ananchor')
+        self.assertEqual(res.status_int, 200)
+
+
+def application(environ, start_response):
+    req = Request(environ)
+    if req.path_info == '/redirect':
+        req.path_info = '/path'
+        resp = Response()
+        resp.status = '302 Found'
+        resp.location = req.path
+    else:
+        resp = Response()
+        resp.body = to_bytes('<html><body><a href="%s">link</a></body></html>' % req.path)
+    return resp(environ, start_response)
+
+
+class TestScriptName(unittest.TestCase):
+
+    def test_script_name(self):
+        app = webtest.TestApp(application)
+
+        resp = app.get('/script', extra_environ={'SCRIPT_NAME': '/script'})
+        resp.mustcontain('href="/script"')
+
+        resp = app.get('/script/redirect',
+                       extra_environ={'SCRIPT_NAME': '/script'})
+        self.assertEqual(resp.status_int, 302)
+        self.assertEqual(resp.location,
+                         'http://localhost/script/path',
+                         resp.location)
+
+        resp = resp.follow(extra_environ={'SCRIPT_NAME': '/script'})
+        resp.mustcontain('href="/script/path"')
+        resp = resp.click('link')
+        resp.mustcontain('href="/script/path"')
+
+    def test_app_script_name(self):
+        app = webtest.TestApp(application,
+                              extra_environ={'SCRIPT_NAME': '/script'})
+        resp = app.get('/script/redirect')
+        self.assertEqual(resp.status_int, 302)
+        self.assertEqual(resp.location,
+                         'http://localhost/script/path',
+                         resp.location)
+
+        resp = resp.follow()
+        resp.mustcontain('href="/script/path"')
+        resp = resp.click('link')
+        resp.mustcontain('href="/script/path"')
+
+    def test_script_name_doesnt_match(self):
+        app = webtest.TestApp(application)
+        resp = app.get('/path', extra_environ={'SCRIPT_NAME': '/script'})
+        resp.mustcontain('href="/script/path"')
