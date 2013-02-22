@@ -19,6 +19,7 @@ from webtest.compat import to_bytes
 
 from six import PY3
 from six import StringIO
+from six import BytesIO
 
 import warnings
 
@@ -57,7 +58,12 @@ class TestInputWrapper(unittest.TestCase):
 
     def test_close(self):
         input_wrapper = InputWrapper(None)
-        self.assertRaises(AssertionError,input_wrapper.close)
+        self.assertRaises(AssertionError, input_wrapper.close)
+
+    def test_iter(self):
+        data = to_bytes("A line\nAnother line\nA final line\n")
+        input_wrapper = InputWrapper(BytesIO(data))
+        self.assertEquals(to_bytes("").join(input_wrapper), data, '')
 
 
 class TestCheckContentType(unittest.TestCase):
@@ -106,8 +112,8 @@ class TestCheckEnviron(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             check_environ(environ)
-            self.assertEqual( len(w), 1, "We should have only one warning")
-            self.assertTrue( "QUERY_STRING" in str(w[-1].message), 
+            self.assertEqual(len(w), 1, "We should have only one warning")
+            self.assertTrue("QUERY_STRING" in str(w[-1].message),
                 "The warning message should say something about QUERY_STRING")
 
     def test_no_valid_request(self):
@@ -128,9 +134,9 @@ class TestCheckEnviron(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             check_environ(environ)
-            self.assertEqual( len(w), 1, "We should have only one warning")
-            self.assertTrue( "REQUEST_METHOD" in str(w[-1].message),
-                'The warning message should say something about REQUEST_METHOD')
+            self.assertEqual(len(w), 1, "We should have only one warning")
+            self.assertTrue("REQUEST_METHOD" in str(w[-1].message),
+              'The warning message should say something about REQUEST_METHOD')
 
 
 class TestIteratorWrapper(unittest.TestCase):
@@ -175,7 +181,7 @@ class TestWriteWrapper(unittest.TestCase):
         mock = MockWriter()
         write_wrapper = WriteWrapper(mock)
         write_wrapper(data)
-        self.assertEqual(mock.written, [data], 
+        self.assertEqual(mock.written, [data],
             "WriterWrapper should call original writer when data is binary "
             "type")
 
@@ -206,12 +212,12 @@ class TestErrorWrapper(unittest.TestCase):
         error_wrapper = ErrorWrapper(fake_error)
         data = [to_bytes('a line'), to_bytes('another line')]
         error_wrapper.writelines(data)
-        self.assertEqual(fake_error.written, data, 
+        self.assertEqual(fake_error.written, data,
             "ErrorWrapper should call original writer")
 
     def test_flush(self):
         fake_error = self.FakeError()
         error_wrapper = ErrorWrapper(fake_error)
         error_wrapper.flush()
-        self.assertTrue(fake_error.flushed, 
+        self.assertTrue(fake_error.flushed,
             "ErrorWrapper should have called original wsgi_errors's flush")
