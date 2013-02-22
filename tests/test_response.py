@@ -330,3 +330,10 @@ class TestResponse(unittest.TestCase):
 
         resp.content_type = 'text/xml'
         resp.xml
+
+    def test_unicode(self):
+        app = webtest.TestApp(links_app)
+
+        resp = app.get('/')
+        if not PY3:
+            unicode(resp)
