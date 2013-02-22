@@ -48,15 +48,21 @@ class TestForms(unittest.TestCase):
         form['select'].force_value('notavalue')
         form['select'].value__set('value3')
 
-        assert form['select']._forced_value is NoValue
-        assert form['select'].value == 'value3'
-        assert form['select'].selectedIndex == 2
+        self.assertTrue(form['select']._forced_value is NoValue,
+            "Setting a value after having forced a value should keep a forced"
+            " state")
+        self.assertEqual(form['select'].value, 'value3',
+            "the value should the the one set by value__set")
+        self.assertEqual(form['select'].selectedIndex, 2,
+            "the value index should be the one set by value__set")
 
     def test_form_select(self):
         form = webtest.Form(None, PAGE_CONTENT)
         form.select('select', 'value1')
 
-        assert form['select'].value == 'value1'
+        self.assertEqual(form['select'].value, 'value1',
+            "when using form.select, the input selected value should be "
+            "changed")
 
     def test_get_field_by_index(self):
         form = webtest.Form(None, PAGE_CONTENT)
@@ -86,15 +92,14 @@ class TestForms(unittest.TestCase):
 
 def no_form_app(environ, start_response):
     status = b"200 OK"
-    body = to_bytes(
-"""
+    body = to_bytes("""
 <html>
     <head><title>Page without form</title></head>
     <body>
         <h1>This is not the form you are looking for</h1>
     </body>
 </html>
-""" )
+""")
 
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
@@ -105,8 +110,7 @@ def no_form_app(environ, start_response):
 
 def too_many_forms_app(environ, start_response):
     status = b"200 OK"
-    body = to_bytes(
-"""
+    body = to_bytes("""
 <html>
     <head><title>Page without form</title></head>
     <body>
@@ -114,7 +118,7 @@ def too_many_forms_app(environ, start_response):
         <form method="POST" id="second_form"></form>
     </body>
 </html>
-""" )
+""")
 
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
