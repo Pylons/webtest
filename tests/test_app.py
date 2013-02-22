@@ -7,8 +7,22 @@ from webtest.compat import PY3
 from webtest.compat import OrderedDict
 from webtest.debugapp import debug_app
 from tests.compat import unittest
+import six
 import mock
 import webtest
+
+
+class TestApp(unittest.TestCase):
+
+    def test_encode_multipart(self):
+        app = webtest.TestApp(debug_app)
+        data = app.encode_multipart(
+            [], [('file', 'data.txt', six.b('data'))])
+        self.assertIn(to_bytes('data.txt'), data[-1])
+
+        data = app.encode_multipart(
+            [], [(six.b('file'), six.b('data.txt'), six.b('data'))])
+        self.assertIn(to_bytes('data.txt'), data[-1])
 
 
 def cookie_app(environ, start_response):

@@ -413,6 +413,11 @@ class TestApp(object):
         def _append_file(file_info):
             key, filename, value = self._get_file_info(file_info)
             if isinstance(filename, text_type):
+                try:
+                    key = key.encode('utf8')
+                except:
+                    raise  # file names must be ascii
+            if isinstance(filename, text_type):
                 fcontent = mimetypes.guess_type(filename)[0]
                 try:
                     filename = filename.encode('utf8')
