@@ -499,11 +499,4 @@ def check_iterator(iterator):
         "instead return a single-item list containing that string.")
 
 
-def make_middleware(application, global_conf):
-    # @@: global_conf should be taken out of the middleware function,
-    # and isolated here
-    return middleware(application)
-
-make_middleware.__doc__ = __doc__
-
-__all__ = ['middleware', 'make_middleware']
+__all__ = ['middleware']
