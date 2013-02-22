@@ -208,6 +208,15 @@ class TestResponse(unittest.TestCase):
             app.get('/').clickbutton, buttonid='button3'
         )
 
+    def test_html_attribute(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        res.content_type = 'text/plain'
+        self.assertRaises(
+            AttributeError,
+            getattr, res, 'html'
+        )
+
     def test_no_form(self):
         app = webtest.TestApp(links_app)
 
