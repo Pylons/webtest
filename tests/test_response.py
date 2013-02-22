@@ -32,6 +32,8 @@ def links_app(environ, start_response):
                         id="button1"
                         onclick="location.href='/foo/'"
                         >Button</button>
+                    <button
+                        id="button2">Button</button>
                 </body>
             </html>
             """,
@@ -58,7 +60,32 @@ def links_app(environ, start_response):
                     </script>
                 </body>
             </html>
-            """,
+        """,
+        '/no_form/': """
+            <html>
+                <head><title>Page without form</title></head>
+                <body>
+                    <h1>This is not the form you are looking for</h1>
+                </body>
+            </html>
+        """,
+        '/one_forms/': """
+            <html>
+                <head><title>Page without form</title></head>
+                <body>
+                    <form method="POST" id="first_form"></form>
+                </body>
+            </html>
+        """,
+        '/many_forms/': """
+            <html>
+                <head><title>Page without form</title></head>
+                <body>
+                    <form method="POST" id="first_form"></form>
+                    <form method="POST" id="second_form"></form>
+                </body>
+            </html>
+        """
     }
 
     utf8_paths = ['/utf8/']
@@ -157,4 +184,34 @@ class TestResponse(unittest.TestCase):
         self.assertIn(
             'This is foo.',
             app.get('/').clickbutton(buttonid='button1')
+        )
+        self.assertRaises(
+            IndexError,
+            app.get('/').clickbutton, buttonid='button2'
+        )
+
+    def test_no_form(self):
+        app = webtest.TestApp(links_app)
+
+        resp = app.get('/no_form/')
+        self.assertRaises(
+            TypeError,
+            getattr,
+            resp, 'form'
+        )
+
+    def test_one_forms(self):
+        app = webtest.TestApp(links_app)
+
+        resp = app.get('/one_forms/')
+        self.assertEqual(resp.form.id, 'first_form')
+
+    def test_too_many_forms(self):
+        app = webtest.TestApp(links_app)
+
+        resp = app.get('/many_forms/')
+        self.assertRaises(
+            TypeError,
+            getattr,
+            resp, 'form'
         )
