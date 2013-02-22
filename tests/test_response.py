@@ -146,6 +146,10 @@ class TestResponse(unittest.TestCase):
         self.assertRaises(IndexError, res.mustcontain, 'not found')
         res.mustcontain('foobar', no='not found')
         self.assertRaises(IndexError, res.mustcontain, no='foobar')
+        self.assertRaises(
+            TypeError, 
+            res.mustcontain, invalid_param='foobar'
+        )
 
     def test_click(self):
         app = webtest.TestApp(links_app)
@@ -264,3 +268,8 @@ class TestResponse(unittest.TestCase):
             getattr,
             resp, 'form'
         )
+
+    def test_showbrowser(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        res.showbrowser()
