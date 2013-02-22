@@ -311,9 +311,6 @@ class IteratorWrapper(object):
             self.original_iterator.close()
 
     def __del__(self):
-        if not self.closed:
-            sys.stderr.write(
-                "Iterator garbage collected without being closed")
         assert self.closed, (
             "Iterator garbage collected without being closed")
 
