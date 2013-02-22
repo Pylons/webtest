@@ -297,3 +297,16 @@ class TestResponse(unittest.TestCase):
         res.charset = 'utf8'
         res.body = 'été'.encode('latin1')
         res.testbody
+
+    def test_xml(self):
+        app = webtest.TestApp(links_app)
+
+        resp = app.get('/no_form/')
+        self.assertRaises(
+            AttributeError,
+            getattr,
+            resp, 'xml'
+        )
+
+        resp.content_type = 'text/xml'
+        resp.xml
