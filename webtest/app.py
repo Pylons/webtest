@@ -472,9 +472,6 @@ class TestApp(object):
                 filename = os.path.join(self.relative_to, filename)
             f = open(filename, 'rb')
             content = f.read()
-            if PY3 and isinstance(content, text_type):
-                # we want bytes
-                content = content.encode(f.encoding)
             f.close()
             return (file_info[0], filename, content)
         elif len(file_info) == 3:

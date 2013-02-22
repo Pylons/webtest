@@ -9,6 +9,8 @@ from webtest.compat import PY3
 
 from tests.compat import unittest
 
+import webbrowser
+
 
 def links_app(environ, start_response):
     req = Request(environ)
@@ -146,6 +148,10 @@ class TestResponse(unittest.TestCase):
         self.assertRaises(IndexError, res.mustcontain, 'not found')
         res.mustcontain('foobar', no='not found')
         self.assertRaises(IndexError, res.mustcontain, no='foobar')
+        self.assertRaises(
+            TypeError,
+            res.mustcontain, invalid_param='foobar'
+        )
 
     def test_click(self):
         app = webtest.TestApp(links_app)
@@ -264,3 +270,30 @@ class TestResponse(unittest.TestCase):
             getattr,
             resp, 'form'
         )
+
+    def test_showbrowser(self):
+        def open_new(f):
+            self.filename = f
+
+        webbrowser.open_new = open_new
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        res.showbrowser()
+
+    def test_unicode_normal_body(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        self.assertRaises(
+            AttributeError,
+            getattr, res, 'unicode_normal_body'
+        )
+        res.charset = 'latin1'
+        res.body = 'été'.encode('latin1')
+        self.assertEqual(res.unicode_normal_body, 'été')
+
+    def test_testbody(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        res.charset = 'utf8'
+        res.body = 'été'.encode('latin1')
+        res.testbody
