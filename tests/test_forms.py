@@ -830,6 +830,8 @@ class TestFileUpload(unittest.TestCase):
         if PY3:
             uploaded_file1_contents = to_bytes(uploaded_file1_contents)
         uploaded_file2_name = __file__
+        uploaded_file2_name = os.path.join(os.path.dirname(__file__), 'html',
+                                           "404.html")
         uploaded_file2_contents = open(uploaded_file2_name).read()
         if PY3:
             uploaded_file2_contents = to_bytes(uploaded_file2_contents)

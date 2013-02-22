@@ -412,7 +412,7 @@ class TestApp(object):
 
         def _append_file(file_info):
             key, filename, value = self._get_file_info(file_info)
-            if isinstance(filename, text_type):
+            if isinstance(key, text_type):
                 try:
                     key = key.encode('utf8')
                 except:
