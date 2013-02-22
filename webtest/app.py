@@ -580,7 +580,7 @@ class TestApp(object):
         # We do this to make sure the app_iter is exausted:
         try:
             res.body
-        except TypeError:
+        except TypeError:  # pragma: no cover
             pass
         res.errors = errors.getvalue()
 

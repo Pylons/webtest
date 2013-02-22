@@ -14,15 +14,38 @@ import webtest
 
 class TestApp(unittest.TestCase):
 
+    def setUp(self):
+        self.app = webtest.TestApp(debug_app)
+
     def test_encode_multipart(self):
-        app = webtest.TestApp(debug_app)
-        data = app.encode_multipart(
+        data = self.app.encode_multipart(
             [], [('file', 'data.txt', six.b('data'))])
         self.assertIn(to_bytes('data.txt'), data[-1])
 
-        data = app.encode_multipart(
+        data = self.app.encode_multipart(
             [], [(six.b('file'), six.b('data.txt'), six.b('data'))])
         self.assertIn(to_bytes('data.txt'), data[-1])
+
+
+class TestPasteVariables(unittest.TestCase):
+
+    def call_FUT(self, **kwargs):
+        def application(environ, start_response):
+            resp = Response()
+            environ['paste.testing_variables'].update(kwargs)
+            return resp(environ, start_response)
+        return webtest.TestApp(application)
+
+    def test_paste_testing_variables_raises(self):
+        app = self.call_FUT(body='1')
+        req = Request.blank('/')
+        self.assertRaises(ValueError, app.do_request, req, '*', False)
+
+    def test_paste_testing_variables(self):
+        app = self.call_FUT(check='1')
+        req = Request.blank('/')
+        resp = app.do_request(req, '*', False)
+        self.assertEqual(resp.check, '1')
 
 
 def cookie_app(environ, start_response):
@@ -346,7 +369,8 @@ def application(environ, start_response):
         resp.location = req.path
     else:
         resp = Response()
-        resp.body = to_bytes('<html><body><a href="%s">link</a></body></html>' % req.path)
+        resp.body = to_bytes(
+            '<html><body><a href="%s">link</a></body></html>' % req.path)
     return resp(environ, start_response)
 
 
