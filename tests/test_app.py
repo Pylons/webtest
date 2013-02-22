@@ -27,6 +27,33 @@ class TestApp(unittest.TestCase):
         self.assertIn(to_bytes('data.txt'), data[-1])
 
 
+class TestStatus(unittest.TestCase):
+
+    def setUp(self):
+        self.app = webtest.TestApp(debug_app)
+
+    def check_status(self, status, awaiting_status=None):
+        resp = Response()
+        resp.request = Request.blank('/')
+        resp.status = status
+        return self.app._check_status(awaiting_status, resp)
+
+    def test_check_status_asterisk(self):
+        self.assertEqual(self.check_status('200 Ok', '*'), None)
+
+    def test_check_status_almost_asterisk(self):
+        self.assertEqual(self.check_status('200 Ok', '2*'), None)
+
+    def test_check_status_tuple(self):
+        self.assertEqual(self.check_status('200 Ok', (200,)), None)
+        self.assertRaises(webtest.AppError,
+                          self.check_status, '200 Ok', (400,))
+
+    def test_check_status_none(self):
+        self.assertEqual(self.check_status('200 Ok', None), None)
+        self.assertRaises(webtest.AppError, self.check_status, '400 Ok')
+
+
 class TestPasteVariables(unittest.TestCase):
 
     def call_FUT(self, **kwargs):
