@@ -12,6 +12,7 @@ from webtest.lint import check_content_type
 from webtest.lint import check_environ
 from webtest.lint import IteratorWrapper
 from webtest.lint import WriteWrapper
+from webtest.lint import ErrorWrapper
 
 from webtest.compat import to_bytes
 
@@ -169,3 +170,8 @@ class TestWriteWrapper(unittest.TestCase):
         write_wrapper(data)
         assert mock.written == [data], ("WriterWrapper should call original"
             " writer when data is binary type")
+
+class TestErrorWrapper(unittest.TestCase):
+    def test_dont_close(self):
+        error_wrapper = ErrorWrapper(None)
+        self.assertRaises(AssertionError, error_wrapper.close) 
