@@ -60,7 +60,9 @@ class TestForms(unittest.TestCase):
         form = webtest.Form(None, PAGE_CONTENT)
         form.select('select', 'value1')
 
-        assert form['select'].value == 'value1'
+        self.assertEqual(form['select'].value, 'value1',
+            "when using form.select, the input selected value should be "
+            "changed")
 
     def test_get_field_by_index(self):
         form = webtest.Form(None, PAGE_CONTENT)
