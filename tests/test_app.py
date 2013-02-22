@@ -42,6 +42,12 @@ class TestApp(unittest.TestCase):
         resp = self.app.get('/?a=b&c=d', dict(e='f'))
         resp.mustcontain('a=b', 'c=d', 'e=f')
 
+    def test_request_with_testrequest(self):
+        req = webtest.TestRequest.blank('/')
+        resp = self.app.request(req, method='POST')
+        resp.charset = 'ascii'
+        assert 'REQUEST_METHOD: POST' in resp.text
+
 
 class TestStatus(unittest.TestCase):
 
@@ -135,8 +141,8 @@ class TestCookies(unittest.TestCase):
             else:
                 self.assertEquals(dict(req.cookies),
                                   {'spam': 'eggs', 'foo': 'bar'})
-                self.assertEquals(environ['HTTP_COOKIE'],
-                                  'foo=bar; spam=eggs')
+                self.assertIn('foo=bar', environ['HTTP_COOKIE'])
+                self.assertIn('spam=eggs', environ['HTTP_COOKIE'])
             start_response(status, headers)
             return [to_bytes(body)]
 
