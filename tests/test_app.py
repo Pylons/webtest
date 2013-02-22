@@ -108,84 +108,64 @@ class TestPasteVariables(unittest.TestCase):
         self.assertEqual(resp.check, '1')
 
 
-def cookie_app(environ, start_response):
-    req = Request(environ)
-    status = "200 OK"
-    body = '<html><body><a href="/go/">go</a></body></html>'
-    headers = [
-        ('Content-Type', 'text/html'),
-        ('Content-Length', str(len(body))),
-    ]
-    if req.path_info != '/go/':
-        headers.extend([
-            ('Set-Cookie', 'spam=eggs'),
-            ('Set-Cookie', 'foo=bar;baz'),
-        ])
-    else:
-        assert dict(req.cookies) == {'spam': 'eggs', 'foo': 'bar'}
-        assert environ['HTTP_COOKIE'] == 'foo=bar; spam=eggs'
-    start_response(status, headers)
-    return [to_bytes(body)]
-
-
-def cookie_app2(environ, start_response):
-    req = Request(environ)
-    status = to_bytes("200 OK")
-    body = 'Cookie.'
-    assert dict(req.cookies) == {'spam': 'eggs'}
-    assert environ['HTTP_COOKIE'] == 'spam=eggs'
-    headers = [
-        ('Content-Type', 'text/html'),
-        ('Content-Length', str(len(body))),
-    ]
-    start_response(status, headers)
-    return [to_bytes(body)]
-
-
-def cookie_app3(environ, start_response):
-    status = to_bytes("200 OK")
-    body = ''
-    headers = [
-        ('Content-Type', 'text/html'),
-        ('Content-Length', str(len(body))),
-        ('Set-Cookie', 'spam=eggs; Expires=Tue, 21-Feb-2013 17:45:00 GMT;'),
-    ]
-    start_response(status, headers)
-    return [to_bytes(body)]
-
-
 class TestCookies(unittest.TestCase):
 
-    def test_response_set_cookie(self):
+    def test_preserves_cookies(self):
+        def cookie_app(environ, start_response):
+            req = Request(environ)
+            status = "200 OK"
+            body = '<html><body><a href="/go/">go</a></body></html>'
+            headers = [
+                ('Content-Type', 'text/html'),
+                ('Content-Length', str(len(body))),
+            ]
+            if req.path_info != '/go/':
+                headers.extend([
+                    ('Set-Cookie', 'spam=eggs'),
+                    ('Set-Cookie', 'foo=bar;baz'),
+                ])
+            else:
+                self.assertEquals(dict(req.cookies),
+                                  {'spam': 'eggs', 'foo': 'bar'})
+                self.assertEquals(environ['HTTP_COOKIE'],
+                                  'foo=bar; spam=eggs')
+            start_response(status, headers)
+            return [to_bytes(body)]
+
         app = webtest.TestApp(cookie_app)
         self.assertTrue(not app.cookiejar,
                         'App should initially contain no cookies')
-        app.get('/')
-        cookies = app.cookies
-        self.assert_(cookies, 'Response should have set cookies')
-        self.assertEqual(cookies['spam'], 'eggs')
-        self.assertEqual(cookies['foo'], 'bar')
 
-    def test_preserves_cookies(self):
-        app = webtest.TestApp(cookie_app)
         self.assertFalse(app.cookies)
         res = app.get('/')
         self.assertEqual(app.cookies['spam'], 'eggs')
+        self.assertEqual(app.cookies['foo'], 'bar')
         res = res.click('go')
         self.assertEqual(app.cookies['spam'], 'eggs')
+        self.assertEqual(app.cookies['foo'], 'bar')
 
-    def test_send_cookies(self):
-        app = webtest.TestApp(cookie_app2)
-        self.assertTrue(not app.cookies,
-                        'App should initially contain no cookies')
-
-        app.get('/', headers=[('Cookie', 'spam=eggs')])
-        self.assertFalse(app.cookies,
-                         'Response should not have set cookies')
+    def test_cookies_readonly(self):
+        app = webtest.TestApp(debug_app)
+        try:
+            app.cookies = {}
+        except:
+            pass
+        else:
+            self.fail('testapp.cookies should be read-only')
 
     @mock.patch('six.moves.http_cookiejar.time.time')
     def test_expires_cookies(self, mock_time):
-        app = webtest.TestApp(cookie_app3)
+        def cookie_app(environ, start_response):
+            status = to_bytes("200 OK")
+            body = ''
+            headers = [
+                ('Content-Type', 'text/html'),
+                ('Content-Length', str(len(body))),
+                ('Set-Cookie', 'spam=eggs; Expires=Tue, 21-Feb-2013 17:45:00 GMT;'),
+            ]
+            start_response(status, headers)
+            return [to_bytes(body)]
+        app = webtest.TestApp(cookie_app)
         self.assertTrue(not app.cookiejar,
                         'App should initially contain no cookies')
 
@@ -197,17 +177,21 @@ class TestCookies(unittest.TestCase):
         app.get('/')
         self.assertFalse(app.cookies, 'Response should have unset cookies')
 
-    def test_cookies_readonly(self):
-        app = webtest.TestApp(cookie_app)
-        try:
-            app.cookies = {}
-        except:
-            pass
-        else:
-            self.fail('testapp.cookies should be read-only')
-
     def test_http_cookie(self):
-        app = webtest.TestApp(cookie_app2)
+        def cookie_app(environ, start_response):
+            req = Request(environ)
+            status = to_bytes("200 OK")
+            body = 'Cookie.'
+            assert dict(req.cookies) == {'spam': 'eggs'}
+            assert environ['HTTP_COOKIE'] == 'spam=eggs'
+            headers = [
+                ('Content-Type', 'text/html'),
+                ('Content-Length', str(len(body))),
+            ]
+            start_response(status, headers)
+            return [to_bytes(body)]
+
+        app = webtest.TestApp(cookie_app)
         self.assertTrue(not app.cookies,
                         'App should initially contain no cookies')
 
