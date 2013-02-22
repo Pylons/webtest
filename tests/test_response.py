@@ -225,7 +225,7 @@ class TestResponse(unittest.TestCase):
         app = webtest.TestApp(links_app)
         self.assertIn(
             'This is foo.',
-            app.get('/').clickbutton(buttonid='button1')
+            app.get('/').clickbutton(buttonid='button1', verbose=True)
         )
         self.assertRaises(
             IndexError,
