@@ -7,6 +7,7 @@ from webtest.compat import PY3
 from webtest.compat import OrderedDict
 from webtest.debugapp import debug_app
 from tests.compat import unittest
+import os
 import six
 import mock
 import webtest
@@ -16,6 +17,13 @@ class TestApp(unittest.TestCase):
 
     def setUp(self):
         self.app = webtest.TestApp(debug_app)
+
+    def test_encode_multipart_relative_to(self):
+        app = webtest.TestApp(debug_app,
+                              relative_to=os.path.dirname(__file__))
+        data = app.encode_multipart(
+            [], [('file', 'html%s404.html' % os.sep)])
+        self.assertIn(to_bytes('404.html'), data[-1])
 
     def test_encode_multipart(self):
         data = self.app.encode_multipart(
@@ -157,6 +165,9 @@ class TestCookies(unittest.TestCase):
         res = res.click('go')
         self.assertEqual(app.cookies['spam'], 'eggs')
         self.assertEqual(app.cookies['foo'], 'bar')
+
+        app.reset()
+        self.assertFalse(bool(app.cookies))
 
     def test_cookies_readonly(self):
         app = webtest.TestApp(debug_app)
