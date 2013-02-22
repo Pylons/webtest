@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
 
 try:
     # py < 2.7
