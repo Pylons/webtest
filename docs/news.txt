@@ -1,17 +1,20 @@
 News
 ====
 
-1.4.3
------
+2.0dev
+------
 
-* fully implement decoding of HTML entities
+* Fully implement decoding of HTML entities
 
-* fix tox configuration
+* Fix tox configuration
 
 * Implement `TestApp.cookiejar` support and kindof keep
   `TestApp.cookies` functionality.  `TestApp.cookies`
   should be treated as read-only.
   [Domen Kožar]
+
+* Split Selenium integration into separate package webtest-selenium
+  [gawel]
 
 1.4.2
 -----
