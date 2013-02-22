@@ -181,9 +181,3 @@ class TestTesting(unittest.TestCase):
             def items(self):
                 return [('a', '10'), ('a', '20')]
         self.app.post('/params', params=FakeDict())
-
-    def test_unicode_normal_body(self):
-        res = self.app.post('/?status=302', params='foobar')
-        res.charset = 'latin1'
-        res.body = 'été'.encode('latin1')
-        self.assertEqual(res.unicode_normal_body, 'été')

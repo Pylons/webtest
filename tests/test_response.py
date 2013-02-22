@@ -9,6 +9,8 @@ from webtest.compat import PY3
 
 from tests.compat import unittest
 
+import webbrowser
+
 
 def links_app(environ, start_response):
     req = Request(environ)
@@ -270,6 +272,10 @@ class TestResponse(unittest.TestCase):
         )
 
     def test_showbrowser(self):
+        def open_new(f):
+            self.filename = f
+
+        webbrowser.open_new = open_new
         app = webtest.TestApp(debug_app)
         res = app.post('/')
         res.showbrowser()
@@ -284,3 +290,10 @@ class TestResponse(unittest.TestCase):
         res.charset = 'latin1'
         res.body = 'été'.encode('latin1')
         self.assertEqual(res.unicode_normal_body, 'été')
+
+    def test_testbody(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        res.charset = 'utf8'
+        res.body = 'été'.encode('latin1')
+        res.testbody
