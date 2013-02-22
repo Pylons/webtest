@@ -34,6 +34,12 @@ class TestApp(unittest.TestCase):
             [(six.b('key'), six.b('value'))], [])
         self.assertIn(to_bytes('name="key"'), data[-1])
 
+    def test_request_with_testrequest(self):
+        req = webtest.TestRequest.blank('/')
+        resp = self.app.request(req, method='POST')
+        resp.charset = 'ascii'
+        assert 'REQUEST_METHOD: POST' in resp.text
+
 
 class TestStatus(unittest.TestCase):
 

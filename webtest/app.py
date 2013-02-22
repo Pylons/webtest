@@ -524,8 +524,6 @@ class TestApp(object):
             req = url_or_req.copy()
             for name, value in req_params.items():
                 setattr(req, name, value)
-            if req.content_length == -1:
-                req.content_length = len(req.body)
         req.environ['paste.throw_errors'] = True
         for name, value in self.extra_environ.items():
             req.environ.setdefault(name, value)
