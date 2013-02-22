@@ -215,32 +215,6 @@ class TestCookies(unittest.TestCase):
         self.assertEqual(res.request.environ['HTTP_COOKIE'], 'spam=eggs')
         self.assertEqual(dict(res.request.cookies), {'spam': 'eggs'})
 
-    def test_unicode_cookie(self):
-        def cookie_app(environ, start_response):
-            status = to_bytes("200 OK")
-            body = 'Cookie.'
-            headers = [
-                ('Content-Type', 'text/html'),
-                ('Content-Length', str(len(body))),
-            ]
-            start_response(status, headers)
-            return [to_bytes(body)]
-
-        app = webtest.TestApp(cookie_app)
-
-        if six.PY3:
-            cookie = 'spam=čevapčiči'
-        else:
-            cookie = 'spam=čevapčiči'.decode('utf-8')
-
-        # unicode cookies are not supported, just pass a bytes object
-        self.assertRaises(AssertionError,
-                          app.get,
-                          '/',
-                          headers=[('Cookie', cookie)])
-
-        # TODO: test encoding cookie to utf-8 works, but this is handled poorly in cookielib
-
 
 class TestEnviron(unittest.TestCase):
 
