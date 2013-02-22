@@ -34,6 +34,10 @@ def links_app(environ, start_response):
                         >Button</button>
                     <button
                         id="button2">Button</button>
+                    <button
+                        id="button3"
+                        onclick="lomistakecation.href='/foo/'"
+                        >Button</button>
                 </body>
             </html>
             """,
@@ -103,6 +107,27 @@ def links_app(environ, start_response):
 
 
 class TestResponse(unittest.TestCase):
+    def test_repr(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        self.assertEqual(
+            repr(res),
+            '<200 OK text/plain body="CONTENT_L...0)\\n"/523>'
+        )
+        res.content_type = None
+        self.assertEqual(repr(res), '<200 OK body="CONTENT_L...0)\\n"/523>')
+        res.location = 'http://pylons.org'
+        self.assertEqual(
+            repr(res),
+            '<200 OK location: http://pylons.org body="CONTENT_L...0)\\n"/523>'
+        )
+
+        res.body = b''
+        self.assertEqual(
+            repr(res),
+            '<200 OK location: http://pylons.org no body>'
+        )
+
     def test_mustcontains(self):
         app = webtest.TestApp(debug_app)
         res = app.post('/', params='foobar')
@@ -188,6 +213,19 @@ class TestResponse(unittest.TestCase):
         self.assertRaises(
             IndexError,
             app.get('/').clickbutton, buttonid='button2'
+        )
+        self.assertRaises(
+            IndexError,
+            app.get('/').clickbutton, buttonid='button3'
+        )
+
+    def test_html_attribute(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        res.content_type = 'text/plain'
+        self.assertRaises(
+            AttributeError,
+            getattr, res, 'html'
         )
 
     def test_no_form(self):
