@@ -171,7 +171,39 @@ class TestWriteWrapper(unittest.TestCase):
         assert mock.written == [data], ("WriterWrapper should call original"
             " writer when data is binary type")
 
+
 class TestErrorWrapper(unittest.TestCase):
+
     def test_dont_close(self):
         error_wrapper = ErrorWrapper(None)
-        self.assertRaises(AssertionError, error_wrapper.close) 
+        self.assertRaises(AssertionError, error_wrapper.close)
+
+    class FakeError(object):
+        def __init__(self):
+            self.written = []
+            self.flushed = False
+
+        def write(self, s):
+            self.written.append(s)
+
+        def writelines(self, lines):
+            for line in lines:
+                self.write(line)
+
+        def flush(self):
+            self.flushed = True
+
+    def test_writelines(self):
+        fake_error = self.FakeError()
+        error_wrapper = ErrorWrapper(fake_error)
+        data = [to_bytes('a line'), to_bytes('another line')]
+        error_wrapper.writelines(data)
+        assert fake_error.written == data, ("ErrorWrapper should call "
+            "original writer")
+
+    def test_flush(self):
+        fake_error = self.FakeError()
+        error_wrapper = ErrorWrapper(fake_error)
+        error_wrapper.flush()
+        assert fake_error.flushed, ("ErrorWrapper should have called original "
+            "wsgi_errors's flush")
