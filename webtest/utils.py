@@ -42,7 +42,7 @@ def json_method(method):
 
     subst = dict(lmethod=method.lower(), method=method)
     wrapper.__doc__ = json_method.__doc__ % subst
-    wrapper.__name__ = '%(lmethod)s_json' % subst
+    wrapper.__name__ = str('%(lmethod)s_json' % subst)
 
     return wrapper
 

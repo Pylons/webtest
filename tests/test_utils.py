@@ -2,9 +2,8 @@
 
 from __future__ import unicode_literals
 import re
-import unittest
-
 from json import dumps
+from .compat import unittest
 from webtest import utils
 
 
