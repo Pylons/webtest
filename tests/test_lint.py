@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from six import PY3
+from six import StringIO
 from tests.compat import unittest
-
-
 from webob import Request, Response
 
+import warnings
+import mock
+
 from webtest import TestApp
+from webtest.compat import to_bytes
 from webtest.lint import check_headers
 from webtest.lint import check_content_type
 from webtest.lint import check_environ
@@ -14,14 +18,10 @@ from webtest.lint import IteratorWrapper
 from webtest.lint import WriteWrapper
 from webtest.lint import ErrorWrapper
 from webtest.lint import InputWrapper
+from webtest.lint import to_string
+from webtest.lint import middleware
 
-from webtest.compat import to_bytes
-
-from six import PY3
-from six import StringIO
 from six import BytesIO
-
-import warnings
 
 
 def application(environ, start_response):
@@ -38,6 +38,40 @@ def application(environ, start_response):
         resp.body = b'-'.join(env_input.readlines(len_body))
 
     return resp(environ, start_response)
+
+
+class TestToString(unittest.TestCase):
+
+    def test_to_string(self):
+        self.assertEqual(to_string('foo'), 'foo')
+        self.assertEqual(to_string(b'foo'), 'foo')
+
+
+class TestMiddleware(unittest.TestCase):
+
+    def test_lint_too_few_args(self):
+        linter = middleware(application)
+        with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
+            linter()
+        with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
+            linter({})
+
+    def test_lint_no_keyword_args(self):
+        linter = middleware(application)
+        with self.assertRaisesRegexp(AssertionError, "No keyword arguments "
+                                                     "allowed"):
+            linter({}, 'foo', baz='baz')
+
+    #TODO: test start_response_wrapper
+
+    @mock.patch.multiple('webtest.lint',
+                         check_environ=lambda x: True,  # don't block too early
+                         InputWrapper=lambda x: True)
+    def test_lint_iterator_returned(self):
+        linter = middleware(lambda x, y: None)  # None is not an iterator
+        msg = "The application must return an iterator, if only an empty list"
+        with self.assertRaisesRegexp(AssertionError, msg):
+            linter({'wsgi.input': 'foo', 'wsgi.errors': 'foo'}, 'foo')
 
 
 class TestInputWrapper(unittest.TestCase):
@@ -71,7 +105,7 @@ def application_exc_info(environ, start_response):
     headers = [
         ('Content-Type', 'text/plain; charset=utf-8'),
         ('Content-Length', str(len(body)))]
-    start_response(to_bytes('200 OK'),headers,('stuff',))
+    start_response(to_bytes('200 OK'), headers, ('stuff',))
     return [body]
 
 
@@ -80,6 +114,7 @@ class TestMiddleware(unittest.TestCase):
         app = TestApp(application_exc_info)
         app.get('/')
         # don't know what to assert here... a bit cheating, just covers code
+
 
 class TestCheckContentType(unittest.TestCase):
     def test_no_content(self):

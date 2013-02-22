@@ -115,8 +115,8 @@ Some of the things this checks:
 """
 from __future__ import unicode_literals
 
+import collections
 import re
-import sys
 import warnings
 from six import PY3
 from six import binary_type
@@ -192,7 +192,7 @@ def middleware(application, global_conf=None):
         environ['wsgi.errors'] = ErrorWrapper(environ['wsgi.errors'])
 
         iterator = application(environ, start_response_wrapper)
-        assert iterator is not None and iterator != False, (
+        assert isinstance(iterator, collections.Iterable), (
             "The application must return an iterator, if only an empty list")
 
         check_iterator(iterator)
