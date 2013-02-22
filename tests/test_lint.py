@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from six import PY3
+from six import StringIO
 from tests.compat import unittest
-
-
 from webob import Request, Response
+
+import warnings
+import mock
 
 from webtest import TestApp
 from webtest.lint import check_headers
 from webtest.lint import check_content_type
 from webtest.lint import check_environ
 from webtest.lint import IteratorWrapper
-
-from six import PY3
-from six import StringIO
-
-import warnings
+from webtest.lint import to_string
+from webtest.lint import middleware
 
 
 def application(environ, start_response):
@@ -32,6 +32,40 @@ def application(environ, start_response):
         resp.body = b'-'.join(env_input.readlines(len_body))
 
     return resp(environ, start_response)
+
+
+class TestToString(unittest.TestCase):
+
+    def test_to_string(self):
+        self.assertEqual(to_string('foo'), 'foo')
+        self.assertEqual(to_string(b'foo'), 'foo')
+
+
+class TestMiddleware(unittest.TestCase):
+
+    def test_lint_too_few_args(self):
+        linter = middleware(application)
+        with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
+            linter()
+        with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
+            linter({})
+
+    def test_lint_no_keyword_args(self):
+        linter = middleware(application)
+        with self.assertRaisesRegexp(AssertionError, "No keyword arguments "
+                                                     "allowed"):
+            linter({}, 'foo', baz='baz')
+
+    #TODO: test start_response_wrapper
+
+    @mock.patch.multiple('webtest.lint',
+                         check_environ=lambda x: True,  # don't block too early
+                         InputWrapper=lambda x: True)
+    def test_lint_iterator_returned(self):
+        linter = middleware(lambda x, y: None)  # None is not an iterator
+        msg = "The application must return an iterator, if only an empty list"
+        with self.assertRaisesRegexp(AssertionError, msg):
+            linter({'wsgi.input': 'foo', 'wsgi.errors': 'foo'}, 'foo')
 
 
 class TestInputWrapper(unittest.TestCase):
