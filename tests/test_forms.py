@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import os.path
 import struct
@@ -14,7 +15,7 @@ from tests.compat import unittest
 from tests.compat import u
 
 
-PAGE_CONTENT = '''
+PAGE_CONTENT = b'''
 <html>
     <head><title>Page without form</title></head>
     <body>
@@ -83,7 +84,7 @@ class TestForms(unittest.TestCase):
 
 
 def no_form_app(environ, start_response):
-    status = "200 OK"
+    status = b"200 OK"
     body = to_bytes(
 """
 <html>
@@ -102,7 +103,7 @@ def no_form_app(environ, start_response):
 
 
 def too_many_forms_app(environ, start_response):
-    status = "200 OK"
+    status = b"200 OK"
     body = to_bytes(
 """
 <html>
@@ -148,7 +149,7 @@ class TestForm(unittest.TestCase):
 
 def input_app(environ, start_response):
     Request(environ)
-    status = "200 OK"
+    status = b"200 OK"
     body = to_bytes(
 """
 <html>
@@ -182,7 +183,7 @@ def input_app(environ, start_response):
 
 def input_app_without_default(environ, start_response):
     Request(environ)
-    status = "200 OK"
+    status = b"200 OK"
     body = to_bytes(
 """
 <html>
@@ -213,7 +214,7 @@ def input_app_without_default(environ, start_response):
 
 def input_unicode_app(environ, start_response):
     Request(environ)
-    status = "200 OK"
+    status = b"200 OK"
     body =\
 u("""
 <html>
@@ -337,7 +338,7 @@ class TestFormLint(unittest.TestCase):
 
 def select_app(environ, start_response):
     req = Request(environ)
-    status = "200 OK"
+    status = b"200 OK"
     if req.method == "GET":
         body = to_bytes(
 """
@@ -391,7 +392,7 @@ def select_app(environ, start_response):
 
 def select_app_without_default(environ, start_response):
     req = Request(environ)
-    status = "200 OK"
+    status = b"200 OK"
     if req.method == "GET":
         body = to_bytes(
 """
@@ -445,7 +446,7 @@ def select_app_without_default(environ, start_response):
 
 def select_app_unicode(environ, start_response):
     req = Request(environ)
-    status = "200 OK"
+    status = b"200 OK"
     if req.method == "GET":
         body =\
 u("""
@@ -672,7 +673,7 @@ class TestSelect(unittest.TestCase):
 
 class SingleUploadFileApp(object):
 
-    body = """
+    body = b"""
 <html>
     <head><title>form page</title></head>
     <body>
@@ -687,15 +688,15 @@ class SingleUploadFileApp(object):
 
     def __call__(self, environ, start_response):
         req = Request(environ)
-        status = str("200 OK")
+        status = b"200 OK"
         if req.method == "GET":
             body = self.body
         else:
             body = b"""
 <html>
-    <head><title>display page</title></head>
+    <head><title>isplay page</title></head>
     <body>
-        """ + self.get_files_page(req) + """
+        """ + self.get_files_page(req) + b"""
     </body>
 </html>
 """
@@ -713,9 +714,9 @@ class SingleUploadFileApp(object):
         for name, uploaded_file in uploaded_files:
             filename = to_bytes(uploaded_file.filename)
             value = to_bytes(uploaded_file.value, 'ascii')
-            file_parts.append("""
-        <p>You selected '""" + filename + """'</p>
-        <p>with contents: '""" + value + """'</p>
+            file_parts.append(b"""
+        <p>You selected '""" + filename + b"""'</p>
+        <p>with contents: '""" + value + b"""'</p>
 """)
         return b''.join(file_parts)
 
@@ -726,14 +727,14 @@ class UploadBinaryApp(SingleUploadFileApp):
         uploaded_files = [(k, v) for k, v in req.POST.items() if 'file' in k]
         data = uploaded_files[0][1].value
         if PY3:
-            data = struct.unpack(str('255h'), data[:510])
+            data = struct.unpack(b'255h', data[:510])
         else:
             data = struct.unpack(str('255h'), data)
         return b','.join([to_bytes(str(i)) for i in data])
 
 
 class MultipleUploadFileApp(SingleUploadFileApp):
-    body = """
+    body = b"""
 <html>
     <head><title>form page</title></head>
     <body>
