@@ -54,6 +54,31 @@ class TestStatus(unittest.TestCase):
         self.assertRaises(webtest.AppError, self.check_status, '400 Ok')
 
 
+class TestAppError(unittest.TestCase):
+
+    def test_app_error(self):
+        resp = Response(to_bytes('blah'))
+        err = webtest.AppError('message %s', resp)
+        self.assertEqual(err.args, ('message blah',))
+
+    def test_app_error_with_bytes_message(self):
+        resp = Response(six.u('\xe9').encode('utf8'))
+        resp.charset = 'utf8'
+        err = webtest.AppError(to_bytes('message %s'), resp)
+        self.assertEqual(err.args, (six.u('message \xe9'),))
+
+    def test_app_error_with_unicode(self):
+        err = webtest.AppError(six.u('messag\xe9 %s'), six.u('\xe9'))
+        self.assertEqual(err.args, (six.u('messag\xe9 \xe9'),))
+
+    def test_app_error_misc(self):
+        resp = Response(six.u('\xe9').encode('utf8'))
+        resp.charset = ''
+        # dont check the output. just make sure it doesn't fail
+        webtest.AppError(to_bytes('message %s'), resp)
+        webtest.AppError(six.u('messag\xe9 %s'), six.b('\xe9'))
+
+
 class TestPasteVariables(unittest.TestCase):
 
     def call_FUT(self, **kwargs):
