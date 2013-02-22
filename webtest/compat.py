@@ -15,13 +15,13 @@ def to_bytes(value, charset='latin1'):
     return value
 
 
-if PY3:
+if PY3:  # pragma: no cover
     from html.entities import name2codepoint
     from urllib.parse import urlencode
     from urllib.parse import splittype
     from urllib.parse import splithost
     import urllib.parse as urlparse
-else:
+else:  # pragma: no cover
     from htmlentitydefs import name2codepoint  # noqa
     from urllib import splittype  # noqa
     from urllib import splithost  # noqa
@@ -37,5 +37,5 @@ def print_stderr(value):
 
 try:
     from collections import OrderedDict
-except ImportError:
+except ImportError:  # pragma: no cover
     from ordereddict import OrderedDict  # noqa
