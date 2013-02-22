@@ -24,3 +24,13 @@ from webtest.forms import Submit
 from webtest.forms import Upload
 
 from webtest.ext import casperjs
+
+# backward compat
+try:
+    import webtest_selenium
+except ImportError:
+    from webtest.sel import SeleniumApp
+    from webtest.sel import selenium
+else:  # pragma: no cover
+    from webtest_selenium import SeleniumApp
+    from webtest_selenium import selenium
