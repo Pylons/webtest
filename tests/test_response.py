@@ -34,6 +34,10 @@ def links_app(environ, start_response):
                         >Button</button>
                     <button
                         id="button2">Button</button>
+                    <button
+                        id="button3"
+                        onclick="lomistakecation.href='/foo/'"
+                        >Button</button>
                 </body>
             </html>
             """,
@@ -188,6 +192,10 @@ class TestResponse(unittest.TestCase):
         self.assertRaises(
             IndexError,
             app.get('/').clickbutton, buttonid='button2'
+        )
+        self.assertRaises(
+            IndexError,
+            app.get('/').clickbutton, buttonid='button3'
         )
 
     def test_no_form(self):
