@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 
 from tests.compat import unittest
 
-import webtest
 
 from webob import Request, Response
 
+from webtest import TestApp
 from webtest.lint import check_headers
 from webtest.lint import check_content_type
 from webtest.lint import check_environ
@@ -36,17 +36,17 @@ def application(environ, start_response):
 
 class TestInputWrapper(unittest.TestCase):
     def test_read(self):
-        app = webtest.TestApp(application)
+        app = TestApp(application)
         resp = app.post('/read', 'hello')
         self.assertEqual(resp.body, b'hello')
 
     def test_readline(self):
-        app = webtest.TestApp(application)
+        app = TestApp(application)
         resp = app.post('/read_line', 'hello\n')
         self.assertEqual(resp.body, b'hello\n')
 
     def test_readlines(self):
-        app = webtest.TestApp(application)
+        app = TestApp(application)
         resp = app.post('/read_lines', 'hello\nt\n')
         self.assertEqual(resp.body, b'hello\n-t\n')
 
@@ -136,7 +136,6 @@ class TestIteratorWrapper(unittest.TestCase):
                 return None
 
             next = __next__
-            
 
             def close(self):
                 self.closed = True
