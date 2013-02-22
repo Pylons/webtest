@@ -13,6 +13,7 @@ from webtest.lint import check_environ
 from webtest.lint import IteratorWrapper
 from webtest.lint import WriteWrapper
 from webtest.lint import ErrorWrapper
+from webtest.lint import InputWrapper
 
 from webtest.compat import to_bytes
 
