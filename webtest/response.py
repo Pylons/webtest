@@ -294,37 +294,31 @@ class TestResponse(webob.Response):
 
     _normal_body_regex = re.compile(to_bytes(r'[ \n\r\t]+'))
 
-    _normal_body = None
-
-    def normal_body__get(self):
-        if self._normal_body is None:
+    @property
+    def normal_body(self):
+        """
+        Return the whitespace-normalized body
+        """
+        if getattr(self, '_normal_body', None) is None:
             self._normal_body = self._normal_body_regex.sub(
                                                 b' ', self.body)
         return self._normal_body
 
-    normal_body = property(normal_body__get,
-                           doc="""
-                           Return the whitespace-normalized body
-                           """.strip())
-
     _unicode_normal_body_regex = re.compile('[ \\n\\r\\t]+')
 
-    _unicode_normal_body = None
-
-    def unicode_normal_body__get(self):
+    @property
+    def unicode_normal_body(self):
+        """
+        Return the whitespace-normalized body, as unicode
+        """
         if not self.charset:
             raise AttributeError(
                 ("You cannot access Response.unicode_normal_body "
                  "unless charset is set"))
-        if self._unicode_normal_body is None:
+        if getattr(self, '_unicode_normal_body', None) is None:
             self._unicode_normal_body = self._unicode_normal_body_regex.sub(
                                                 ' ', self.testbody)
         return self._unicode_normal_body
-
-    unicode_normal_body = property(
-        unicode_normal_body__get, doc="""
-        Return the whitespace-normalized body, as unicode
-        """.strip())
 
     def __contains__(self, s):
         """
@@ -411,6 +405,7 @@ class TestResponse(webob.Response):
             location = ''
         return ('<' + self.status + ct + location + body + '>')
 
+    @property
     def html(self):
         """
         Returns the response as a `BeautifulSoup
@@ -427,8 +422,7 @@ class TestResponse(webob.Response):
         soup = BeautifulSoup(self.testbody)
         return soup
 
-    html = property(html, doc=html.__doc__)
-
+    @property
     def xml(self):
         """
         Returns the response as an `ElementTree
@@ -457,8 +451,7 @@ class TestResponse(webob.Response):
         # ElementTree can't parse unicode => use `body` instead of `testbody`
         return ElementTree.XML(self.body)
 
-    xml = property(xml, doc=xml.__doc__)
-
+    @property
     def lxml(self):
         """
         Returns the response as an `lxml object
@@ -490,8 +483,7 @@ class TestResponse(webob.Response):
         else:
             return etree.XML(self.testbody, base_url=self.request.url)
 
-    lxml = property(lxml, doc=lxml.__doc__)
-
+    @property
     def json(self):
         """
         Return the response as a JSON response.  You must have `simplejson
@@ -506,8 +498,7 @@ class TestResponse(webob.Response):
                 % self.content_type)
         return loads(self.testbody)
 
-    json = property(json, doc=json.__doc__)
-
+    @property
     def pyquery(self):
         """
         Returns the response as a `PyQuery <http://pyquery.org/>`_ object.
@@ -526,8 +517,6 @@ class TestResponse(webob.Response):
                 "You must have PyQuery installed to use response.pyquery")
         d = PyQuery(self.testbody)
         return d
-
-    pyquery = property(pyquery, doc=pyquery.__doc__)
 
     def showbrowser(self):
         """
