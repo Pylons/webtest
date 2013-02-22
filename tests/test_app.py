@@ -34,6 +34,20 @@ class TestApp(unittest.TestCase):
             [(six.b('key'), six.b('value'))], [])
         self.assertIn(to_bytes('name="key"'), data[-1])
 
+    def test_get_params(self):
+        resp = self.app.get('/', 'a=b')
+        resp.mustcontain('a=b')
+        resp = self.app.get('/?a=b', dict(c='d'))
+        resp.mustcontain('a=b', 'c=d')
+        resp = self.app.get('/?a=b&c=d', dict(e='f'))
+        resp.mustcontain('a=b', 'c=d', 'e=f')
+
+    def test_request_with_testrequest(self):
+        req = webtest.TestRequest.blank('/')
+        resp = self.app.request(req, method='POST')
+        resp.charset = 'ascii'
+        assert 'REQUEST_METHOD: POST' in resp.text
+
 
 class TestStatus(unittest.TestCase):
 
