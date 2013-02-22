@@ -66,6 +66,21 @@ class TestInputWrapper(unittest.TestCase):
         self.assertEquals(to_bytes("").join(input_wrapper), data, '')
 
 
+def application_exc_info(environ, start_response):
+    body = to_bytes('body stuff')
+    headers = [
+        ('Content-Type', 'text/plain; charset=utf-8'),
+        ('Content-Length', str(len(body)))]
+    start_response(to_bytes('200 OK'),headers,('stuff',))
+    return [body]
+
+
+class TestMiddleware(unittest.TestCase):
+    def test_exc_info(self):
+        app = TestApp(application_exc_info)
+        app.get('/')
+        # don't know what to assert here... a bit cheating, just covers code
+
 class TestCheckContentType(unittest.TestCase):
     def test_no_content(self):
         status = "204 No Content"
