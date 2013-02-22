@@ -147,7 +147,7 @@ class TestResponse(unittest.TestCase):
         res.mustcontain('foobar', no='not found')
         self.assertRaises(IndexError, res.mustcontain, no='foobar')
         self.assertRaises(
-            TypeError, 
+            TypeError,
             res.mustcontain, invalid_param='foobar'
         )
 
@@ -273,3 +273,14 @@ class TestResponse(unittest.TestCase):
         app = webtest.TestApp(debug_app)
         res = app.post('/')
         res.showbrowser()
+
+    def test_unicode_normal_body(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        self.assertRaises(
+            AttributeError,
+            getattr, res, 'unicode_normal_body'
+        )
+        res.charset = 'latin1'
+        res.body = 'été'.encode('latin1')
+        self.assertEqual(res.unicode_normal_body, 'été')
