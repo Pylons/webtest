@@ -337,3 +337,5 @@ class TestResponse(unittest.TestCase):
         resp = app.get('/')
         if not PY3:
             unicode(resp)
+
+        print(resp.__unicode__())
