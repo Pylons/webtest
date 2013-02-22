@@ -54,6 +54,10 @@ class TestInputWrapper(unittest.TestCase):
         resp = app.post('/read_lines', 'hello\nt\n')
         self.assertEqual(resp.body, b'hello\n-t\n')
 
+    def test_close(self):
+        input_wrapper = InputWrapper(None)
+        self.assertRaises(AssertionError,input_wrapper.close)
+
 
 class TestCheckContentType(unittest.TestCase):
     def test_no_content(self):
@@ -101,8 +105,9 @@ class TestCheckEnviron(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             check_environ(environ)
-            assert len(w) == 1
-            assert "QUERY_STRING" in str(w[-1].message)
+            self.assertEqual( len(w), 1, "We should have only one warning")
+            self.assertTrue( "QUERY_STRING" in str(w[-1].message), 
+                "The warning message should say something about QUERY_STRING")
 
     def test_no_valid_request(self):
         environ = {
@@ -122,8 +127,9 @@ class TestCheckEnviron(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             check_environ(environ)
-            assert len(w) == 1
-            assert "REQUEST_METHOD" in str(w[-1].message)
+            self.assertEqual( len(w), 1, "We should have only one warning")
+            self.assertTrue( "REQUEST_METHOD" in str(w[-1].message),
+                'The warning message should say something about REQUEST_METHOD')
 
 
 class TestIteratorWrapper(unittest.TestCase):
@@ -148,7 +154,7 @@ class TestIteratorWrapper(unittest.TestCase):
         wrapper = IteratorWrapper(mock, None)
         wrapper.close()
 
-        assert mock.closed, "Original iterator has not been closed"
+        self.assertTrue(mock.closed, "Original iterator has not been closed")
 
 
 class TestWriteWrapper(unittest.TestCase):
@@ -168,8 +174,9 @@ class TestWriteWrapper(unittest.TestCase):
         mock = MockWriter()
         write_wrapper = WriteWrapper(mock)
         write_wrapper(data)
-        assert mock.written == [data], ("WriterWrapper should call original"
-            " writer when data is binary type")
+        self.assertEqual(mock.written, [data], 
+            "WriterWrapper should call original writer when data is binary "
+            "type")
 
 
 class TestErrorWrapper(unittest.TestCase):
@@ -198,12 +205,12 @@ class TestErrorWrapper(unittest.TestCase):
         error_wrapper = ErrorWrapper(fake_error)
         data = [to_bytes('a line'), to_bytes('another line')]
         error_wrapper.writelines(data)
-        assert fake_error.written == data, ("ErrorWrapper should call "
-            "original writer")
+        self.assertEqual(fake_error.written, data, 
+            "ErrorWrapper should call original writer")
 
     def test_flush(self):
         fake_error = self.FakeError()
         error_wrapper = ErrorWrapper(fake_error)
         error_wrapper.flush()
-        assert fake_error.flushed, ("ErrorWrapper should have called original "
-            "wsgi_errors's flush")
+        self.assertTrue(fake_error.flushed, 
+            "ErrorWrapper should have called original wsgi_errors's flush")
