@@ -414,24 +414,17 @@ class TestApp(object):
             key, filename, value = self._get_file_info(file_info)
             if isinstance(key, text_type):
                 try:
-                    key = key.encode('utf8')
-                except:
-                    raise  # file names must be ascii
+                    key = key.encode('ascii')
+                except:  # pragma: no cover
+                    raise  # file name must be ascii
             if isinstance(filename, text_type):
                 fcontent = mimetypes.guess_type(filename)[0]
                 try:
                     filename = filename.encode('utf8')
-                except:
-                    raise  # file names must be ascii
+                except:  # pragma: no cover
+                    raise  # file name must be ascii or utf8
             else:
                 fcontent = mimetypes.guess_type(filename.decode('ascii'))[0]
-            if isinstance(value, text_type):
-                try:
-                    value = value.encode('ascii')
-                except:
-                    raise TypeError(
-                            'You are trying to upload some non ascii content.'
-                            'Please encode it first')
             fcontent = to_bytes(fcontent)
             fcontent = fcontent or b'application/octet-stream'
             lines.extend([
@@ -444,7 +437,7 @@ class TestApp(object):
             if isinstance(key, text_type):
                 try:
                     key = key.encode('ascii')
-                except:
+                except:  # pragma: no cover
                     raise  # field name are always ascii
             if isinstance(value, forms.File):
                 if value.value:

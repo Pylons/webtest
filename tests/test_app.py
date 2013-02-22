@@ -26,6 +26,14 @@ class TestApp(unittest.TestCase):
             [], [(six.b('file'), six.b('data.txt'), six.b('data'))])
         self.assertIn(to_bytes('data.txt'), data[-1])
 
+        data = self.app.encode_multipart(
+            [('key', 'value')], [])
+        self.assertIn(to_bytes('name="key"'), data[-1])
+
+        data = self.app.encode_multipart(
+            [(six.b('key'), six.b('value'))], [])
+        self.assertIn(to_bytes('name="key"'), data[-1])
+
 
 class TestStatus(unittest.TestCase):
 
