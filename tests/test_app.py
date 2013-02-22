@@ -56,6 +56,10 @@ class TestApp(unittest.TestCase):
         resp.charset = 'ascii'
         assert 'REQUEST_METHOD: POST' in resp.text
 
+    def test_patch(self):
+        resp = self.app.patch('/')
+        self.assertIn('PATCH', resp)
+
 
 class TestStatus(unittest.TestCase):
 
