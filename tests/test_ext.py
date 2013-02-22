@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
+
 import os
+
 import webob
 import webtest
-from webob import exc
 from tests.compat import u
 
 files = os.path.dirname(__file__)
@@ -16,7 +16,7 @@ def application(environ, start_response):
         filename = req.path_info.strip('/') or 'index.html'
         if filename in ('302',):
             redirect = req.params['redirect']
-            resp = exc.HTTPFound(location=redirect)
+            resp = webob.exc.HTTPFound(location=redirect)
             return resp(environ, start_response)
         if filename.isdigit():
             resp.status = filename
@@ -37,7 +37,7 @@ def application(environ, start_response):
     else:
         redirect = req.params.get('redirect', '')
         if redirect:
-            resp = exc.HTTPFound(location=redirect)
+            resp = webob.exc.HTTPFound(location=redirect)
         else:
             resp.body = req.body
     return resp(environ, start_response)
@@ -46,14 +46,14 @@ def application(environ, start_response):
 def test_casperjs():
     app = webtest.TestApp(application)
     with webtest.casperjs(app) as run:
-        run('test_casperjs.js')
+        run('fixtures/test_casperjs.js')
 
 
 def test_casperjs_fail():
     app = webtest.TestApp(application)
     with webtest.casperjs(app) as run:
         try:
-            run('test_casperjs_fail.js')
+            run('fixtures/test_casperjs_fail.js')
         except AssertionError:
             pass
         else:
