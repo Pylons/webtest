@@ -69,3 +69,17 @@ class TestInputWrapper(unittest.TestCase):
         app = webtest.TestApp(application)
         resp = app.post('/read_lines', 'hello\nt\n')
         self.assertEqual(resp.body, b'hello\n-t\n')
+
+from webtest.lint import check_headers
+from six import PY3
+
+class TestCheckHeaders(unittest.TestCase):
+    @unittest.skipIf(not PY3,'Useless in Python2')   
+    def test_header_unicode_value(self):
+        self.assertRaises(AssertionError,check_headers,[('X-Price','100€')])
+
+    @unittest.skipIf(not PY3,'Useless in Python2')
+    def test_header_unicode_name(self):
+        self.assertRaises(AssertionError,check_headers,[('X-€','foo')])
+
+

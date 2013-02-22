@@ -414,6 +414,14 @@ def check_status(status):
         "digits and a space (4th characters is not a space here)" % status)
 
 
+def _assert_latin1_py3(string, message):
+    if PY3 and type(string) is str:
+        try:
+           string.encode('latin1')
+        except UnicodeEncodeError:
+            raise AssertionError(message)
+
+
 def check_headers(headers):
     assert type(headers) is list, (
         "Headers (%r) must be of type list: %r"
@@ -424,13 +432,11 @@ def check_headers(headers):
             % (item, type(item)))
         assert len(item) == 2
         name, value = item
-        if PY3 and type(name) is str:
-            try:
-                name.encode('latin1')
-            except UnicodeEncodeError:
-                raise AssertionError((
-                    "Headers name must be latin1 string or bytes."
-                    "%r is not a valid latin1 string" % (name,)))
+        _assert_latin1_py3(
+            name, 
+            "Headers values must be latin1 string or bytes."
+            "%r is not a valid latin1 string" % (value,)
+        )
         str_name = to_string(name)
         assert str_name.lower() != 'status', (
             "The Status header cannot be used; it conflicts with CGI "
@@ -441,13 +447,11 @@ def check_headers(headers):
         assert header_re.search(str_name), "Bad header name: %r" % name
         assert not str_name.endswith('-') and not str_name.endswith('_'), (
             "Names may not end in '-' or '_': %r" % name)
-        if PY3 and type(value) is str:
-            try:
-                value.encode('latin1')
-            except UnicodeEncodeError:
-                raise AssertionError((
-                    "Headers values must be latin1 string or bytes."
-                    "%r is not a valid latin1 string" % (value,)))
+        _assert_latin1_py3(
+            value, 
+            "Headers values must be latin1 string or bytes."
+            "%r is not a valid latin1 string" % (value,)
+        )
         str_value = to_string(value)
         assert not bad_header_value_re.search(str_value), (
             "Bad header value: %r (bad char: %r)"
@@ -482,12 +486,10 @@ def check_content_type(status, headers):
     if code not in NO_MESSAGE_BODY and length is not None and length > 0:
         assert 0, "No Content-Type header found in headers (%s)" % headers
 
-
 def check_exc_info(exc_info):
     assert exc_info is None or type(exc_info) is tuple, (
         "exc_info (%r) is not a tuple: %r" % (exc_info, type(exc_info)))
     # More exc_info checks?
-
 
 def check_iterator(iterator):
     valid_type = PY3 and bytes or str
@@ -497,6 +499,5 @@ def check_iterator(iterator):
     assert not isinstance(iterator, valid_type), (
         "You should not return a bytes as your application iterator, "
         "instead return a single-item list containing that string.")
-
 
 __all__ = ['middleware']
