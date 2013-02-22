@@ -225,7 +225,7 @@ class TestResponse(unittest.TestCase):
         app = webtest.TestApp(links_app)
         self.assertIn(
             'This is foo.',
-            app.get('/').clickbutton(buttonid='button1')
+            app.get('/').clickbutton(buttonid='button1', verbose=True)
         )
         self.assertRaises(
             IndexError,
@@ -236,8 +236,28 @@ class TestResponse(unittest.TestCase):
             app.get('/').clickbutton, buttonid='button3'
         )
 
+    def test_xml_attribute(self):
+        app = webtest.TestApp(links_app)
+
+        resp = app.get('/no_form/')
+        self.assertRaises(
+            AttributeError,
+            getattr,
+            resp, 'xml'
+        )
+
+        resp.content_type = 'text/xml'
+        resp.xml
+
+    def test_lxml_attribute(self):
+        app = webtest.TestApp(links_app)
+        resp = app.post('/')
+        resp.content_type = 'text/xml'
+        print(resp.body)
+        print(resp.lxml)
+
     def test_html_attribute(self):
-        app = webtest.TestApp(debug_app)
+        app = webtest.TestApp(links_app)
         res = app.post('/')
         res.content_type = 'text/plain'
         self.assertRaises(
@@ -297,3 +317,16 @@ class TestResponse(unittest.TestCase):
         res.charset = 'utf8'
         res.body = 'été'.encode('latin1')
         res.testbody
+
+    def test_xml(self):
+        app = webtest.TestApp(links_app)
+
+        resp = app.get('/no_form/')
+        self.assertRaises(
+            AttributeError,
+            getattr,
+            resp, 'xml'
+        )
+
+        resp.content_type = 'text/xml'
+        resp.xml

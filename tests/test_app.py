@@ -60,6 +60,11 @@ class TestApp(unittest.TestCase):
         resp = self.app.patch('/')
         self.assertIn('PATCH', resp)
 
+    def test_custom_headers(self):
+        resp = self.app.post('/', headers={'Accept': 'text/plain'})
+        resp.charset = 'ascii'
+        assert 'HTTP_ACCEPT: text/plain' in resp.text
+
 
 class TestStatus(unittest.TestCase):
 
