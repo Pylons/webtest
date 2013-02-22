@@ -160,7 +160,7 @@ class TestApp(object):
 
     @property
     def cookies(self):
-        return dict([(cookie.name, cookie) for cookie in self.cookiejar])
+        return dict([(cookie.name, cookie.value) for cookie in self.cookiejar])
 
     def reset(self):
         """
@@ -590,7 +590,7 @@ class TestApp(object):
 
         # merge cookies back in
         self.cookiejar.extract_cookies(ResponseCookieAdapter(res),
-                                        RequestCookieAdapter(req))
+                                       RequestCookieAdapter(req))
 
         return res
 

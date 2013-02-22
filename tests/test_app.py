@@ -157,25 +157,25 @@ class TestCookies(unittest.TestCase):
         app.get('/')
         cookies = app.cookies
         self.assert_(cookies, 'Response should have set cookies')
-        self.assertEqual(cookies['spam'].value, 'eggs')
-        self.assertEqual(cookies['foo'].value, 'bar')
+        self.assertEqual(cookies['spam'], 'eggs')
+        self.assertEqual(cookies['foo'], 'bar')
 
     def test_preserves_cookies(self):
         app = webtest.TestApp(cookie_app)
+        self.assertFalse(app.cookies)
         res = app.get('/')
-        self.assert_(app.cookiejar)
+        self.assertEqual(app.cookies['spam'], 'eggs')
         res.click('go')
-        self.assert_(app.cookiejar)
+        self.assertEqual(app.cookies['spam'], 'eggs')
 
     def test_send_cookies(self):
         app = webtest.TestApp(cookie_app2)
         self.assertTrue(not app.cookies,
                         'App should initially contain no cookies')
 
-        resp = app.get('/', headers=[('Cookie', 'spam=eggs')])
+        app.get('/', headers=[('Cookie', 'spam=eggs')])
         self.assertFalse(app.cookies,
                          'Response should not have set cookies')
-        resp.mustcontain('Cookie: spam=eggs')
 
     @mock.patch('six.moves.http_cookiejar.time.time')
     def test_expires_cookies(self, mock_time):
