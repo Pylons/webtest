@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import os.path
 import struct
+import sys
 
 import webtest
 import six
@@ -851,3 +852,25 @@ class TestFileUpload(unittest.TestCase):
         display = single_form.submit("button")
         self.assertFile(uploaded_file1_name, uploaded_file1_contents, display)
         self.assertFile(uploaded_file1_name, uploaded_file1_contents, display)
+
+    def test_upload_invalid_content(self):
+        app = webtest.TestApp(SingleUploadFileApp())
+        res = app.get('/')
+        single_form = res.forms["file_upload_form"]
+        single_form.set("file-field", ('my_file.dat', 1))
+        try:
+            single_form.submit("button")
+        except ValueError:
+            e = sys.exc_info()[1]
+            self.assertEquals(
+                six.text_type(e),
+                u('File content must be %s not %s' % (binary_type, int))
+            )
+
+    def test_invalid_uploadfiles(self):
+        app = webtest.TestApp(SingleUploadFileApp())
+        self.assertRaises(ValueError, app.post, '/', upload_files=[()])
+        self.assertRaises(ValueError,
+            app.post, '/',
+            upload_files=[('name', 'filename', 'content', 'extra')]
+        )
