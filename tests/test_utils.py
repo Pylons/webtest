@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import re
 import unittest
 
+from json import dumps
 from webtest import utils
 
 
@@ -123,4 +124,36 @@ class stringifyTest(unittest.TestCase):
         self.assertEquals(utils.stringify(123), "123")
 
 
-# TODO: test: json_method
+class json_methodTest(unittest.TestCase):
+
+    class MockTestApp(object):
+        """Mock TestApp used to test the json_object decorator."""
+        from webtest.utils import json_method
+        foo_json = json_method('FOO')
+
+        def _gen_request(self, method, url, **kw):
+            return (method, url, kw)
+
+    mock = MockTestApp()
+
+    def test_json_method_request_calls(self):
+        from webtest.utils import NoDefault
+        # no params
+        self.assertEquals(self.mock.foo_json('url', params=NoDefault, c='c'),
+                          ('FOO', 'url', {'content_type': 'application/json',
+                                          'c': 'c',
+                                          'params': NoDefault,
+                                          'upload_files': None}))
+        # params dumped to json
+        self.assertEquals(self.mock.foo_json('url', params={'a': 'b'}, c='c'),
+                          ('FOO', 'url', {'content_type': 'application/json',
+                                          'c': 'c',
+                                          'params': dumps({'a': 'b'}),
+                                          'upload_files': None}))
+
+    def test_json_method_doc(self):
+        self.assertIn('FOO request', self.mock.foo_json.__doc__)
+        self.assertIn('TestApp.foo', self.mock.foo_json.__doc__)
+
+    def test_json_method_name(self):
+        self.assertEqual(self.mock.foo_json.__name__, 'foo_json')
