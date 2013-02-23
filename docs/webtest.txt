@@ -62,6 +62,27 @@ If you want *all* your requests to have this key, do:
 
     app = TestApp(my_app, extra_environ=dict(REMOTE_USER='bob'))
 
+Testing a non wsgi application
+------------------------------
+
+You can use WebTest to test an application on a real web server.
+Just pass an url to the `TestApp` instead of a WSGI application::
+
+    app = TestApp('http://my.cool.websi.te')
+
+You can also use the ``WEBTEST_TARGET_URL`` env var to switch from a WSGI
+application to a real server without having to modify your code::
+
+    os.environ['WEBTEST_TARGET_URL'] = 'http://my.cool.websi.te'
+    app = TestApp(wsgiapp) # will use the WEBTEST_TARGET_URL instead of the wsgiapp
+
+By default the proxy will use ``httplib`` but you can use other backends by
+adding an anchor to your url::
+
+    app = TestApp('http://my.cool.websi.te#urllib3')
+    app = TestApp('http://my.cool.websi.te#requests')
+    app = TestApp('http://my.cool.websi.te#restkit')
+
 What Is Tested By Default
 --------------------------
 
