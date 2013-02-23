@@ -109,3 +109,49 @@ def make_pattern(pat):
         return pat
     raise ValueError(
         "Cannot make callable pattern object out of %r" % pat)
+
+
+class _RequestCookieAdapter(object):
+    """
+    cookielib.CookieJar support for webob.Request
+    """
+    def __init__(self, request):
+        self._request = request
+
+    def is_unverifiable(self):
+        return True  # sure? Why not?
+
+    @property
+    def unverifiable(self):  # NOQA
+        # This is undocumented method that Python 3 cookielib uses
+        return True
+
+    def get_full_url(self):
+        return self._request.url
+
+    def get_origin_req_host(self):
+        return self._request.host
+
+    def add_unredirected_header(self, key, header):
+        self._request.headers[key] = header
+
+    def has_header(self, key):
+        return key in self._request.headers
+
+
+class _ResponseCookieAdapter(object):
+    """
+    cookielib.CookieJar support for webob.Response
+    """
+    def __init__(self, response):
+        self._response = response
+
+    def info(self):
+        return self
+
+    def getheaders(self, header):
+        return self._response.headers.getall(header)
+
+    def get_all(self, headers, default):  # NOQA
+        # This is undocumented method that Python 3 cookielib uses
+        return self._response.headers.getall(headers)

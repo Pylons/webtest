@@ -32,60 +32,10 @@ from webtest import forms
 from webtest import lint
 from webtest import utils
 
-
 import webob
 
 
 __all__ = ['TestApp', 'TestRequest']
-
-
-class RequestCookieAdapter(object):
-    """
-    this class merely provides the methods required for a
-    cookielib.CookieJar to work on a webob.Request
-
-    potential for yak shaving...very high
-    """
-    def __init__(self, request):
-        self._request = request
-
-    def is_unverifiable(self):
-        return True  # sure? Why not?
-
-    @property
-    def unverifiable(self):  # NOQA
-        # This is undocumented method that Python 3 cookielib uses
-        return True
-
-    def get_full_url(self):
-        return self._request.url
-
-    def get_origin_req_host(self):
-        return self._request.host
-
-    def add_unredirected_header(self, key, header):
-        self._request.headers[key] = header
-
-    def has_header(self, key):
-        return key in self._request.headers
-
-
-class ResponseCookieAdapter(object):
-    """
-    cookielib.CookieJar to work on a webob.Response
-    """
-    def __init__(self, response):
-        self._response = response
-
-    def info(self):
-        return self
-
-    def getheaders(self, header):
-        return self._response.headers.getall(header)
-
-    def get_all(self, headers, default):  # NOQA
-        # This is undocumented method that Python 3 cookielib uses
-        return self._response.headers.getall(headers)
 
 
 class AppError(Exception):
@@ -180,17 +130,6 @@ class TestApp(object):
         """
         self.cookiejar.clear()
 
-    def _make_environ(self, extra_environ=None):
-        environ = self.extra_environ.copy()
-        environ['paste.throw_errors'] = True
-        if extra_environ:
-            environ.update(extra_environ)
-        return environ
-
-    def _remove_fragment(self, url):
-        scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
-        return urlparse.urlunsplit((scheme, netloc, path, query, ""))
-
     def get(self, url, params=None, headers=None, extra_environ=None,
             status=None, expect_errors=False):
         """
@@ -239,62 +178,6 @@ class TestApp(object):
         else:
             environ['QUERY_STRING'] = str('')
         req = self.RequestClass.blank(url, environ)
-        if headers:
-            req.headers.update(headers)
-        return self.do_request(req, status=status,
-                               expect_errors=expect_errors)
-
-    def _gen_request(self, method, url, params=utils.NoDefault, headers=None,
-                     extra_environ=None, status=None, upload_files=None,
-                     expect_errors=False, content_type=None):
-        """
-        Do a generic request.
-        """
-
-        if method == 'DELETE' and params is not utils.NoDefault:
-            warnings.warn(('You are not supposed to send a body in a '
-                           'DELETE request. Most web servers will ignore it'),
-                          lint.WSGIWarning)
-
-        environ = self._make_environ(extra_environ)
-
-        inline_uploads = []
-
-        # this supports OrderedDict
-        if isinstance(params, dict) or hasattr(params, 'items'):
-            params = list(params.items())
-
-        if isinstance(params, (list, tuple)):
-            inline_uploads = [v for (k, v) in params
-                              if isinstance(v, (forms.File, forms.Upload))]
-
-        if len(inline_uploads) > 0:
-            content_type, params = self.encode_multipart(
-                params, upload_files or ())
-            environ['CONTENT_TYPE'] = content_type
-        else:
-            params = utils.encode_params(params, content_type)
-            if upload_files or \
-                (content_type and
-                 to_bytes(content_type).startswith(b'multipart')):
-                params = cgi.parse_qsl(params, keep_blank_values=True)
-                content_type, params = self.encode_multipart(
-                    params, upload_files or ())
-                environ['CONTENT_TYPE'] = content_type
-            elif params:
-                environ.setdefault('CONTENT_TYPE',
-                                   str('application/x-www-form-urlencoded'))
-
-        if content_type is not None:
-            environ['CONTENT_TYPE'] = content_type
-        environ['REQUEST_METHOD'] = str(method)
-        url = str(url)
-        url = self._remove_fragment(url)
-        req = self.RequestClass.blank(url, environ)
-        if isinstance(params, text_type):
-            params = params.encode(req.charset or 'utf8')
-        req.environ['wsgi.input'] = BytesIO(params)
-        req.content_length = len(params)
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,
@@ -485,29 +368,6 @@ class TestApp(object):
         content_type = 'multipart/form-data; boundary=%s' % boundary
         return content_type, body
 
-    def _get_file_info(self, file_info):
-        if len(file_info) == 2:
-            # It only has a filename
-            filename = file_info[1]
-            if self.relative_to:
-                filename = os.path.join(self.relative_to, filename)
-            f = open(filename, 'rb')
-            content = f.read()
-            f.close()
-            return (file_info[0], filename, content)
-        elif len(file_info) == 3:
-            content = file_info[2]
-            if not isinstance(content, binary_type):
-                raise ValueError('File content must be %s not %s'
-                                 % (binary_type, type(content)))
-            return file_info
-        else:
-            raise ValueError(
-                "upload_files need to be a list of tuples of (fieldname, "
-                "filename, filecontent) or (fieldname, filename); "
-                "you gave: %r"
-                % repr(file_info)[:100])
-
     def request(self, url_or_req, status=None, expect_errors=False,
                 **req_params):
         """
@@ -582,7 +442,7 @@ class TestApp(object):
         req.environ['paste.testing_variables'] = {}
 
         # set request cookies
-        self.cookiejar.add_cookie_header(RequestCookieAdapter(req))
+        self.cookiejar.add_cookie_header(utils._RequestCookieAdapter(req))
 
         # verify wsgi compatibility
         app = lint.middleware(self.app)
@@ -614,8 +474,8 @@ class TestApp(object):
             self._check_errors(res)
 
         # merge cookies back in
-        self.cookiejar.extract_cookies(ResponseCookieAdapter(res),
-                                       RequestCookieAdapter(req))
+        self.cookiejar.extract_cookies(utils._ResponseCookieAdapter(res),
+                                       utils._RequestCookieAdapter(req))
 
         return res
 
@@ -649,3 +509,93 @@ class TestApp(object):
         if errors:
             raise AppError(
                 "Application had errors logged:\n%s", errors)
+
+    def _make_environ(self, extra_environ=None):
+        environ = self.extra_environ.copy()
+        environ['paste.throw_errors'] = True
+        if extra_environ:
+            environ.update(extra_environ)
+        return environ
+
+    def _remove_fragment(self, url):
+        scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+        return urlparse.urlunsplit((scheme, netloc, path, query, ""))
+
+    def _gen_request(self, method, url, params=utils.NoDefault, headers=None,
+                     extra_environ=None, status=None, upload_files=None,
+                     expect_errors=False, content_type=None):
+        """
+        Do a generic request.
+        """
+
+        if method == 'DELETE' and params is not utils.NoDefault:
+            warnings.warn(('You are not supposed to send a body in a '
+                           'DELETE request. Most web servers will ignore it'),
+                          lint.WSGIWarning)
+
+        environ = self._make_environ(extra_environ)
+
+        inline_uploads = []
+
+        # this supports OrderedDict
+        if isinstance(params, dict) or hasattr(params, 'items'):
+            params = list(params.items())
+
+        if isinstance(params, (list, tuple)):
+            inline_uploads = [v for (k, v) in params
+                              if isinstance(v, (forms.File, forms.Upload))]
+
+        if len(inline_uploads) > 0:
+            content_type, params = self.encode_multipart(
+                params, upload_files or ())
+            environ['CONTENT_TYPE'] = content_type
+        else:
+            params = utils.encode_params(params, content_type)
+            if upload_files or \
+                (content_type and
+                 to_bytes(content_type).startswith(b'multipart')):
+                params = cgi.parse_qsl(params, keep_blank_values=True)
+                content_type, params = self.encode_multipart(
+                    params, upload_files or ())
+                environ['CONTENT_TYPE'] = content_type
+            elif params:
+                environ.setdefault('CONTENT_TYPE',
+                                   str('application/x-www-form-urlencoded'))
+
+        if content_type is not None:
+            environ['CONTENT_TYPE'] = content_type
+        environ['REQUEST_METHOD'] = str(method)
+        url = str(url)
+        url = self._remove_fragment(url)
+        req = self.RequestClass.blank(url, environ)
+        if isinstance(params, text_type):
+            params = params.encode(req.charset or 'utf8')
+        req.environ['wsgi.input'] = BytesIO(params)
+        req.content_length = len(params)
+        if headers:
+            req.headers.update(headers)
+        return self.do_request(req, status=status,
+                               expect_errors=expect_errors)
+
+    def _get_file_info(self, file_info):
+        if len(file_info) == 2:
+            # It only has a filename
+            filename = file_info[1]
+            if self.relative_to:
+                filename = os.path.join(self.relative_to, filename)
+            f = open(filename, 'rb')
+            content = f.read()
+            f.close()
+            return (file_info[0], filename, content)
+        elif len(file_info) == 3:
+            content = file_info[2]
+            if not isinstance(content, binary_type):
+                raise ValueError('File content must be %s not %s'
+                                 % (binary_type, type(content)))
+            return file_info
+        else:
+            raise ValueError(
+                "upload_files need to be a list of tuples of (fieldname, "
+                "filename, filecontent) or (fieldname, filename); "
+                "you gave: %r"
+                % repr(file_info)[:100])
