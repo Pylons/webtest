@@ -23,6 +23,8 @@ def get_free_port():
 
 def check_server(host, port, path_info='/', timeout=3, retries=30):
     """Perform a request until the server reply"""
+    if retries < 0:
+        return 0
     conn = http_client.HTTPConnection(host, port, timeout=timeout)
     time.sleep(.3)
     for i in range(retries):

@@ -29,6 +29,7 @@ class TestServer(unittest.TestCase):
 
     def test_wsgi_wrapper(self):
         s = self.s
+        s.wait()
         req = Request.blank('/__application__')
         resp = req.get_response(s.wrapper)
         self.assertEqual(resp.status_int, 200)
@@ -54,7 +55,7 @@ class TestBrokenServer(unittest.TestCase):
     def test_shutdown_non_running(self):
         host, port = http.get_free_port()
         s = http.StopableWSGIServer(debug_app, host=host, port=port)
-        self.assertFalse(s.wait(retries=1))
+        self.assertFalse(s.wait(retries=-1))
         self.assertTrue(s.shutdown())
 
 

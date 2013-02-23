@@ -23,9 +23,13 @@ from webtest.forms import Hidden
 from webtest.forms import Submit
 from webtest.forms import Upload
 
-from webtest.ext import casperjs
-
 # backward compat
+try:
+    import webtest_casperjs
+except ImportError:
+    from webtest.ext import casperjs
+else:  # pragma: no cover
+    from webtest_casperjs import casperjs
 try:
     import webtest_selenium
 except ImportError:
