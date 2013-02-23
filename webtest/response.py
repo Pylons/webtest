@@ -21,7 +21,6 @@ import webob
 
 
 class TestResponse(webob.Response):
-
     """
     Instances of this class are returned by :class:`~webtest.TestApp`
     """
@@ -32,9 +31,11 @@ class TestResponse(webob.Response):
     @property
     def forms(self):
         """
-        Returns a dictionary of :class:`~webtest.forms.Form` objects.
-        Indexes are both in order (from zero) and by form id (if the
-        form is given an id).
+        Returns a dictionnary containing all the forms in the pages as
+        :class:`~webtest.forms.Form` objects.  Indexes are both in
+        order (from zero) and by form id (if the form is given an id).
+
+        See :doc:`forms` for more info on form objects.
         """
         if self._forms_indexed is None:
             self._parse_forms()
@@ -42,8 +43,10 @@ class TestResponse(webob.Response):
 
     @property
     def form(self):
-        """Returns a single :class:`~webtest.forms.Form` instance; it
-        is an error if there are multiple forms on the page.
+        """
+        If there is only one form on the page, return it as a
+        :class:`~webtest.forms.Form` object; raise a TypeError is
+        there are no form or multiple forms.
         """
         forms_ = self.forms
         if not forms_:
@@ -77,8 +80,9 @@ class TestResponse(webob.Response):
 
     def follow(self, **kw):
         """
-        If this request is a redirect, follow that redirect.  It
-        is an error if this is not a redirect response.  Returns
+        If this request is a redirect, follow that redirect.  It is an
+        error if this is not a redirect response.  Any keyword
+        arguments are passed to :class:`webtest.TestApp`.  Returns
         another response object.
         """
         assert self.status_int >= 300 and self.status_int < 400, (
@@ -335,13 +339,17 @@ class TestResponse(webob.Response):
         return s in self.testbody or s in self.unicode_normal_body
 
     def mustcontain(self, *strings, **kw):
-        """
+        """mustcontain(*strings, no=[])
+
         Assert that the response contains all of the strings passed
         in as arguments.
 
         Equivalent to::
 
             assert string in res
+
+        Can take a `no` keyword argument that can be a string or a
+        list of strings which must not be present in the response.
         """
         if 'no' in kw:
             no = kw['no']

@@ -147,6 +147,7 @@ class TestResponse(unittest.TestCase):
         res.mustcontain('foobar')
         self.assertRaises(IndexError, res.mustcontain, 'not found')
         res.mustcontain('foobar', no='not found')
+        res.mustcontain('foobar', no=['not found', 'not found either'])
         self.assertRaises(IndexError, res.mustcontain, no='foobar')
         self.assertRaises(
             TypeError,
