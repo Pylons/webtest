@@ -59,7 +59,7 @@ Doing *POST* request with :meth:`webtest.TestApp.post_json`:
     Content-Type: application/json
     ...
 
-    >>> print(resp.json) == {'id': 1, 'value': 'value'}
+    >>> resp.json == {'id': 1, 'value': 'value'}
     True
 
 
@@ -74,7 +74,7 @@ To just parse body of the response, use Response.json:
     GET /resource/1/ HTTP/1.0
     ...
 
-    >>> print(resp.json) == {'id': 1, 'value': 'value'}
+    >>> resp.json == {'id': 1, 'value': 'value'}
     True
 
 
