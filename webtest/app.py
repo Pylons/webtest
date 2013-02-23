@@ -27,7 +27,6 @@ from six.moves import http_cookiejar
 from webtest.compat import urlparse
 from webtest.compat import urlencode
 from webtest.compat import to_bytes
-from webtest.compat import PY3
 from webtest.response import TestResponse
 from webtest import forms
 from webtest import lint
@@ -145,11 +144,20 @@ class TestApp(object):
 
     def __init__(self, app, extra_environ=None, relative_to=None,
                  use_unicode=True):
+        if 'WEBTEST_TARGET_URL' in os.environ:
+            app = os.environ['WEBTEST_TARGET_URL']
         if isinstance(app, string_types):
-            from paste.deploy import loadapp
-            # @@: Should pick up relative_to from calling module's
-            # __file__
-            app = loadapp(app, relative_to=relative_to)
+            if app.startswith('http'):
+                from wsgiproxy import HostProxy
+                if '#' not in app:
+                    app += '#httplib'
+                url, client = app.split('#', 1)
+                app = HostProxy(url, client=client)
+            else:
+                from paste.deploy import loadapp
+                # @@: Should pick up relative_to from calling module's
+                # __file__
+                app = loadapp(app, relative_to=relative_to)
         self.app = app
         self.relative_to = relative_to
         if extra_environ is None:

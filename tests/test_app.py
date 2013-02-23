@@ -6,6 +6,7 @@ from webtest.compat import to_bytes
 from webtest.compat import PY3
 from webtest.compat import OrderedDict
 from webtest.debugapp import debug_app
+from webtest import http
 from tests.compat import unittest
 import os
 import six
@@ -195,7 +196,8 @@ class TestCookies(unittest.TestCase):
             headers = [
                 ('Content-Type', 'text/html'),
                 ('Content-Length', str(len(body))),
-                ('Set-Cookie', 'spam=eggs; Expires=Tue, 21-Feb-2013 17:45:00 GMT;'),
+                ('Set-Cookie',
+                 'spam=eggs; Expires=Tue, 21-Feb-2013 17:45:00 GMT;'),
             ]
             start_response(status, headers)
             return [to_bytes(body)]
@@ -507,3 +509,26 @@ class TestScriptName(unittest.TestCase):
         app = webtest.TestApp(application)
         resp = app.get('/path', extra_environ={'SCRIPT_NAME': '/script'})
         resp.mustcontain('href="/script/path"')
+
+
+class TestWSGIProxy(unittest.TestCase):
+
+    def setUp(self):
+        self.s = http.StopableWSGIServer.create(debug_app)
+
+    def test_proxy_with_url(self):
+        app = webtest.TestApp(self.s.application_url)
+        resp = app.get('/')
+        self.assertEqual(resp.status_int, 200)
+
+    def test_proxy_with_environ(self):
+        def app(environ, start_response):
+            pass
+        os.environ['WEBTEST_TARGET_URL'] = self.s.application_url
+        app = webtest.TestApp(app)
+        del os.environ['WEBTEST_TARGET_URL']
+        resp = app.get('/')
+        self.assertEqual(resp.status_int, 200)
+
+    def tearDown(self):
+        self.s.shutdown()
