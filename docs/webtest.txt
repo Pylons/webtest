@@ -115,6 +115,15 @@ TestApp API
 
 .. autoexception:: AppError
 
+
+TestRequest API
+---------------
+
+.. autoclass:: TestRequest
+   :members:
+   :show-inheritance:
+
+
 The TestResponse Object
 ========================
 
@@ -266,6 +275,7 @@ Some of the return values return instances of these classes:
 
 .. autoclass:: TestResponse
    :members:
+   :show-inheritance:
 
 Framework Hooks
 ===============

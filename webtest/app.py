@@ -113,6 +113,7 @@ class AppError(Exception):
 
 
 class TestRequest(webob.Request):
+    """A subclass of webob.Requset"""
     ResponseClass = TestResponse
 
 
@@ -132,8 +133,10 @@ class TestApp(object):
     uploads are calculated relative to this.  Also ``config:``
     URIs that aren't absolute.
 
-    ``cookiejar`` is a `cookielib.CookieJar` instance that keeps cookies
+    ``cookiejar`` is a `cookielib.CookieJar` alike API that keeps cookies
     across requets. See official Python documentation for the API.
+
+    Attributes:
 
     ``cookies`` is a convenient shortcut for a dict of all cookies in
     ``cookiejar``.
@@ -143,7 +146,7 @@ class TestApp(object):
     RequestClass = TestRequest
 
     def __init__(self, app, extra_environ=None, relative_to=None,
-                 use_unicode=True):
+                 use_unicode=True, cookiejar=None):
         if 'WEBTEST_TARGET_URL' in os.environ:
             app = os.environ['WEBTEST_TARGET_URL']
         if isinstance(app, string_types):
@@ -164,7 +167,7 @@ class TestApp(object):
             extra_environ = {}
         self.extra_environ = extra_environ
         self.use_unicode = use_unicode
-        self.cookiejar = http_cookiejar.CookieJar()
+        self.cookiejar = cookiejar or http_cookiejar.CookieJar()
 
     @property
     def cookies(self):
@@ -218,6 +221,7 @@ class TestApp(object):
             non-200/3xx responses are also okay.
 
         Returns a :class:`webtest.TestResponse` object.
+
         """
         environ = self._make_environ(extra_environ)
         url = str(url)
@@ -250,7 +254,7 @@ class TestApp(object):
         if method == 'DELETE' and params is not utils.NoDefault:
             warnings.warn(('You are not supposed to send a body in a '
                            'DELETE request. Most web servers will ignore it'),
-                           lint.WSGIWarning)
+                          lint.WSGIWarning)
 
         environ = self._make_environ(extra_environ)
 
@@ -308,7 +312,9 @@ class TestApp(object):
         just ``[(fieldname, filename)]`` and the file content will be
         read from disk.
 
-        For post requests params could be a collections.OrderedDict with
+        ``content_type`` is HTTP content type, for example **application/json**
+
+        For post requests params can be a collections.OrderedDict with
         Upload fields included in order:
 
             app.post('/myurl', collections.OrderedDict([
@@ -316,7 +322,8 @@ class TestApp(object):
                 ('uploadfield', webapp.Upload('filename.txt', 'contents'),
                 ('textfield2', 'value2')])))
 
-        Returns a ``webob.Response`` object.
+        Returns a :class:`webtest.TestResponse` object.
+
         """
         return self._gen_request('POST', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -330,12 +337,14 @@ class TestApp(object):
             content_type=None):
         """
         Do a PUT request.  Very like the ``.post()`` method.
+
         ``params`` are put in the body of the request, if params is a
         tuple, dictionary, list, or iterator it will be urlencoded and
         placed in the body as with a POST, if it is string it will not
         be encoded, but placed in the body directly.
 
-        Returns a ``webob.Response`` object.
+        Returns a :class:`webtest.TestResponse` object.
+
         """
         return self._gen_request('PUT', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -349,12 +358,14 @@ class TestApp(object):
               content_type=None):
         """
         Do a PATCH request.  Very like the ``.post()`` method.
+
         ``params`` are put in the body of the request, if params is a
         tuple, dictionary, list, or iterator it will be urlencoded and
         placed in the body as with a POST, if it is string it will not
         be encoded, but placed in the body directly.
 
-        Returns a ``webob.Response`` object.
+        Returns a :class:`webtest.TestResponse` object.
+
         """
         return self._gen_request('PATCH', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -368,7 +379,8 @@ class TestApp(object):
         """
         Do a DELETE request.  Very like the ``.get()`` method.
 
-        Returns a ``webob.Response`` object.
+        Returns a :class:`webtest.TestResponse` object.
+
         """
         return self._gen_request('DELETE', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -382,7 +394,7 @@ class TestApp(object):
         """
         Do a OPTIONS request.  Very like the ``.get()`` method.
 
-        Returns a ``webob.Response`` object.
+        Returns a :class:`webtest.TestResponse` object.
         """
         return self._gen_request('OPTIONS', url, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -395,7 +407,8 @@ class TestApp(object):
         """
         Do a HEAD request.  Very like the ``.get()`` method.
 
-        Returns a ``webob.Response`` object.
+        Returns a :class:`webtest.TestResponse` object.
+
         """
         return self._gen_request('HEAD', url, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -437,7 +450,7 @@ class TestApp(object):
             fcontent = fcontent or b'application/octet-stream'
             lines.extend([
                 b'--' + boundary,
-                b'Content-Disposition: form-data; ' + \
+                b'Content-Disposition: form-data; ' +
                 b'name="' + key + b'"; filename="' + filename + b'"',
                 b'Content-Type: ' + fcontent, b'', value])
 
@@ -498,7 +511,7 @@ class TestApp(object):
     def request(self, url_or_req, status=None, expect_errors=False,
                 **req_params):
         """
-        Creates and executes a request.  You may either pass in an
+        Creates and executes a request. You may either pass in an
         instantiated :class:`TestRequest` object, or you may pass in a
         URL and keyword arguments to be passed to
         :meth:`TestRequest.blank`.
@@ -514,9 +527,11 @@ class TestApp(object):
 
             resp = app.request('/test.txt', method='PUT', body='test')
 
-        You can use ``POST={args}`` to set the request body to the
-        serialized arguments, and simultaneously set the request
-        method to ``POST``
+        You can use webtest.TestRequest::
+
+            req = webtest.TestRequest.blank('/url/', method='GET')
+            resp = app.do_request(req)
+
         """
         if isinstance(url_or_req, text_type):
             url_or_req = str(url_or_req)
@@ -539,18 +554,21 @@ class TestApp(object):
 
     def do_request(self, req, status, expect_errors):
         """
-        Executes the given request (``req``), with the expected
-        ``status``.  Generally ``.get()`` and ``.post()`` are used
+        Executes the given webob Request (``req``), with the expected
+        ``status``. Generally ``.get()`` and ``.post()`` are used
         instead.
 
         To use this::
 
-            resp = app.do_request(webtest.TestRequest.blank(
-                'url', ...args...))
+            req = webtest.TestRequest.blank('url', ...args...)
+            resp = app.do_request(req)
 
-        Note you can pass any keyword arguments to
-        ``TestRequest.blank()``, which will be set on the request.
-        These can be arguments like ``content_type``, ``accept``, etc.
+        Note::
+
+            You can pass any keyword arguments to
+            ``TestRequest.blank()``, which will be set on the request.
+            These can be arguments like ``content_type``, ``accept``, etc.
+
         """
 
         errors = StringIO()
@@ -605,8 +623,7 @@ class TestApp(object):
         if status == '*':
             return
         res_status = res.status
-        if (isinstance(status, string_types)
-            and '*' in status):
+        if (isinstance(status, string_types) and '*' in status):
             if re.match(fnmatch.translate(status), res_status, re.I):
                 return
         if isinstance(status, (list, tuple)):
