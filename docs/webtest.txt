@@ -155,7 +155,8 @@ The added methods:
 ``response.follow(**kw)``:
     Follows the redirect, returning the new response.  It is an error
     if this response wasn't a redirect.  Any keyword arguments are
-    passed to ``app.get`` (e.g., ``status``).
+    passed to :class:`webtest.TestApp` (e.g., ``status``).  Returns
+    another response object.
 
 ``x in response``:
     Returns True if the string is found in the response body.
@@ -163,8 +164,10 @@ The added methods:
 
 ``response.mustcontain(string1, string2, no=string3)``:
     Raises an error if any of the strings are not found in the
-    response.  It also prints out the response in that case, so
-    you can see the real response.
+    response.  If a string of a string list is given as `no` keyword
+    argument, raise an error if one of those are found in the
+    response.  It also prints out the response in that case, so you
+    can see the real response.
 
 ``response.showbrowser()``:
     Opens the HTML response in a browser; useful for debugging.
