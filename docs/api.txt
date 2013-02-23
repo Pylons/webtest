@@ -25,7 +25,7 @@
    :show-inheritance:
 
 :mod:`webtest.forms`
---------------------------------------
+----------------------
 
 .. automodule:: webtest.forms
    :members:
@@ -50,7 +50,7 @@
 
 
 :mod:`webtest.debugapp`
----------------------
+-----------------------
 
 .. automodule:: webtest.debugapp
    :members:

@@ -313,29 +313,29 @@ class Form(object):
 
         the full HTML of the form.
 
-    .. attributes:: action
+    .. attribute:: action
 
         the relative URI of the action.
 
-    .. attributes:: method
+    .. attribute:: method
 
         the HTTP method (e.g., ``'GET'``).
 
-    .. attributes:: id
+    .. attribute:: id
 
         the id, or None if not given.
 
-    .. attributes:: enctype
+    .. attribute:: enctype
 
         encoding of the form submission
 
-    .. attributes:: fields
+    .. attribute:: fields
 
         a dictionary of fields, each value is a list of fields by
         that name.  ``<input type=\"radio\">`` and ``<select>`` are
         both represented as single fields with multiple options.
 
-    .. attributes:: field_order
+    .. attribute:: field_order
 
         Ordered list of field names as found in the html.
 
