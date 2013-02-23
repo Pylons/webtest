@@ -23,7 +23,7 @@ import webob
 class TestResponse(webob.Response):
 
     """
-    Instances of this class are return by ``TestApp``
+    Instances of this class are returned by :class:`~webtest.TestApp`
     """
 
     request = None
@@ -32,8 +32,9 @@ class TestResponse(webob.Response):
     @property
     def forms(self):
         """
-        Returns a dictionary of :class:`~webtest.Form` objects.  Indexes are
-        both in order (from zero) and by form id (if the form is given an id).
+        Returns a dictionary of :class:`~webtest.forms.Form` objects.
+        Indexes are both in order (from zero) and by form id (if the
+        form is given an id).
         """
         if self._forms_indexed is None:
             self._parse_forms()
@@ -41,8 +42,8 @@ class TestResponse(webob.Response):
 
     @property
     def form(self):
-        """Returns a single :class:`~webtest.Form` instance; it is an
-        error if there are multiple forms on the page.
+        """Returns a single :class:`~webtest.forms.Form` instance; it
+        is an error if there are multiple forms on the page.
         """
         forms_ = self.forms
         if not forms_:
@@ -142,7 +143,8 @@ class TestResponse(webob.Response):
     def clickbutton(self, description=None, buttonid=None, href=None,
                     button=None, index=None, verbose=False):
         """
-        Like ``.click()``, except looks for link-like buttons.
+        Like :meth:`~webtest.TestResponse.click`, except looks
+        for link-like buttons.
         This kind of button should look like
         ``<button onclick="...location.href='url'...">``.
         """
@@ -251,8 +253,8 @@ class TestResponse(webob.Response):
         """
         Go to the (potentially relative) link ``href``, using the
         given method (``'get'`` or ``'post'``) and any extra arguments
-        you want to pass to the ``app.get()`` or ``app.post()``
-        methods.
+        you want to pass to the :meth:`webtest.TestApp.get` or
+        :meth:`webtest.TestApp.post` methods.
 
         All hostnames and schemes will be ignored.
         """
