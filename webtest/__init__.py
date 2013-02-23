@@ -4,8 +4,6 @@
 # http://www.opensource.org/licenses/mit-license.php
 """
 Routines for testing WSGI applications.
-
-Most interesting is app
 """
 
 from webtest.app import TestApp

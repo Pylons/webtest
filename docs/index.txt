@@ -116,11 +116,8 @@ Contents
 .. toctree::
 
    webtest.txt
-   forms.txt
-   json.txt
-   http.txt
-   debugapp.txt
+   api.txt
    contributing.txt
+   news.txt
 
-.. include:: news.txt
 .. include:: license.txt

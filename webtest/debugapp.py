@@ -1,8 +1,10 @@
-import webob
-import six
 import os
 
-__all__ = ['DebugApp', 'debug_app']
+import six
+import webob
+
+
+__all__ = ['DebugApp', 'make_debug_app']
 
 
 class DebugApp(object):

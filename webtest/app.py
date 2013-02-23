@@ -62,41 +62,49 @@ class AppError(Exception):
         Exception.__init__(self, message)
 
 
-class TestRequest(webob.Request):
-    """A subclass of webob.Request"""
+class TestRequest(webob.BaseRequest):
+    """A subclass of webob.Requset"""
     ResponseClass = TestResponse
 
 
 class TestApp(object):
     """
     Wraps a WSGI application in a more convenient interface for
-    testing.
+    testing. It uses extended version of :class:`webob.BaseRequest`
+    and :class:`webob.Response`.
 
-    ``app`` may be an application or a Paste Deploy app,
-    like ``'config:filename.ini#test'``.
+    :param app:
+        May be an WSGI application or Paste Deploy app,
+        like ``'config:filename.ini#test'``.
 
-    It can also be an actual full URL to an http server and webtest
-    will proxy requests with `wsgiproxy`.
+        .. versionadded:: 2.0
 
-    .. versionadded:: 2.0
+        It can also be an actual full URL to an http server and webtest
+        will proxy requests with `wsgiproxy`.
+    :type app:
+        WSGI application
+    :param extra_environ:
+        A dictionary of values that should go
+        into the environment for each request. These can provide a
+        communication channel with the application.
+    :type extra_environ:
+        dict
+    :param relative_to:
+        A directory used for file
+        uploads are calculated relative to this.  Also ``config:``
+        URIs that aren't absolute.
+    :type relative_to:
+        string
+    :param cookiejar:
+        :class:`cookielib.CookieJar` alike API that keeps cookies
+        across requets.
+    :type cookiejar:
+        CookieJar instance
 
-    ``extra_environ`` is a dictionary of values that should go
-    into the environment for each request.  These can provide a
-    communication channel with the application.
+    .. attribute:: cookies
 
-    ``relative_to`` is a directory, and filenames used for file
-    uploads are calculated relative to this.  Also ``config:``
-    URIs that aren't absolute.
-
-    ``cookiejar`` is a `cookielib.CookieJar` alike API that keeps cookies
-    across requets. See official Python documentation for the API.
-
-    Attributes:
-
-    ``cookies`` is a convenient shortcut for a dict of all cookies in
-    ``cookiejar``.
-
-
+        A convenient shortcut for a dict of all cookies in
+        ``cookiejar``.
 
     """
 
@@ -140,33 +148,33 @@ class TestApp(object):
     def get(self, url, params=None, headers=None, extra_environ=None,
             status=None, expect_errors=False):
         """
-        Get the given url (well, actually a path like
-        ``'/page.html'``).
+        Do a GET request given the url path.
 
-        ``params``:
+        :param params:
             A query string, or a dictionary that will be encoded
-            into a query string.  You may also include a query
+            into a query string.  You may also include a URL query
             string on the ``url``.
+        :param headers:
+            Extra headers to send.
+        :type headers:
+            dictionary
+        :param extra_environ:
+            Environmental variables that should be added to the request.
+        :type extra_environ:
+            dictionary
+        :param status:
+            The HTTP status code you expect in response (if not 200 or 3xx).
+            You can also use a wildcard, like ``'3*'`` or ``'*'``.
+        :type status:
+            integer or string
+        :param expect_errors:
+            If this is False, then if anything is written to
+            environ ``wsgi.errors`` it will be an error.
+            If it is True, then non-200/3xx responses are also okay.
+        :type expect_errors:
+            boolean
 
-        ``headers``:
-            A dictionary of extra headers to send.
-
-        ``extra_environ``:
-            A dictionary of environmental variables that should
-            be added to the request.
-
-        ``status``:
-            The integer status code you expect (if not 200 or 3xx).
-            If you expect a 404 response, for instance, you must give
-            ``status=404`` or it will be an error.  You can also give
-            a wildcard, like ``'3*'`` or ``'*'``.
-
-        ``expect_errors``:
-            If this is not true, then if anything is written to
-            ``wsgi.errors`` it will be an error.  If it is true, then
-            non-200/3xx responses are also okay.
-
-        Returns a :class:`webtest.TestResponse` object.
+        :returns: :class:`webtest.TestResponse` instance.
 
         """
         environ = self._make_environ(extra_environ)
@@ -194,25 +202,34 @@ class TestApp(object):
              status=None, upload_files=None, expect_errors=False,
              content_type=None):
         """
-        Do a POST request.  Very like the :meth:`~webtest.TestApp.get` method.
-        ``params`` are put in the body of the request.
+        Do a POST request. Similar to :meth:`~webtest.TestApp.get`.
 
-        ``upload_files`` is for file uploads.  It should be a list of
-        ``[(fieldname, filename, file_content)]``.  You can also use
-        just ``[(fieldname, filename)]`` and the file content will be
-        read from disk.
+        :param params:
+            Are put in the body of the request. If params is a
+            iterator it will be urlencoded, if it is string it will not
+            be encoded, but placed in the body directly.
 
-        ``content_type`` is HTTP content type, for example **application/json**
+            Can be a collections.OrderedDict with
+            :class:`webtest.forms.Upload` fields included::
 
-        For post requests params can be a collections.OrderedDict with
-        Upload fields included in order:
 
             app.post('/myurl', collections.OrderedDict([
                 ('textfield1', 'value1'),
                 ('uploadfield', webapp.Upload('filename.txt', 'contents'),
                 ('textfield2', 'value2')])))
 
-        Returns a :class:`webtest.TestResponse` object.
+        :param upload_files:
+            It should be a list of ``(fieldname, filename, file_content)``.
+            You can also use just ``(fieldname, filename)`` and the file
+            contents will be read from disk.
+        :type upload_files:
+            list
+        :param content_type:
+            HTTP content type, for example `application/json`.
+        :type content_type:
+            string
+
+        :returns: :class:`webtest.TestResponse` instance.
 
         """
         return self._gen_request('POST', url, params=params, headers=headers,
@@ -226,14 +243,9 @@ class TestApp(object):
             status=None, upload_files=None, expect_errors=False,
             content_type=None):
         """
-        Do a PUT request.  Very like the :meth:`~webtest.TestApp.post` method.
+        Do a PUT request. Similar to :meth:`~webtest.TestApp.post`.
 
-        ``params`` are put in the body of the request, if params is a
-        tuple, dictionary, list, or iterator it will be urlencoded and
-        placed in the body as with a POST, if it is string it will not
-        be encoded, but placed in the body directly.
-
-        Returns a :class:`webtest.TestResponse` object.
+        :returns: :class:`webtest.TestResponse` instance.
 
         """
         return self._gen_request('PUT', url, params=params, headers=headers,
@@ -247,14 +259,9 @@ class TestApp(object):
               status=None, upload_files=None, expect_errors=False,
               content_type=None):
         """
-        Do a PATCH request.  Very like the :meth:`~webtest.TestApp.post` method.
-        
-        ``params`` are put in the body of the request, if params is a
-        tuple, dictionary, list, or iterator it will be urlencoded and
-        placed in the body as with a POST, if it is string it will not
-        be encoded, but placed in the body directly.
+        Do a PATCH request. Similar to :meth:`~webtest.TestApp.post`.
 
-        Returns a :class:`webtest.TestResponse` object.
+        :returns: :class:`webtest.TestResponse` instance.
 
         """
         return self._gen_request('PATCH', url, params=params, headers=headers,
@@ -267,9 +274,9 @@ class TestApp(object):
     def delete(self, url, params='', headers=None, extra_environ=None,
                status=None, expect_errors=False, content_type=None):
         """
-        Do a DELETE request.  Very like the :meth:`~webtest.TestApp.get` method.
+        Do a DELETE request. Similar to :meth:`~webtest.TestApp.get`.
 
-        Returns a :class:`webtest.TestResponse` object.
+        :returns: :class:`webtest.TestResponse` instance.
 
         """
         return self._gen_request('DELETE', url, params=params, headers=headers,
@@ -282,9 +289,10 @@ class TestApp(object):
     def options(self, url, headers=None, extra_environ=None,
                 status=None, expect_errors=False):
         """
-        Do a OPTIONS request.  Very like the :meth:`~webtest.TestApp.get` method.
+        Do a OPTIONS request. Similar to :meth:`~webtest.TestApp.get`.
 
-        Returns a :class:`webtest.TestResponse` object.
+        :returns: :class:`webtest.TestResponse` instance.
+
         """
         return self._gen_request('OPTIONS', url, headers=headers,
                                  extra_environ=extra_environ, status=status,
@@ -295,9 +303,9 @@ class TestApp(object):
     def head(self, url, headers=None, extra_environ=None,
              status=None, expect_errors=False):
         """
-        Do a HEAD request.  Very like the :meth:`~webtest.TestApp.get` method.
+        Do a HEAD request. Similar to :meth:`~webtest.TestApp.get`.
 
-        Returns a :class:`webtest.TestResponse` object.
+        :returns: :class:`webtest.TestResponse` instance.
 
         """
         return self._gen_request('HEAD', url, headers=headers,
@@ -316,6 +324,7 @@ class TestApp(object):
         Encodes a set of parameters (typically a name/value list) and
         a set of files (a list of (name, filename, file_body)) into a
         typical POST body, returning the (content_type, body).
+
         """
         boundary = to_bytes(str(random.random()))[2:]
         boundary = b'----------a_BoUnDaRy' + boundary + b'$'
@@ -394,7 +403,7 @@ class TestApp(object):
 
             resp = app.request('/test.txt', method='PUT', body='test')
 
-        You can use webtest.TestRequest::
+        You can use :class:`webtest.TestRequest`::
 
             req = webtest.TestRequest.blank('/url/', method='GET')
             resp = app.do_request(req)
@@ -430,7 +439,7 @@ class TestApp(object):
             req = webtest.TestRequest.blank('url', ...args...)
             resp = app.do_request(req)
 
-        Note::
+        .. note::
 
             You can pass any keyword arguments to
             ``TestRequest.blank()``, which will be set on the request.
