@@ -11,7 +11,7 @@ unescape_html = html_parser.HTMLParser().unescape
 
 
 class NoDefault(object):
-    """Sential to uniquely represent no default value."""
+    """Sentinel to uniquely represent no default value."""
 
     def __repr__(self):
         return '<NoDefault>'
@@ -23,10 +23,10 @@ def json_method(method):
     """Do a %(method)s request.  Very like the
     :class:`~webtest.TestApp.%(lmethod)s` method.
 
-    ``params`` are dumps to json and put in the body of the request.
+    ``params`` are dumped to json and put in the body of the request.
     Content-Type is set to ``application/json``.
 
-    Returns a ``webob.Response`` object.
+    Returns a :class:`webtest.TestResponse` object.
     """
 
     def wrapper(self, url, params=NoDefault, **kw):

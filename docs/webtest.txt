@@ -12,12 +12,13 @@ To make a request, use:
 
 .. code-block:: python
 
-    app.get('/path', [headers], [extra_environ], ...)
+    app.get('/path', [params], [headers], [extra_environ], ...)
 
-This does a request for ``/path``, with any extra headers or WSGI
-environment keys that you indicate.  This returns a response object,
-based on `webob.Response
-<http://docs.webob.org/en/latest/reference.html#response>`_.  It has some
+This call to :meth:`~webtest.TestApp.get` does a request for
+``/path``, with any params, extra headers or WSGI
+environment keys that you indicate.  This returns a
+:class:`~webtest.TestResponse` object,
+based on :class:`webob.response.Response`.  It has some
 additional methods to make it easier to test.
 
 If you want to do a POST request, use:
@@ -27,7 +28,8 @@ If you want to do a POST request, use:
     app.post('/path', {'vars': 'values'}, [headers], [extra_environ],
              [upload_files], ...)
 
-Specifically the second argument is the *body* of the request.  You
+Specifically the second argument of :meth:`~webtest.TestApp.post`
+is the *body* of the request.  You
 can pass in a dictionary (or dictionary-like object), or a string
 body (dictionary objects are turned into HTML form submissions).
 
@@ -35,14 +37,8 @@ You can also pass in the keyword argument upload_files, which is a
 list of ``[(fieldname, filename, field_content)]``.  File uploads use a
 different form submission data type to pass the structured data.
 
-For other verbs you can use:
-
-.. code-block:: python
-
-    app.put(path, params, ...)
-    app.delete(path, ...)
-
-These do PUT and DELETE requests.
+You can use :meth:`~webtest.TestApp.put` and
+:meth:`~webtest.TestApp.delete` for PUT and DELETE requests.
 
 
 Modifying the Environment & Simulating Authentication
@@ -127,8 +123,7 @@ TestRequest API
 The TestResponse Object
 ========================
 
-The response object is based on `webob.Response
-<http://docs.webob.org/en/latest/reference.html#response>`_ with some additions
+The response object is based on :class:`webob.response.Response` with some additions
 to help with testing.
 
 The inherited attributes that are most interesting:
@@ -152,8 +147,7 @@ The inherited attributes that are most interesting:
     The whitespace-normalized [#whitespace-normalized]_ body of the response.
 
 ``response.request``:
-    The `webob.Request object
-    <http://docs.webob.org/en/latest/reference.html#request>`_ used to generate
+    The :class:`webob.request.BaseRequest` object used to generate
     this response.
 
 The added methods:
