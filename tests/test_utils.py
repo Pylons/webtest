@@ -64,53 +64,6 @@ class make_patternTest(unittest.TestCase):
         self.assertRaises(ValueError, self.call_FUT, 0)
 
 
-class parse_attrsTest(unittest.TestCase):
-
-    def call_FUT(self, obj):
-        from webtest.utils import parse_attrs
-        return parse_attrs(obj)
-
-    def test_single_quote(self):
-        self.assertEqual(self.call_FUT("href='foo'"),
-                         {'href': 'foo'})
-
-    def test_double_quote(self):
-        self.assertEqual(self.call_FUT('href="foo"'),
-                         {'href': 'foo'})
-
-    def test_empty(self):
-        self.assertEqual(self.call_FUT('href=""'),
-                         {'href': ''})
-
-    def test_two_attrs_double_quote(self):
-        self.assertEqual(self.call_FUT('href="foo" id="bar"'),
-                         {'href': 'foo', 'id': 'bar'})
-
-    def test_two_attrs_mixed_quotes(self):
-        self.assertEqual(self.call_FUT("href='foo' id=\"bar\" "),
-                         {'href': 'foo', 'id': 'bar'})
-
-    def test_two_attrs_single_quote(self):
-        self.assertEqual(self.call_FUT("href='foo' id='bar' "),
-                         {'href': 'foo', 'id': 'bar'})
-
-    def test_single_quote_escape(self):
-        self.assertEqual(self.call_FUT("tag='foo\"'"),
-                         {'tag': 'foo"'})
-
-    def test_unescape_html_entities(self):
-        self.assertEqual(self.call_FUT('value="&lt;&gt;&amp;&quot;&#123;"'),
-                         {'value': '<>&"{'})
-
-    def test_unescape_symbol_sum(self):
-        self.assertEqual(self.call_FUT('value="&sum;"'),
-                         {'value': "∑"})
-
-    def test_unescape_symbol_euro(self):
-        self.assertEqual(self.call_FUT('value="&#x20ac;"'),
-                         {'value': "€"})
-
-
 class stringifyTest(unittest.TestCase):
 
     def test_stringify_text(self):

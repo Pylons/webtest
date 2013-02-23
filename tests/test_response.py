@@ -170,10 +170,6 @@ class TestResponse(unittest.TestCase):
         self.assertIn('This is baz.', app.get('/').click(linkid='id_baz'))
         self.assertIn('This is baz.', app.get('/').click(href='baz/'))
         self.assertIn(
-            'This is baz.',
-            app.get('/').click(anchor="<a href='baz/' id='id_baz'>Baz</a>")
-        )
-        self.assertIn(
             'This is spam.',
             app.get('/').click('Click me!', index=0)
         )
@@ -209,18 +205,12 @@ class TestResponse(unittest.TestCase):
             target = 'Менделеев'.encode('utf8')
             self.assertIn('This is foo.', resp.click(target, verbose=True))
 
-            # should skip the img tag
-            anchor = ".*title='Поэт'.*"
-            anchor_re = anchor.encode('utf8')
-            self.assertIn('This is baz.', resp.click(anchor=anchor_re))
-
     def test_click_u(self):
         app = webtest.TestApp(links_app)
         resp = app.get('/utf8/')
 
         self.assertIn("Тестовая страница", resp)
         self.assertIn('This is foo.', resp.click('Менделеев'))
-        self.assertIn('This is baz.', resp.click(anchor=".*title='Поэт'.*"))
 
     def test_clickbutton(self):
         app = webtest.TestApp(links_app)

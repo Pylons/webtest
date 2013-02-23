@@ -95,7 +95,7 @@ class TestResponse(webob.Response):
         return self.test_app.get(location, **kw)
 
     def click(self, description=None, linkid=None, href=None,
-              anchor=None, index=None, verbose=False,
+              index=None, verbose=False,
               extra_environ=None):
         """
         Click the link as described.  Each of ``description``,
@@ -118,9 +118,6 @@ class TestResponse(webob.Response):
           the literal content of that attribute, not the fully qualified
           attribute.
 
-        * ``anchor`` is a pattern that matches the entire anchor, with
-          its contents.
-
         If more than one link matches, then the ``index`` link is
         followed.  If ``index`` is not given and more than one link
         matches, or if no link matches, then ``IndexError`` will be
@@ -140,12 +137,11 @@ class TestResponse(webob.Response):
             content=description,
             id=linkid,
             href_pattern=href,
-            html_pattern=anchor,
             index=index, verbose=verbose)
         return self.goto(str(found_attrs['uri']), extra_environ=extra_environ)
 
     def clickbutton(self, description=None, buttonid=None, href=None,
-                    button=None, index=None, verbose=False):
+                    index=None, verbose=False):
         """
         Like :meth:`~webtest.TestResponse.click`, except looks
         for link-like buttons.
@@ -158,28 +154,16 @@ class TestResponse(webob.Response):
             content=description,
             id=buttonid,
             href_pattern=href,
-            html_pattern=button,
             index=index, verbose=verbose)
         return self.goto(str(found_attrs['uri']))
 
     def _find_element(self, tag, href_attr, href_extract,
                       content, id,
                       href_pattern,
-                      html_pattern,
                       index, verbose):
         content_pat = utils.make_pattern(content)
         id_pat = utils.make_pattern(id)
         href_pat = utils.make_pattern(href_pattern)
-        html_pat = utils.make_pattern(html_pattern)
-
-        body = self.testbody
-
-        _tag_re = re.compile(r'<%s\s+(.*?)>(.*?)</%s>' % (tag, tag),
-                             re.I + re.S)
-        _script_re = re.compile(r'<script.*?>.*?</script>', re.I | re.S)
-        bad_spans = []
-        for match in _script_re.finditer(body):
-            bad_spans.append((match.start(), match.end()))
 
         def printlog(s):
             if verbose:
@@ -187,19 +171,10 @@ class TestResponse(webob.Response):
 
         found_links = []
         total_links = 0
-        for match in _tag_re.finditer(body):
-            found_bad = False
-            for bad_start, bad_end in bad_spans:
-                if (match.start() > bad_start
-                    and match.end() < bad_end):
-                    found_bad = True
-                    break
-            if found_bad:
-                continue
-            el_html = match.group(0)
-            el_attr = match.group(1)
-            el_content = match.group(2)
-            attrs = utils.parse_attrs(el_attr)
+        for element in self.html.find_all(tag):
+            el_html = str(element)
+            el_content = element.get_text()
+            attrs = element
             if verbose:
                 printlog('Element: %r' % el_html)
             if not attrs.get(href_attr):
@@ -228,9 +203,6 @@ class TestResponse(webob.Response):
                 continue
             if href_pat and not href_pat(el_href):
                 printlog("  Skipped: doesn't match href")
-                continue
-            if html_pat and not html_pat(el_html):
-                printlog("  Skipped: doesn't match html")
                 continue
             printlog("  Accepted")
             found_links.append((el_html, el_content, attrs))
