@@ -147,6 +147,7 @@ class TestResponse(unittest.TestCase):
         res.mustcontain('foobar')
         self.assertRaises(IndexError, res.mustcontain, 'not found')
         res.mustcontain('foobar', no='not found')
+        res.mustcontain('foobar', no=['not found', 'not found either'])
         self.assertRaises(IndexError, res.mustcontain, no='foobar')
         self.assertRaises(
             TypeError,
@@ -339,3 +340,11 @@ class TestResponse(unittest.TestCase):
             unicode(resp)
 
         print(resp.__unicode__())
+
+    def test_follow_with_cookie(self):
+        app = webtest.TestApp(debug_app)
+        app.get('/?header-set-cookie=foo=bar')
+        self.assertEqual(app.cookies['foo'],'bar')
+        resp = app.get('/?status=302%20Found&header-location=/')
+        resp = resp.follow()
+        resp.mustcontain('HTTP_COOKIE: foo=bar')
