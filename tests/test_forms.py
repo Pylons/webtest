@@ -386,7 +386,7 @@ def select_app(environ, start_response):
         <p>You selected %(selection)s</p>
     </body>
 </html>
-""" % locals())
+""" % dict(selection=selection, select_type=select_type))
 
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
@@ -440,7 +440,7 @@ def select_app_without_default(environ, start_response):
         <p>You selected %(selection)s</p>
     </body>
 </html>
-""" % locals())
+""" % dict(selection=selection, select_type=select_type))
 
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
@@ -494,7 +494,7 @@ u("""
         <p>You selected %(selection)s</p>
     </body>
 </html>
-""") % locals()).encode('utf8')
+""") % dict(selection=selection, select_type=select_type)).encode('utf8')
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
@@ -883,7 +883,6 @@ class TestFileUpload(unittest.TestCase):
     def test_goto_uploadfiles(self):
         app = webtest.TestApp(SingleUploadFileApp())
         resp = app.get('/')
-        print(resp)
         resp.goto(
             '/',
             method='post',
