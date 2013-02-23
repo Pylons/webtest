@@ -22,6 +22,9 @@ News
 * Split Selenium integration into separate package webtest-selenium
   [gawel]
 
+* Split casperjs integration into separate package webtest-casperjs
+  [gawel]
+
 * Test coverage improvements [harobed, cdevienne, arthru, Domen Kožar, gawel]
 
 1.4.2
