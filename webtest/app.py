@@ -63,7 +63,7 @@ class AppError(Exception):
 
 
 class TestRequest(webob.Request):
-    """A subclass of webob.Requset"""
+    """A subclass of webob.Request"""
     ResponseClass = TestResponse
 
 
@@ -194,7 +194,7 @@ class TestApp(object):
              status=None, upload_files=None, expect_errors=False,
              content_type=None):
         """
-        Do a POST request.  Very like the ``.get()`` method.
+        Do a POST request.  Very like the :meth:`~webtest.TestApp.get` method.
         ``params`` are put in the body of the request.
 
         ``upload_files`` is for file uploads.  It should be a list of
@@ -226,7 +226,7 @@ class TestApp(object):
             status=None, upload_files=None, expect_errors=False,
             content_type=None):
         """
-        Do a PUT request.  Very like the ``.post()`` method.
+        Do a PUT request.  Very like the :meth:`~webtest.TestApp.post` method.
 
         ``params`` are put in the body of the request, if params is a
         tuple, dictionary, list, or iterator it will be urlencoded and
@@ -247,8 +247,8 @@ class TestApp(object):
               status=None, upload_files=None, expect_errors=False,
               content_type=None):
         """
-        Do a PATCH request.  Very like the ``.post()`` method.
-
+        Do a PATCH request.  Very like the :meth:`~webtest.TestApp.post` method.
+        
         ``params`` are put in the body of the request, if params is a
         tuple, dictionary, list, or iterator it will be urlencoded and
         placed in the body as with a POST, if it is string it will not
@@ -267,7 +267,7 @@ class TestApp(object):
     def delete(self, url, params='', headers=None, extra_environ=None,
                status=None, expect_errors=False, content_type=None):
         """
-        Do a DELETE request.  Very like the ``.get()`` method.
+        Do a DELETE request.  Very like the :meth:`~webtest.TestApp.get` method.
 
         Returns a :class:`webtest.TestResponse` object.
 
@@ -282,7 +282,7 @@ class TestApp(object):
     def options(self, url, headers=None, extra_environ=None,
                 status=None, expect_errors=False):
         """
-        Do a OPTIONS request.  Very like the ``.get()`` method.
+        Do a OPTIONS request.  Very like the :meth:`~webtest.TestApp.get` method.
 
         Returns a :class:`webtest.TestResponse` object.
         """
@@ -295,7 +295,7 @@ class TestApp(object):
     def head(self, url, headers=None, extra_environ=None,
              status=None, expect_errors=False):
         """
-        Do a HEAD request.  Very like the ``.get()`` method.
+        Do a HEAD request.  Very like the :meth:`~webtest.TestApp.get` method.
 
         Returns a :class:`webtest.TestResponse` object.
 
@@ -422,8 +422,8 @@ class TestApp(object):
     def do_request(self, req, status, expect_errors):
         """
         Executes the given webob Request (``req``), with the expected
-        ``status``. Generally ``.get()`` and ``.post()`` are used
-        instead.
+        ``status``.  Generally :meth:`~webtest.TestApp.get` and
+        :meth:`~webtest.TestApp.post` are used instead.
 
         To use this::
 
