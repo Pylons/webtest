@@ -4,6 +4,8 @@ News
 2.0dev
 ------
 
+* Added `wsgiproxy` support to do HTTP request to an URL [gawel]
+
 * Use BeautifulSoup4 to parse forms [gawel]
 
 * Added `TestApp.patch_json` [gawel]
