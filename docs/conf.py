@@ -25,7 +25,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.intersphinx']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -262,3 +262,5 @@ if on_rtd:
     html_theme_path = ['_themes']
     html_theme = 'pylons'
     html_theme_options = dict(github_url='https://github.com/Pylons/webtest')
+
+intersphinx_mapping = {'webob': ('http://docs.webob.org/en/latest/', None)}
