@@ -515,6 +515,7 @@ class TestWSGIProxy(unittest.TestCase):
 
     def setUp(self):
         self.s = http.StopableWSGIServer.create(debug_app)
+        self.s.wait()
 
     def test_proxy_with_url(self):
         app = webtest.TestApp(self.s.application_url)
