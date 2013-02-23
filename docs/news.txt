@@ -4,6 +4,10 @@ News
 2.0dev
 ------
 
+* Backward incompatibility : Removed the ``anchor`` argument of
+  :meth:`TestResponse.click` and the ``button`` argument of
+  :meth:`TestResponse.clickbutton`. It is for the greater good.
+
 * Added `wsgiproxy` support to do HTTP request to an URL [gawel]
 
 * Use BeautifulSoup4 to parse forms [gawel]

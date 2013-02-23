@@ -80,21 +80,6 @@ def encode_params(params, content_type):
     return params
 
 
-_attr_re = re.compile(
-    r'([^= \n\r\t]+)[ \n\r\t]*(?:=[ \n\r\t]*(?:"([^"]*)"|\'([^\']*)'
-    r'\'|([^"\'][^ \n\r\t>]*)))?', re.S)
-
-
-def parse_attrs(text):
-    attrs = {}
-    for match in _attr_re.finditer(text):
-        attr_name = match.group(1).lower()
-        attr_body = match.group(2) or match.group(3)
-        attr_body = unescape_html(attr_body or '')
-        attrs[attr_name] = attr_body
-    return attrs
-
-
 def make_pattern(pat):
     """Find element pattern can be a regex or a callable."""
     if pat is None:
