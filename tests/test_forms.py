@@ -880,11 +880,22 @@ class TestFileUpload(unittest.TestCase):
             upload_files=[('name', 'filename', 'content', 'extra')]
         )
 
-    def test_goto_uploadfiles(self):
+    def test_goto_upload_files(self):
         app = webtest.TestApp(SingleUploadFileApp())
         resp = app.get('/')
-        resp.goto(
+        resp = resp.goto(
             '/',
             method='post',
-            upload_files=[('name', 'filename', b'content')]
+            upload_files=[('file', 'filename', b'content')]
         )
+        resp.mustcontain("<p>You selected 'filename'</p>",
+                         "<p>with contents: 'content'</p>")
+
+    def test_post_upload_files(self):
+        app = webtest.TestApp(SingleUploadFileApp())
+        resp = app.post(
+            '/',
+            upload_files=[('file', 'filename', b'content')]
+        )
+        resp.mustcontain("<p>You selected 'filename'</p>",
+                         "<p>with contents: 'content'</p>")
