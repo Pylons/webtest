@@ -72,8 +72,13 @@ class TestApp(object):
     Wraps a WSGI application in a more convenient interface for
     testing.
 
-    ``app`` may be an application, or a Paste Deploy app
-    URI, like ``'config:filename.ini#test'``.
+    ``app`` may be an application or a Paste Deploy app,
+    like ``'config:filename.ini#test'``.
+
+    It can also be an actual full URL to an http server and webtest
+    will proxy requests with `wsgiproxy`.
+
+    .. versionadded:: 2.0
 
     ``extra_environ`` is a dictionary of values that should go
     into the environment for each request.  These can provide a
@@ -90,6 +95,8 @@ class TestApp(object):
 
     ``cookies`` is a convenient shortcut for a dict of all cookies in
     ``cookiejar``.
+
+
 
     """
 
