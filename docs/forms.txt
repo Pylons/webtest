@@ -1,11 +1,8 @@
-================
-Form Submissions
-================
+Form handling
+=============
 
-.. automodule:: webtest.forms
-
-Get a form
-==========
+Getting a form
+--------------
 
 If you have a single html form in your page, just use the ``.form`` attribute:
 
@@ -37,8 +34,8 @@ You can check form attributes:
     >>> print(form.method)
     POST
 
-Fill a form
-===========
+Filling a form
+--------------
 
 You can fill out and submit forms from your tests. Fields are a dict like
 object:
@@ -65,16 +62,10 @@ Then you fill it in fields:
     >>> form.set('text', 'Bar', index=0)
 
 Field types
-============
+------------
 
 Input and textarea fields
--------------------------
-
-.. autoclass:: Text
-
-.. autoclass:: Textarea
-
-.. autoclass:: Hidden
+*************************
 
 .. code-block:: python
 
@@ -87,9 +78,7 @@ You can force the value of an hidden field::
     >>> form['hidden'].force_value('2')
 
 Select fields
--------------
-
-.. autoclass:: Select
+*************
 
 Simple select:
 
@@ -117,7 +106,7 @@ option.
     >>> form['multiple'].force_value(['optionX'])
 
 Checkbox
---------
+********
 
 .. autoclass:: Checkbox
 
@@ -154,9 +143,7 @@ If the checkbox has no value then it will be 'on' if you checked it::
     on
 
 Radio
------
-
-.. autoclass:: Radio
+*****
 
 .. code-block:: python
 
@@ -165,9 +152,7 @@ Radio
     >>> form['radio'] = 'Radio 1'
 
 File
-----
-
-.. autoclass:: File
+****
 
 You can deal with file upload by using the Upload class:
 
@@ -178,9 +163,7 @@ You can deal with file upload by using the Upload class:
     >>> form['file'] = Upload('README.rst', b'data')
 
 Submit a form
-==============
-
-.. autoclass:: Submit
+--------------
 
 Then you can submit the form:
 
@@ -207,11 +190,3 @@ You can also use a specific submit button:
     Content-Type: text/plain
     ...
     submit=Submit 2
-
-API
-===
-
-.. autoclass:: Form
-   :members:
-
-

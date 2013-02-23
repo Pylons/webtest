@@ -1,19 +1,31 @@
 # -*- coding: utf-8 -*-
-__doc__ = """Helpers to fill and submit forms"""
+"""Helpers to fill and submit forms."""
+
+import re
+
+from bs4 import BeautifulSoup
 from webtest.compat import OrderedDict
 from webtest import utils
-from bs4 import BeautifulSoup
-import re
+
+
+class NoValue(object):
+    pass
 
 
 class Upload(object):
-    """A file to upload::
+    """
+    A file to upload::
 
         >>> Upload('filename.txt', 'data')
         <Upload "filename.txt">
         >>> Upload("README.txt")
         <Upload "README.txt">
+
+    :param filename: Name of the file to upload.
+    :param content: Contents of the file.
+
     """
+
     def __init__(self, filename, content=None):
         self.filename = filename
         self.content = content
@@ -22,15 +34,26 @@ class Upload(object):
         yield self.filename
         if self.content:
             yield self.content
+        # TODO: do we handle the case when we need to get
+        # contents ourselves?
 
     def __repr__(self):
         return '<Upload "%s">' % self.filename
 
 
 class Field(object):
-    """Field object."""
+    """Base class for all Field objects.
 
-    # Dictionary of field types (select, radio, etc) to classes
+    .. attribute:: classes
+
+        Dictionary of field types (select, radio, etc)
+
+    .. attribute:: value
+
+        Set/get value of the field.
+
+    """
+
     classes = {}
 
     def __init__(self, form, tag, name, pos,
@@ -47,8 +70,8 @@ class Field(object):
         self._value = value
 
     def force_value(self, value):
-        """Like setting a value, except forces it even for, say, hidden
-        fields.
+        """Like setting a value, except forces it (even for, say, hidden
+        fields).
         """
         self._value = value
 
@@ -59,12 +82,8 @@ class Field(object):
         return value + '>'
 
 
-class NoValue(object):
-    pass
-
-
 class Select(Field):
-    """Field representing ``<select>``"""
+    """Field representing ``<select />`` form element."""
 
     def __init__(self, *args, **attrs):
         super(Select, self).__init__(*args, **attrs)
@@ -75,6 +94,9 @@ class Select(Field):
         self._forced_value = NoValue
 
     def force_value(self, value):
+        """Like setting a value, except forces it (even for, say, hidden
+        fields).
+        """
         self._forced_value = value
 
     def value__set(self, value):
@@ -105,8 +127,6 @@ class Select(Field):
 
     value = property(value__get, value__set)
 
-Field.classes['select'] = Select
-
 
 class MultipleSelect(Field):
     """Field representing ``<select multiple="multiple">``"""
@@ -119,6 +139,9 @@ class MultipleSelect(Field):
         self._forced_values = []
 
     def force_value(self, values):
+        """Like setting a value, except forces it (even for, say, hidden
+        fields).
+        """
         self._forced_values = values
         self.selectedIndices = []
 
@@ -133,14 +156,13 @@ class MultipleSelect(Field):
             raise ValueError(
                 "Option(s) %r not found (from %s)"
                 % (', '.join(str_values),
-                   ', '.join(
-                        [repr(o) for o, c in self.options])))
+                   ', '.join([repr(o) for o, c in self.options])))
 
     def value__get(self):
         selected_values = []
         if self.selectedIndices:
-            selected_values = [self.options[i][0] \
-                                    for i in self.selectedIndices]
+            selected_values = [self.options[i][0]
+                               for i in self.selectedIndices]
         elif not self._forced_values:
             selected_values = []
             for option, checked in self.options:
@@ -153,8 +175,6 @@ class MultipleSelect(Field):
             selected_values = None
         return selected_values
     value = property(value__get, value__set)
-
-Field.classes['multiple_select'] = MultipleSelect
 
 
 class Radio(Select):
@@ -172,11 +192,15 @@ class Radio(Select):
 
     value = property(value__get, Select.value__set)
 
-Field.classes['radio'] = Radio
-
 
 class Checkbox(Field):
-    """Field representing ``<input type="checkbox">``"""
+    """Field representing ``<input type="checkbox">``
+
+    .. attribute:: checked
+
+        Returns True if checkbox is checked.
+
+    """
 
     def __init__(self, *args, **attrs):
         super(Checkbox, self).__init__(*args, **attrs)
@@ -204,8 +228,6 @@ class Checkbox(Field):
 
     checked = property(checked__get, checked__set)
 
-Field.classes['checkbox'] = Checkbox
-
 
 class Text(Field):
     """Field representing ``<input type="text">``"""
@@ -218,13 +240,11 @@ class Text(Field):
 
     value = property(value__get, Field.value__set)
 
-Field.classes['text'] = Text
-
 
 class File(Field):
     """Field representing ``<input type="file">``"""
 
-    ## FIXME: This doesn't actually handle file uploads and enctype
+    # TODO: This doesn't actually handle file uploads and enctype
     def value__get(self):
         if self._value is None:
             return ''
@@ -233,19 +253,13 @@ class File(Field):
 
     value = property(value__get, Field.value__set)
 
-Field.classes['file'] = File
-
 
 class Textarea(Text):
     """Field representing ``<textarea>``"""
 
-Field.classes['textarea'] = Textarea
-
 
 class Hidden(Text):
     """Field representing ``<input type="hidden">``"""
-
-Field.classes['hidden'] = Hidden
 
 
 class Submit(Field):
@@ -262,7 +276,9 @@ class Submit(Field):
     value = property(value__get, value__set)
 
     def value_if_submitted(self):
+        # TODO: does this ever get set?
         return self._value
+
 
 Field.classes['submit'] = Submit
 
@@ -270,36 +286,67 @@ Field.classes['button'] = Submit
 
 Field.classes['image'] = Submit
 
+Field.classes['multiple_select'] = MultipleSelect
+
+Field.classes['select'] = Select
+
+Field.classes['hidden'] = Hidden
+
+Field.classes['file'] = File
+
+Field.classes['text'] = Text
+
+Field.classes['checkbox'] = Checkbox
+
+Field.classes['textarea'] = Textarea
+
+Field.classes['radio'] = Radio
+
 
 class Form(object):
     """This object represents a form that has been found in a page.
-    This has a couple useful attributes:
 
-    ``text``:
+    :param response: `webob.response.TestResponse` instance
+    :param text: Unparsed html of the form
+
+    .. attribute:: text
+
         the full HTML of the form.
 
-    ``action``:
+    .. attributes:: action
+
         the relative URI of the action.
 
-    ``method``:
-        the method (e.g., ``'GET'``).
+    .. attributes:: method
 
-    ``id``:
+        the HTTP method (e.g., ``'GET'``).
+
+    .. attributes:: id
+
         the id, or None if not given.
 
-    ``fields``:
+    .. attributes:: enctype
+
+        encoding of the form submission
+
+    .. attributes:: fields
+
         a dictionary of fields, each value is a list of fields by
         that name.  ``<input type=\"radio\">`` and ``<select>`` are
         both represented as single fields with multiple options.
+
+    .. attributes:: field_order
+
+        Ordered list of field names as found in the html.
+
     """
 
-    # @@: This really should be using Mechanize/ClientForm or
-    # something...
+    # TODO: use BeautifulSoup4 for this
 
     _tag_re = re.compile(r'<(/?)([a-z0-9_\-]*)([^>]*?)>', re.I)
     _label_re = re.compile(
-            '''<label\s+(?:[^>]*)for=(?:"|')([a-z0-9_\-]+)(?:"|')(?:[^>]*)>''',
-            re.I)
+        '''<label\s+(?:[^>]*)for=(?:"|')([a-z0-9_\-]+)(?:"|')(?:[^>]*)>''',
+        re.I)
 
     FieldClass = Field
 
@@ -396,21 +443,22 @@ class Form(object):
         return fields[0]
 
     def lint(self):
-        """Check that the html is valid:
+        """
+        Check that the html is valid:
 
         - each field must have an id
         - each field must have a label
+
         """
         labels = self._label_re.findall(self.text)
         for name, fields in self.fields.items():
             for field in fields:
                 if not isinstance(field, (Submit, Hidden)):
                     if not field.id:
-                        raise AttributeError(
-                             "%r as no id attribute" % field)
+                        raise AttributeError("%r as no id attribute" % field)
                     elif field.id not in labels:
                         raise AttributeError(
-                             "%r as no associated label" % field)
+                            "%r as no associated label" % field)
 
     def set(self, name, value, index=None):
         """Set the given name, using ``index`` to disambiguate."""
@@ -424,9 +472,11 @@ class Form(object):
             field.value = value
 
     def get(self, name, index=None, default=utils.NoDefault):
-        """Get the named/indexed field object, or ``default`` if no field is
-        found. Throws an AssertionError if no field is found and no default was
-        given."""
+        """
+        Get the named/indexed field object, or ``default`` if no field is
+        found. Throws an AssertionError if no field is found and no ``default``
+        was given.
+        """
         fields = self.fields.get(name)
         if fields is None:
             if default is utils.NoDefault:
@@ -449,10 +499,12 @@ class Form(object):
         """Submits the form.  If ``name`` is given, then also select that
         button (using ``index`` to disambiguate)``.
 
-        Any extra keyword arguments are passed to the ``.get()`` or
-        ``.post()`` method.
+        Any extra keyword arguments are passed to the
+        :meth:`webtest.TestResponse.get` or
+        :meth:`webtest.TestResponse.post` method.
 
         Returns a :class:`webtest.TestResponse` object.
+
         """
         fields = self.submit_fields(name, index=index)
         if self.method.upper() != "GET":
@@ -461,12 +513,14 @@ class Form(object):
                                   params=fields, **args)
 
     def upload_fields(self):
-        """Return a list of file field tuples of the form:
+        """Return a list of file field tuples of the form::
+
             (field name, file name)
 
-        or:
+        or::
 
             (field name, file name, file contents).
+
         """
         uploads = []
         for name, fields in self.fields.items():
@@ -478,6 +532,10 @@ class Form(object):
     def submit_fields(self, name=None, index=None):
         """Return a list of ``[(name, value), ...]`` for the current state of
         the form.
+
+        :param name: Same as for :meth:`submit`
+        :param index: Same as for :meth:`submit`
+
         """
         submit = []
         # Use another name here so we can keep function param the same for BWC.

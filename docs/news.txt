@@ -7,16 +7,15 @@ News
 * Backward incompatibility : Removed the ``anchor`` argument of
   :meth:`TestResponse.click` and the ``button`` argument of
   :meth:`TestResponse.clickbutton`. It is for the greater good.
+  [madjar]
+
+* Rewrote API documentation [Domen Kožar]
 
 * Added `wsgiproxy` support to do HTTP request to an URL [gawel]
 
 * Use BeautifulSoup4 to parse forms [gawel]
 
 * Added `TestApp.patch_json` [gawel]
-
-* Fully implement decoding of HTML entities
-
-* Fix tox configuration
 
 * Implement `TestApp.cookiejar` support and kindof keep
   `TestApp.cookies` functionality.  `TestApp.cookies`
@@ -30,6 +29,10 @@ News
   [gawel]
 
 * Test coverage improvements [harobed, cdevienne, arthru, Domen Kožar, gawel]
+
+* Fully implement decoding of HTML entities
+
+* Fix tox configuration
 
 1.4.2
 -----

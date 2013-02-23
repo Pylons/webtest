@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
-__doc__ = """This module contains some helpers to deal with the real http
-world."""
-from waitress.server import WSGIServer
-from six.moves import http_client
+"""
+This module contains some helpers to deal with the real http
+world.
+"""
+
 import threading
 import logging
 import socket
-import webob
 import time
-import six
 import os
+
+import six
+import webob
+from six.moves import http_client
+from waitress.server import WSGIServer
 
 
 def get_free_port():
@@ -76,6 +80,7 @@ class StopableWSGIServer(WSGIServer):
         return self.test_app(environ, start_response)
 
     def run(self):
+        """Run the server"""
         self.asyncore.loop(.5, map=self._map)
 
     def shutdown(self):

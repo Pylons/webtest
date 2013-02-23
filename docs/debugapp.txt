@@ -1,6 +1,6 @@
-=================
-Debug application
-=================
+======================
+WSGI Debug application
+======================
 
 ``webtest.debugapp.debug_app`` is a faker WSGI app to help to test *webtest*.
 
@@ -29,11 +29,3 @@ You can also define the status of response :
     >>> res = app.post('/?status=302', params='foobar')
     >>> print(res.status)
     302 Found
-
-
-Complete ``debugapp.py`` source code
-====================================
-
-.. literalinclude:: ../webtest/debugapp.py
-   :pyobject: DebugApp
-
