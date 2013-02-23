@@ -36,7 +36,8 @@ def application(environ, start_response):
         resp.body = env_input.readline(len_body)
     elif req.path_info == '/read_lines':
         resp.body = b'-'.join(env_input.readlines(len_body))
-
+    elif req.path_info == '/close':
+        resp.body = env_input.close()
     return resp(environ, start_response)
 
 
