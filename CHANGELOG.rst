@@ -1,8 +1,13 @@
 News
 ====
 
-2.0dev
-------
+2.1.dev0
+--------
+
+* Nothing changed yet.
+
+2.0
+---
 
 * drop zc.buildout usage for development, now using only virtualenv
   [Domen Kožar]
