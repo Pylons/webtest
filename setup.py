@@ -7,7 +7,7 @@ from setuptools import find_packages
 
 version = '2.0.dev0'
 
-tests_require = ['nose', 'coverage', 'mock', 'PasteDeploy', 'WSGIProxy2']
+tests_require = ['nose', 'coverage', 'mock', 'PasteDeploy', 'WSGIProxy2', 'pyquery']
 opt_install_requires = []
 
 if sys.version_info[0] == 2:
@@ -55,7 +55,7 @@ setup(name='WebTest',
       zip_safe=False,
       install_requires=[
         'six',
-        'WebOb',
+        'WebOb>=1.2',
         'waitress',
         'beautifulsoup4',
       ] + opt_install_requires,

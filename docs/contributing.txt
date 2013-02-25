@@ -11,13 +11,9 @@ Get your working copy :
 
     $ git clone https://github.com/Pylons/webtest.git
     $ cd webtest
-
-If you want to hack *Webtest* I suggest you to use *buildoud* :
-
-.. code-block:: bash
-
-    $ python bootstrap.py
-    $ bin/buildout
+    $ virtualenv .
+    $ . bin/activate
+    $ python setup.py dev
 
 Now, you can hack.
 
@@ -54,6 +50,7 @@ Execute tests
     ----------------------------------------------------------------------
     Ran 70 tests in 14.940s
 
+
 Use tox to test many Python versions
 ====================================
 
@@ -61,7 +58,8 @@ Use tox to test many Python versions
 
 .. code-block:: bash
 
-    $ bin/buildout install tox
+    $ pip install tox
+    $ tox
 
 Launch tests with *tox* :
 
@@ -81,6 +79,7 @@ Generate documentation
 
 .. code-block:: bash
 
+    $ pip install Sphinx
     $ cd docs
     $ make html
     ../bin/sphinx-build -b html -d _build/doctrees   . _build/html
