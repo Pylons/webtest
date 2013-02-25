@@ -118,6 +118,6 @@ Contents
    webtest.txt
    api.txt
    contributing.txt
-   news.txt
+   changelog.txt
 
 .. include:: license.txt
