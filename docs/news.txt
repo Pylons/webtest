@@ -4,6 +4,9 @@ News
 2.0dev
 ------
 
+* drop zc.buildout usage for development, now using only virtualenv
+  [Domen Kožar]
+
 * Backward incompatibility : Removed the ``anchor`` argument of
   :meth:`TestResponse.click` and the ``button`` argument of
   :meth:`TestResponse.clickbutton`. It is for the greater good.
