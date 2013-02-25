@@ -8,4 +8,4 @@ python:
 install:
   - python setup.py dev
 script:
-  - ./bin/nosetests -s -v --with-coverage
+  - nosetests -s -v --with-coverage
