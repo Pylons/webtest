@@ -296,6 +296,8 @@ Field.classes['file'] = File
 
 Field.classes['text'] = Text
 
+Field.classes['password'] = Text
+
 Field.classes['checkbox'] = Checkbox
 
 Field.classes['textarea'] = Textarea
