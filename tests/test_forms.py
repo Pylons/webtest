@@ -173,6 +173,10 @@ def input_app(environ, start_response):
             <input name="foo" type="checkbox" value="bar" checked>
             <input name="button" type="submit" value="text">
         </form>
+        <form method="POST" id="password_input_form">
+            <input name="foo" type="password" value="bar">
+            <input name="button" type="submit" value="text">
+        </form>
         <form method="POST" id="textarea_input_form">
             <textarea name="textarea">&#39;&#x66;&#x6f;&#x6f;&amp;&#x62;&#x61;&#x72;&#39;</textarea>
         </form>
@@ -207,6 +211,10 @@ def input_app_without_default(environ, start_response):
             <input name="foo" type="checkbox" value="bar">
             <input name="button" type="submit" value="text">
         </form>
+        <form method="POST" id="password_input_form">
+            <input name="foo" type="password">
+            <input name="button" type="submit" value="text">
+        </form>
     </body>
 </html>
 """)
@@ -236,6 +244,10 @@ u("""
         </form>
         <form method="POST" id="checkbox_input_form">
             <input name="foo" type="checkbox" value="Хармс" checked>
+            <input name="button" type="submit" value="Ура">
+        </form>
+        <form method="POST" id="password_input_form">
+            <input name="foo" type="password" value="Хармс">
             <input name="button" type="submit" value="Ура">
         </form>
     </body>
@@ -269,6 +281,10 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form['foo'].value, 'bar')
         self.assertEqual(form.submit_fields(), [('foo', 'bar')])
 
+        form = res.forms['password_input_form']
+        self.assertEqual(form['foo'].value, 'bar')
+        self.assertEqual(form.submit_fields(), [('foo', 'bar')])
+
     def test_input_unicode(self):
         app = webtest.TestApp(input_unicode_app)
         res = app.get('/')
@@ -285,6 +301,10 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form.submit_fields(), [('foo', u('Блок'))])
 
         form = res.forms['checkbox_input_form']
+        self.assertEqual(form['foo'].value, u('Хармс'))
+        self.assertEqual(form.submit_fields(), [('foo', u('Хармс'))])
+
+        form = res.forms['password_input_form']
         self.assertEqual(form['foo'].value, u('Хармс'))
         self.assertEqual(form.submit_fields(), [('foo', u('Хармс'))])
 
@@ -306,6 +326,10 @@ class TestInput(unittest.TestCase):
         form = res.forms['checkbox_input_form']
         self.assertTrue(form['foo'].value is None)
         self.assertEqual(form.submit_fields(), [])
+
+        form = res.forms['password_input_form']
+        self.assertEqual(form['foo'].value, '')
+        self.assertEqual(form.submit_fields(), [('foo', '')])
 
     def test_textarea_entities(self):
         app = webtest.TestApp(input_app)
