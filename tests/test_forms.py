@@ -10,33 +10,23 @@ import six
 from six import binary_type
 from six import PY3
 from webob import Request
+from webtest.debugapp import DebugApp
 from webtest.compat import to_bytes
 from webtest.forms import NoValue
 from tests.compat import unittest
 from tests.compat import u
 
 
-PAGE_CONTENT = b'''
-<html>
-    <head><title>Page without form</title></head>
-    <body>
-        <form method="POST" id="second_form">
-            <select name="select">
-                <option value="value1">Value 1</option>
-                <option value="value2" selected>Value 2</option>
-                <option value="value3">Value 3</option>
-            </select>
-            <input type="file" name="file" />
-            <input type="submit" name="submit" />
-        </form>
-    </body>
-</html>
-'''
-
-
 class TestForms(unittest.TestCase):
+
+    def callFUT(self, filename='form_inputs.html'):
+        dirname = os.path.join(os.path.dirname(__file__), 'html')
+        app = DebugApp(form=os.path.join(dirname, filename), show_form=True)
+        resp = webtest.TestApp(app).get('/form.html')
+        return resp.forms['simple_form']
+
     def test_set_submit_field(self):
-        form = webtest.Form(None, PAGE_CONTENT)
+        form = self.callFUT()
         self.assertRaises(
             AttributeError,
             form['submit'].value__set,
@@ -44,7 +34,7 @@ class TestForms(unittest.TestCase):
         )
 
     def test_force_select(self):
-        form = webtest.Form(None, PAGE_CONTENT)
+        form = self.callFUT()
         form['select'].force_value('notavalue')
         form['select'].value__set('value3')
 
@@ -57,7 +47,7 @@ class TestForms(unittest.TestCase):
             "the value index should be the one set by value__set")
 
     def test_form_select(self):
-        form = webtest.Form(None, PAGE_CONTENT)
+        form = self.callFUT()
         form.select('select', 'value1')
 
         self.assertEqual(form['select'].value, 'value1',
@@ -65,209 +55,67 @@ class TestForms(unittest.TestCase):
             "changed")
 
     def test_get_field_by_index(self):
-        form = webtest.Form(None, PAGE_CONTENT)
+        form = self.callFUT()
         self.assertEqual(form['select'],
                          form.get('select', index=0))
 
+    def test_get_unknown_field(self):
+        form = self.callFUT()
+        self.assertEqual(form['unknown'].value, '')
+        form['unknown'].value = '1'
+        self.assertEqual(form['unknown'].value, '1')
+
     def test_get_non_exist_fields(self):
-        form = webtest.Form(None, PAGE_CONTENT)
+        form = self.callFUT()
         self.assertRaises(AssertionError, form.get, 'nonfield')
 
     def test_get_non_exist_fields_with_default(self):
-        form = webtest.Form(None, PAGE_CONTENT)
+        form = self.callFUT()
         value = form.get('nonfield', default=1)
         self.assertEqual(value, 1)
 
     def test_upload_fields(self):
-        form = webtest.Form(None, PAGE_CONTENT)
+        form = self.callFUT()
         fu = webtest.Upload(__file__)
         form['file'] = fu
         self.assertEqual(form.upload_fields(),
                          [['file', __file__]])
 
     def test_repr(self):
-        form = webtest.Form(None, PAGE_CONTENT)
+        form = self.callFUT()
         self.assertTrue(repr(form).startswith('<Form id='))
 
 
-def no_form_app(environ, start_response):
-    status = b"200 OK"
-    body = to_bytes("""
-<html>
-    <head><title>Page without form</title></head>
-    <body>
-        <h1>This is not the form you are looking for</h1>
-    </body>
-</html>
-""")
+class TestResponseFormAttribute(unittest.TestCase):
 
-    headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    return [body]
-
-
-def too_many_forms_app(environ, start_response):
-    status = b"200 OK"
-    body = to_bytes("""
-<html>
-    <head><title>Page without form</title></head>
-    <body>
-        <form method="POST" id="first_form"></form>
-        <form method="POST" id="second_form"></form>
-    </body>
-</html>
-""")
-
-    headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    return [body]
-
-
-class TestForm(unittest.TestCase):
+    def callFUT(self, body):
+        app = DebugApp(form=to_bytes(body))
+        return webtest.TestApp(app)
 
     def test_no_form(self):
-        app = webtest.TestApp(no_form_app)
-        res = app.get('/')
-
-        try:
-            res.form
-        except TypeError:
-            pass
-        else:
-            raise AssertionError('This call should have thrown an exception')
+        app = self.callFUT('<html><body></body></html>')
+        res = app.get('/form.html')
+        self.assertRaises(TypeError, lambda: res.form)
 
     def test_too_many_forms(self):
-        app = webtest.TestApp(too_many_forms_app)
-        res = app.get('/')
-
-        try:
-            res.form
-        except TypeError:
-            pass
-        else:
-            raise AssertionError('This call should have thrown an exception')
-
-
-def input_app(environ, start_response):
-    Request(environ)
-    status = b"200 OK"
-    body = to_bytes(
-"""
-<html>
-    <head><title>form page</title></head>
-    <body>
-        <form method="POST" id="text_input_form">
-            <input name="foo" type="text" value="bar">
-            <input name="button" type="submit" value="text">
-        </form>
-        <form method="POST" id="radio_input_form">
-            <input name="foo" type="radio" value="bar">
-            <input name="foo" type="radio" value="baz" checked>
-            <input name="button" type="submit" value="radio">
-        </form>
-        <form method="POST" id="checkbox_input_form">
-            <input name="foo" type="checkbox" value="bar" checked>
-            <input name="button" type="submit" value="text">
-        </form>
-        <form method="POST" id="password_input_form">
-            <input name="foo" type="password" value="bar">
-            <input name="button" type="submit" value="text">
-        </form>
-        <form method="POST" id="textarea_input_form">
-            <textarea name="textarea">&#39;&#x66;&#x6f;&#x6f;&amp;&#x62;&#x61;&#x72;&#39;</textarea>
-        </form>
-    </body>
-</html>
-""")
-    headers = [
-        ('Content-Type', 'text/html'),
-        ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    return [body]
-
-
-def input_app_without_default(environ, start_response):
-    Request(environ)
-    status = b"200 OK"
-    body = to_bytes(
-"""
-<html>
-    <head><title>form page</title></head>
-    <body>
-        <form method="POST" id="text_input_form">
-            <input name="foo" type="text">
-            <input name="button" type="submit" value="text">
-        </form>
-        <form method="POST" id="radio_input_form">
-            <input name="foo" type="radio" value="bar">
-            <input name="foo" type="radio" value="baz">
-            <input name="button" type="submit" value="radio">
-        </form>
-        <form method="POST" id="checkbox_input_form">
-            <input name="foo" type="checkbox" value="bar">
-            <input name="button" type="submit" value="text">
-        </form>
-        <form method="POST" id="password_input_form">
-            <input name="foo" type="password">
-            <input name="button" type="submit" value="text">
-        </form>
-    </body>
-</html>
-""")
-    headers = [
-        ('Content-Type', 'text/html'),
-        ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    return [body]
-
-
-def input_unicode_app(environ, start_response):
-    Request(environ)
-    status = b"200 OK"
-    body =\
-u("""
-<html>
-    <head><title>form page</title></head>
-    <body>
-        <form method="POST" id="text_input_form">
-            <input name="foo" type="text" value="Хармс">
-            <input name="button" type="submit" value="Сохранить">
-        </form>
-        <form method="POST" id="radio_input_form">
-            <input name="foo" type="radio" value="Хармс">
-            <input name="foo" type="radio" value="Блок" checked>
-            <input name="button" type="submit" value="Сохранить">
-        </form>
-        <form method="POST" id="checkbox_input_form">
-            <input name="foo" type="checkbox" value="Хармс" checked>
-            <input name="button" type="submit" value="Ура">
-        </form>
-        <form method="POST" id="password_input_form">
-            <input name="foo" type="password" value="Хармс">
-            <input name="button" type="submit" value="Ура">
-        </form>
-    </body>
-</html>
-""").encode('utf8')
-    headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
-    start_response(status, headers)
-    return [body]
+        app = self.callFUT(
+            '<html><body><form></form><form></form></body></html>')
+        res = app.get('/form.html')
+        self.assertRaises(TypeError, lambda: res.form)
 
 
 class TestInput(unittest.TestCase):
 
+    def callFUT(self, filename='form_inputs.html'):
+        dirname = os.path.join(os.path.dirname(__file__), 'html')
+        app = DebugApp(form=os.path.join(dirname, filename), show_form=True)
+        return webtest.TestApp(app)
+
     def test_input(self):
-        app = webtest.TestApp(input_app)
-        res = app.get('/')
+        app = self.callFUT()
+        res = app.get('/form.html')
         self.assertEqual(res.status_int, 200)
-        self.assertEqual(res.headers['content-type'], 'text/html')
-        self.assertEqual(res.content_type, 'text/html')
+        self.assertTrue(res.content_type.startswith('text/html'))
 
         form = res.forms['text_input_form']
         self.assertEqual(form['foo'].value, 'bar')
@@ -286,11 +134,11 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form.submit_fields(), [('foo', 'bar')])
 
     def test_input_unicode(self):
-        app = webtest.TestApp(input_unicode_app)
-        res = app.get('/')
+        app = self.callFUT('form_unicode_inputs.html')
+        res = app.get('/form.html')
         self.assertEqual(res.status_int, 200)
-        self.assertEqual(res.content_type, 'text/html')
-        self.assertEqual(res.charset, 'utf-8')
+        self.assertTrue(res.content_type.startswith('text/html'))
+        self.assertEqual(res.charset.lower(), 'utf-8')
 
         form = res.forms['text_input_form']
         self.assertEqual(form['foo'].value, u('Хармс'))
@@ -309,11 +157,10 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form.submit_fields(), [('foo', u('Хармс'))])
 
     def test_input_no_default(self):
-        app = webtest.TestApp(input_app_without_default)
-        res = app.get('/')
+        app = self.callFUT('form_inputs_with_defaults.html')
+        res = app.get('/form.html')
         self.assertEqual(res.status_int, 200)
-        self.assertEqual(res.headers['content-type'], 'text/html')
-        self.assertEqual(res.content_type, 'text/html')
+        self.assertTrue(res.content_type.startswith('text/html'))
 
         form = res.forms['text_input_form']
         self.assertEqual(form['foo'].value, '')
@@ -332,8 +179,8 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form.submit_fields(), [('foo', '')])
 
     def test_textarea_entities(self):
-        app = webtest.TestApp(input_app)
-        res = app.get('/')
+        app = self.callFUT()
+        res = app.get('/form.html')
         form = res.forms.get("textarea_input_form")
         self.assertEqual(form.get("textarea").value, "'foo&bar'")
         self.assertEqual(form.submit_fields(), [('textarea', "'foo&bar'")])
@@ -583,11 +430,7 @@ class TestSelect(unittest.TestCase):
 
         single_form = res.forms["single_select_form"]
         self.assertEqual(single_form["single"].value, "5")
-        try:
-            single_form.set("single", "984")
-            self.fail("not-an-option value error should have been raised")
-        except ValueError:
-            pass
+        self.assertRaises(ValueError, single_form.set, "single", "984")
         single_form["single"].force_value("984")
         self.assertEqual(single_form["single"].value, "984")
         display = single_form.submit("button")
@@ -659,11 +502,8 @@ class TestSelect(unittest.TestCase):
         multiple_form = res.forms["multiple_select_form"]
         self.assertEqual(multiple_form["multiple"].value, ["8", "11"],
                          multiple_form["multiple"].value)
-        try:
-            multiple_form.set("multiple", ["24", "88"])
-            self.fail("not-an-option value error should have been raised")
-        except ValueError:
-            pass
+        self.assertRaises(ValueError, multiple_form.set,
+                                      "multiple", ["24", "88"])
         multiple_form["multiple"].force_value(["24", "88"])
         self.assertEqual(multiple_form["multiple"].value, ["24", "88"],
                          multiple_form["multiple"].value)
