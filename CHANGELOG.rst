@@ -4,7 +4,9 @@ News
 2.1.dev0 (unreleased)
 ---------------------
 
-* Nothing changed yet.
+* Added Pasword field [diarmuidbourke]
+
+* re-allow to use unknow field type. Like ``type="email"``.
 
 2.0 (2013/02/25)
 ----------------

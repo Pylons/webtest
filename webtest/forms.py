@@ -66,8 +66,16 @@ class Field(object):
         self.id = id
         self.attrs = attrs
 
+    def value__get(self):
+        if self._value is None:
+            return ''
+        else:
+            return self._value
+
     def value__set(self, value):
         self._value = value
+
+    value = property(value__get, value__set)
 
     def force_value(self, value):
         """Like setting a value, except forces it (even for, say, hidden
@@ -231,14 +239,6 @@ class Checkbox(Field):
 
 class Text(Field):
     """Field representing ``<input type="text">``"""
-
-    def value__get(self):
-        if self._value is None:
-            return ''
-        else:
-            return self._value
-
-    value = property(value__get, Field.value__set)
 
 
 class File(Field):
