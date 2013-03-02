@@ -22,7 +22,8 @@ import webob
 
 class TestResponse(webob.Response):
     """
-    Instances of this class are returned by :class:`~webtest.TestApp`
+    Instances of this class are returned by
+    :class:`~webtest.TestApp` methods.
     """
 
     request = None
@@ -31,8 +32,8 @@ class TestResponse(webob.Response):
     @property
     def forms(self):
         """
-        Returns a dictionnary containing all the forms in the pages as
-        :class:`~webtest.forms.Form` objects.  Indexes are both in
+        Returns a dictionary containing all the forms in the pages as
+        :class:`~webtest.forms.Form` objects. Indexes are both in
         order (from zero) and by form id (if the form is given an id).
 
         See :doc:`forms` for more info on form objects.
@@ -80,10 +81,10 @@ class TestResponse(webob.Response):
 
     def follow(self, **kw):
         """
-        If this request is a redirect, follow that redirect.  It is an
-        error if this is not a redirect response.  Any keyword
-        arguments are passed to :class:`webtest.TestApp`.  Returns
-        another response object.
+        If this response is a redirect, follow that redirect.  It is an
+        error if it is not a redirect response. Any keyword
+        arguments are passed to :class:`webtest.TestApp.get`. Returns
+        another :class:`TestResponse` object.
         """
         assert self.status_int >= 300 and self.status_int < 400, (
             "You can only follow redirect responses (not %s)"
