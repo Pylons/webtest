@@ -23,7 +23,7 @@ import webob
 class TestResponse(webob.Response):
     """
     Instances of this class are returned by
-    :class:`~webtest.TestApp` methods.
+    :class:`~webtest.app.TestApp` methods.
     """
 
     request = None
@@ -83,7 +83,7 @@ class TestResponse(webob.Response):
         """
         If this response is a redirect, follow that redirect.  It is an
         error if it is not a redirect response. Any keyword
-        arguments are passed to :class:`webtest.TestApp.get`. Returns
+        arguments are passed to :class:`webtest.app.TestApp.get`. Returns
         another :class:`TestResponse` object.
         """
         assert self.status_int >= 300 and self.status_int < 400, (
@@ -144,7 +144,7 @@ class TestResponse(webob.Response):
     def clickbutton(self, description=None, buttonid=None, href=None,
                     index=None, verbose=False):
         """
-        Like :meth:`~webtest.TestResponse.click`, except looks
+        Like :meth:`~webtest.response.TestResponse.click`, except looks
         for link-like buttons.
         This kind of button should look like
         ``<button onclick="...location.href='url'...">``.
@@ -230,8 +230,8 @@ class TestResponse(webob.Response):
         """
         Go to the (potentially relative) link ``href``, using the
         given method (``'get'`` or ``'post'``) and any extra arguments
-        you want to pass to the :meth:`webtest.TestApp.get` or
-        :meth:`webtest.TestApp.post` methods.
+        you want to pass to the :meth:`webtest.app.TestApp.get` or
+        :meth:`webtest.app.TestApp.post` methods.
 
         All hostnames and schemes will be ignored.
         """
