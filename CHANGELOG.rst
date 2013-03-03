@@ -6,7 +6,9 @@ News
 
 * Added Pasword field [diarmuidbourke]
 
-* re-allow to use unknow field type. Like ``type="email"``.
+* re-allow to use unknow field type. Like ``type="email"``. [gawel]
+
+* Don't let BeautifulSoup use lxml. Fix GH-51 [kmike]
 
 2.0 (2013/02/25)
 ----------------
