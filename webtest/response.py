@@ -402,7 +402,7 @@ class TestResponse(webob.Response):
             raise AttributeError(
                 "Not an HTML response body (content-type: %s)"
                 % self.content_type)
-        soup = BeautifulSoup(self.testbody)
+        soup = BeautifulSoup(self.testbody, "html.parser")
         return soup
 
     @property
