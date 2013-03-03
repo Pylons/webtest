@@ -355,7 +355,7 @@ class Form(object):
     def __init__(self, response, text):
         self.response = response
         self.text = text
-        self.html = BeautifulSoup(self.text)
+        self.html = BeautifulSoup(self.text, "html.parser")
 
         attrs = self.html('form')[0].attrs
         self.action = attrs.get('action', '')
