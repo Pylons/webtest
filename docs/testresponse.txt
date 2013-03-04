@@ -32,9 +32,15 @@ The added methods:
 
 ``response.follow(**kw)``:
     Follows the redirect, returning the new response.  It is an error
-    if this response wasn't a redirect.  Any keyword arguments are
-    passed passed to :class:`webtest.TestApp` (e.g., ``status``). Returns
+    if this response wasn't a redirect. All keyword arguments are
+    passed to :class:`webtest.TestApp` (e.g., ``status``). Returns
     another response object.
+
+``response.maybe_follow(**kw)``:
+    Follows all redirects; does nothing if this response
+    is not a redirect. All keyword arguments are passed
+    to :class:`webtest.TestApp` (e.g., ``status``). Returns another
+    response object.
 
 ``x in response``:
     Returns True if the string is found in the response body.
