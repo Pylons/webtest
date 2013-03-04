@@ -10,7 +10,7 @@ News
 
 * Don't let BeautifulSoup use lxml. Fix GH-51 [kmike]
 
-* added :meth:`TestResponse.maybe_follow` method [kmike]
+* added :meth:`webtest.response.TestResponse.maybe_follow` method [kmike]
 
 2.0 (2013/02/25)
 ----------------
@@ -19,8 +19,8 @@ News
   [Domen Kožar]
 
 * Backward incompatibility : Removed the ``anchor`` argument of
-  :meth:`TestResponse.click` and the ``button`` argument of
-  :meth:`TestResponse.clickbutton`. It is for the greater good.
+  :meth:`webtest.response.TestResponse.click` and the ``button`` argument of
+  :meth:`webtest.response.TestResponse.clickbutton`. It is for the greater good.
   [madjar]
 
 * Rewrote API documentation [Domen Kožar]
@@ -29,10 +29,10 @@ News
 
 * Use BeautifulSoup4 to parse forms [gawel]
 
-* Added `TestApp.patch_json` [gawel]
+* Added `webtest.app.TestApp.patch_json` [gawel]
 
-* Implement `TestApp.cookiejar` support and kindof keep
-  `TestApp.cookies` functionality.  `TestApp.cookies`
+* Implement `webtest.app.TestApp.cookiejar` support and kindof keep
+  `webtest.app.TestApp.cookies` functionality.  `webtest.app.TestApp.cookies`
   should be treated as read-only.
   [Domen Kožar]
 
