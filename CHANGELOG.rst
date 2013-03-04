@@ -10,6 +10,8 @@ News
 
 * Don't let BeautifulSoup use lxml. Fix GH-51 [kmike]
 
+* added :meth:`TestResponse.maybe_follow` method [kmike]
+
 2.0 (2013/02/25)
 ----------------
 

@@ -79,6 +79,13 @@ class TestResponse(webob.Response):
             if form.id:
                 forms_[form.id] = form
 
+    def _follow(self, **kw):
+        location = self.headers['location']
+        type_, rest = splittype(location)
+        host, path = splithost(rest)
+        # @@: We should test that it's not a remote redirect
+        return self.test_app.get(location, **kw)
+
     def follow(self, **kw):
         """
         If this response is a redirect, follow that redirect.  It is an
@@ -86,14 +93,26 @@ class TestResponse(webob.Response):
         arguments are passed to :class:`webtest.app.TestApp.get`. Returns
         another :class:`TestResponse` object.
         """
-        assert self.status_int >= 300 and self.status_int < 400, (
+        assert 300 <= self.status_int < 400, (
             "You can only follow redirect responses (not %s)"
             % self.status)
-        location = self.headers['location']
-        type, rest = splittype(location)
-        host, path = splithost(rest)
-        # @@: We should test that it's not a remote redirect
-        return self.test_app.get(location, **kw)
+        return self._follow(**kw)
+
+    def maybe_follow(self, **kw):
+        """
+        Follow all redirects. If this response is not a redirect, do nothing.
+        Any keyword arguments are passed to :class:`webtest.app.TestApp.get`.
+        Returns another :class:`TestResponse` object.
+        """
+        remaining_redirects = 100 # infinite loops protection
+        response = self
+
+        while 300 <= response.status_int < 400 and remaining_redirects:
+            response = response._follow(**kw)
+            remaining_redirects -= 1
+
+        assert remaining_redirects > 0, "redirects chain looks infinite"
+        return response
 
     def click(self, description=None, linkid=None, href=None,
               index=None, verbose=False,

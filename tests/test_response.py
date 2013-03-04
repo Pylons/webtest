@@ -331,6 +331,33 @@ class TestResponse(unittest.TestCase):
 
         print(resp.__unicode__())
 
+
+class TestFollow(unittest.TestCase):
+
+    def get_redirects_app(self, count=1):
+        """Return an app that issues a redirect ``count`` times"""
+
+        remaining_redirects = [count] # this means "nonlocal"
+
+        def app(environ, start_response):
+            headers = [('Content-Type', str('text/html'))]
+
+            if remaining_redirects[0] == 0:
+                status = "200 OK"
+                body = b"done"
+            else:
+                status = "302 Found"
+                body = b''
+                headers.append(('location', str('/')))
+                remaining_redirects[0] -= 1
+
+            headers.append(('Content-Length', str(len(body))))
+            start_response(str(status), headers)
+            return [body]
+
+        return webtest.TestApp(app)
+
+
     def test_follow_with_cookie(self):
         app = webtest.TestApp(debug_app)
         app.get('/?header-set-cookie=foo=bar')
@@ -338,3 +365,40 @@ class TestResponse(unittest.TestCase):
         resp = app.get('/?status=302%20Found&header-location=/')
         resp = resp.follow()
         resp.mustcontain('HTTP_COOKIE: foo=bar')
+
+    def test_follow(self):
+        app = self.get_redirects_app(1)
+        resp = app.get('/')
+        self.assertEqual(resp.status_int, 302)
+
+        resp = resp.follow()
+        self.assertEqual(resp.body, b'done')
+
+        # can't follow non-redirect
+        self.assertRaises(AssertionError, resp.follow)
+
+    def test_follow_twice(self):
+        app = self.get_redirects_app(2)
+        resp = app.get('/').follow()
+        self.assertEqual(resp.status_int, 302)
+        resp = resp.follow()
+        self.assertEqual(resp.status_int, 200)
+
+    def test_maybe_follow_200(self):
+        app = self.get_redirects_app(0)
+        resp = app.get('/').maybe_follow()
+        self.assertEqual(resp.body, b'done')
+
+    def test_maybe_follow_once(self):
+        app = self.get_redirects_app(1)
+        resp = app.get('/').maybe_follow()
+        self.assertEqual(resp.body, b'done')
+
+    def test_maybe_follow_twice(self):
+        app = self.get_redirects_app(2)
+        resp = app.get('/').maybe_follow()
+        self.assertEqual(resp.body, b'done')
+
+    def test_maybe_follow_infinite(self):
+        app = self.get_redirects_app(100000)
+        self.assertRaises(AssertionError, app.get('/').maybe_follow)
