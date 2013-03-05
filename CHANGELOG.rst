@@ -1,8 +1,8 @@
 News
 ====
 
-2.1.dev0 (unreleased)
----------------------
+2.0.1 (2013-03-05)
+------------------
 
 * Added Pasword field [diarmuidbourke]
 
