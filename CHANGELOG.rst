@@ -18,7 +18,7 @@ News
 
 * added :meth:`webtest.response.TestResponse.maybe_follow` method [kmike]
 
-2.0 (2013/02/25)
+2.0 (2013-02-25)
 ----------------
 
 * drop zc.buildout usage for development, now using only virtualenv
