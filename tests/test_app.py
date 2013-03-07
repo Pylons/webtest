@@ -179,6 +179,38 @@ class TestCookies(unittest.TestCase):
         app.reset()
         self.assertFalse(bool(app.cookies))
 
+    def test_secure_cookies(self):
+        def cookie_app(environ, start_response):
+            req = Request(environ)
+            status = "200 OK"
+            body = '<html><body><a href="/go/">go</a></body></html>'
+            headers = [
+                ('Content-Type', 'text/html'),
+                ('Content-Length', str(len(body))),
+            ]
+            if req.path_info != '/go/':
+                headers.extend([
+                    ('Set-Cookie', 'spam=eggs; secure'),
+                    ('Set-Cookie', 'foo=bar;baz; secure'),
+                ])
+            else:
+                self.assertEquals(dict(req.cookies),
+                                  {'spam': 'eggs', 'foo': 'bar'})
+                self.assertIn('foo=bar', environ['HTTP_COOKIE'])
+                self.assertIn('spam=eggs', environ['HTTP_COOKIE'])
+            start_response(status, headers)
+            return [to_bytes(body)]
+
+        app = webtest.TestApp(cookie_app)
+
+        self.assertFalse(app.cookies)
+        res = app.get('https://localhost/')
+        self.assertEqual(app.cookies['spam'], 'eggs')
+        self.assertEqual(app.cookies['foo'], 'bar')
+        res = res.click('go')
+        self.assertEqual(app.cookies['spam'], 'eggs')
+        self.assertEqual(app.cookies['foo'], 'bar')
+
     def test_cookies_readonly(self):
         app = webtest.TestApp(debug_app)
         try:
