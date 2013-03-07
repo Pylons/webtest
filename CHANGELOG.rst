@@ -4,8 +4,7 @@ News
 2.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+* Allow TestResponse.click() to match HTML content again.
 
 2.0.1 (2013-03-05)
 ------------------

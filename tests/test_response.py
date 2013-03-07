@@ -91,6 +91,14 @@ def links_app(environ, start_response):
                     <form method="POST" id="second_form"></form>
                 </body>
             </html>
+        """,
+        '/html_in_anchor/': """
+            <html>
+                <head><title>Page with HTML in an anchor tag</title></head>
+                <body>
+                    <a href='/foo/'>Foo Bar<span class='baz qux'>Quz</span></a>
+                </body>
+            </html>
         """
     }
 
@@ -177,6 +185,14 @@ class TestResponse(unittest.TestCase):
             'Just eggs.',
             app.get('/').click('Click me!', index=1)
         )
+        self.assertIn(
+            'This is foo.',
+            app.get('/html_in_anchor/').click('baz qux')
+        )
+
+        def dont_match_anchor_tag():
+            app.get('/html_in_anchor/').click('href')
+        self.assertRaises(IndexError, dont_match_anchor_tag)
 
         def multiple_links():
             app.get('/').click('Click me!')
