@@ -193,7 +193,7 @@ class TestResponse(webob.Response):
         total_links = 0
         for element in self.html.find_all(tag):
             el_html = str(element)
-            el_content = element.get_text()
+            el_content = element.decode_contents()
             attrs = element
             if verbose:
                 printlog('Element: %r' % el_html)
