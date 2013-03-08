@@ -123,6 +123,21 @@ class _RequestCookieAdapter(object):
     def has_header(self, key):
         return key in self._request.headers
 
+    def get_host(self):
+        return self._request.host
+
+    def get_type(self):
+        return self._request.scheme
+
+    @property
+    def type(self):  # NOQA
+        # This is undocumented method that Python 3 cookielib uses
+        return self.get_type()
+
+    def header_items(self):
+        return self._request.headers.items()
+
+
 
 class _ResponseCookieAdapter(object):
     """
