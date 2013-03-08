@@ -6,6 +6,8 @@ News
 
 * Allow TestResponse.click() to match HTML content again.
 
+* Support secure cookies [Andrey Lebedev]
+
 2.0.1 (2013-03-05)
 ------------------
 
