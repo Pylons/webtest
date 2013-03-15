@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.2 (unreleased)
+2.0.2 (2013-03-15)
 ------------------
 
 * Allow TestResponse.click() to match HTML content again. [ender672]
