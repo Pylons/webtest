@@ -4,7 +4,7 @@ News
 2.0.2 (unreleased)
 ------------------
 
-* Allow TestResponse.click() to match HTML content again.
+* Allow TestResponse.click() to match HTML content again. [ender672]
 
 * Support secure cookies [Andrey Lebedev]
 
