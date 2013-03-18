@@ -189,6 +189,30 @@ class TestCheckEnviron(unittest.TestCase):
             self.assertTrue("REQUEST_METHOD" in str(w[-1].message),
               'The warning message should say something about REQUEST_METHOD')
 
+    def test_handles_native_strings_in_variables(self):
+        # "native string" means unicode in py3, but bytes in py2
+        path = '/umläut'
+        if not PY3:
+            path = path.encode('utf-8')
+        environ = {
+            'REQUEST_METHOD': str('GET'),
+            'SERVER_NAME': str('localhost'),
+            'SERVER_PORT': str('80'),
+            'wsgi.version': (1, 0, 1),
+            'wsgi.input': StringIO('test'),
+            'wsgi.errors': StringIO(),
+            'wsgi.multithread': None,
+            'wsgi.multiprocess': None,
+            'wsgi.run_once': None,
+            'wsgi.url_scheme': 'http',
+            'PATH_INFO': path,
+            'QUERY_STRING': str(''),
+        }
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            check_environ(environ)
+            self.assertEqual(0, len(w), "We should have no warning")
+
 
 class TestIteratorWrapper(unittest.TestCase):
     def test_close(self):
