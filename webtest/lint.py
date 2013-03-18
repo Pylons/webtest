@@ -132,6 +132,10 @@ valid_methods = (
 
 METADATA_TYPE = PY3 and (str, binary_type) or (str,)
 
+# PEP-3333 says that environment variables must be "native strings",
+# i.e. str(), which however is something *different* in py2 and py3.
+SLASH = str('/')
+
 
 def to_string(value):
     if not isinstance(value, string_types):
@@ -352,10 +356,10 @@ def check_environ(environ):
             WSGIWarning)
 
     assert (not environ.get('SCRIPT_NAME')
-            or environ['SCRIPT_NAME'].startswith('/')), (
+            or environ['SCRIPT_NAME'].startswith(SLASH)), (
         "SCRIPT_NAME doesn't start with /: %r" % environ['SCRIPT_NAME'])
     assert (not environ.get('PATH_INFO')
-            or environ['PATH_INFO'].startswith('/')), (
+            or environ['PATH_INFO'].startswith(SLASH)), (
         "PATH_INFO doesn't start with /: %r" % environ['PATH_INFO'])
     if environ.get('CONTENT_LENGTH'):
         assert int(environ['CONTENT_LENGTH']) >= 0, (
@@ -365,7 +369,7 @@ def check_environ(environ):
         assert 'PATH_INFO' in environ, (
             "One of SCRIPT_NAME or PATH_INFO are required (PATH_INFO "
             "should at least be '/' if SCRIPT_NAME is empty)")
-    assert environ.get('SCRIPT_NAME') != '/', (
+    assert environ.get('SCRIPT_NAME') != SLASH, (
         "SCRIPT_NAME cannot be '/'; it should instead be '', and "
         "PATH_INFO should be '/'")
 
