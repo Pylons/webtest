@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.3 (unreleased)
+2.0.3 (2013-03-19)
 ------------------
 
 * Treat strings in the WSGI environment as native strings, compliant with
