@@ -5,7 +5,7 @@ News
 ------------------
 
 * Treat strings in the WSGI environment as native strings, compliant with
-  PEP-3333.
+  PEP-3333. [wosc]
 
 
 2.0.2 (2013-03-15)
