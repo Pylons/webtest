@@ -81,10 +81,11 @@ class TestResponse(webob.Response):
 
     def _follow(self, **kw):
         location = self.headers['location']
-        type_, rest = splittype(location)
+        abslocation = urlparse.urljoin(self.request.url, location)
+        type_, rest = splittype(abslocation)
         host, path = splithost(rest)
         # @@: We should test that it's not a remote redirect
-        return self.test_app.get(location, **kw)
+        return self.test_app.get(abslocation, **kw)
 
     def follow(self, **kw):
         """
