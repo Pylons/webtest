@@ -4,7 +4,8 @@ News
 2.0.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+* <button> without type='submit' attribute is treated as Submit 
+  control [Andrey Lebedev].
 
 
 2.0.3 (2013-03-19)

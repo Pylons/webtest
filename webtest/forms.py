@@ -385,6 +385,8 @@ class Form(object):
                 tag_type = 'select'
             if tag_type == "select" and attrs.get("multiple"):
                 tag_type = "multiple_select"
+            if tag == 'button':
+                tag_type = 'submit'
 
             FieldClass = self.FieldClass.classes.get(tag_type,
                                                      self.FieldClass)

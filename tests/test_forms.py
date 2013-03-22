@@ -12,7 +12,7 @@ from six import PY3
 from webob import Request
 from webtest.debugapp import DebugApp
 from webtest.compat import to_bytes
-from webtest.forms import NoValue
+from webtest.forms import NoValue, Submit
 from tests.compat import unittest
 from tests.compat import u
 
@@ -32,6 +32,12 @@ class TestForms(unittest.TestCase):
             form['submit'].value__set,
             'foo'
         )
+
+    def test_button(self):
+        form = self.callFUT()
+        button = form['button']
+        self.assertTrue(isinstance(button, Submit),
+                        "<button> without type is a submit button")
 
     def test_force_select(self):
         form = self.callFUT()
