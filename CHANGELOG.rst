@@ -4,8 +4,10 @@ News
 2.0.4 (unreleased)
 ------------------
 
-* <button> without type='submit' attribute is treated as Submit 
+* <button> without type='submit' attribute is treated as Submit
   control [Andrey Lebedev].
+
+* Support for redirects having relative "Location" header [Andrey Lebedev]
 
 
 2.0.3 (2013-03-19)

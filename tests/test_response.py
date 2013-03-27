@@ -350,10 +350,12 @@ class TestResponse(unittest.TestCase):
 
 class TestFollow(unittest.TestCase):
 
-    def get_redirects_app(self, count=1):
+    def get_redirects_app(self, count=1, locations=None):
         """Return an app that issues a redirect ``count`` times"""
 
         remaining_redirects = [count] # this means "nonlocal"
+        if locations is None:
+            locations = ['/'] * count
 
         def app(environ, start_response):
             headers = [('Content-Type', str('text/html'))]
@@ -364,7 +366,8 @@ class TestFollow(unittest.TestCase):
             else:
                 status = "302 Found"
                 body = b''
-                headers.append(('location', str('/')))
+                nextloc = str(locations.pop(0))
+                headers.append(('location', nextloc))
                 remaining_redirects[0] -= 1
 
             headers.append(('Content-Length', str(len(body))))
@@ -392,6 +395,17 @@ class TestFollow(unittest.TestCase):
 
         # can't follow non-redirect
         self.assertRaises(AssertionError, resp.follow)
+
+    def test_follow_relative(self):
+        app = self.get_redirects_app(2, ['hello/foo/', 'bar'])
+        resp = app.get('/')
+        self.assertEqual(resp.status_int, 302)
+        resp = resp.follow()
+        self.assertEqual(resp.status_int, 302)
+        resp = resp.follow()
+        self.assertEqual(resp.body, b'done')
+        self.assertEqual(resp.request.url, 'http://localhost/hello/foo/bar')
+
 
     def test_follow_twice(self):
         app = self.get_redirects_app(2)
