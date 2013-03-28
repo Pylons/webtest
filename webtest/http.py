@@ -6,6 +6,7 @@ world.
 
 import threading
 import logging
+import select
 import socket
 import time
 import os
@@ -85,7 +86,7 @@ class StopableWSGIServer(WSGIServer):
         """Run the server"""
         try:
             self.asyncore.loop(.5, map=self._map)
-        except socket.error:
+        except select.error:
             if not self.was_shutdown:
                 raise
 

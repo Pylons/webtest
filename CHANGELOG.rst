@@ -4,7 +4,8 @@ News
 2.0.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+* Ignore select.error (not socket.error) following
+  StopableWSGIServer.shutdown. [Laurence Rowe]
 
 
 2.0.4 (2013-03-28)
