@@ -49,6 +49,8 @@ class StopableWSGIServer(WSGIServer):
     server host and port.
     """
 
+    was_shutdown = False
+
     def __init__(self, application, *args, **kwargs):
         super(StopableWSGIServer, self).__init__(self.wrapper, *args, **kwargs)
         self.runner = None
@@ -81,11 +83,16 @@ class StopableWSGIServer(WSGIServer):
 
     def run(self):
         """Run the server"""
-        self.asyncore.loop(.5, map=self._map)
+        try:
+            self.asyncore.loop(.5, map=self._map)
+        except socket.error:
+            if not self.was_shutdown:
+                raise
 
     def shutdown(self):
         """Shutdown the server"""
         # avoid showing traceback related to asyncore
+        self.was_shutdown = True
         self.logger.setLevel(logging.FATAL)
         while self._map:
             triggers = list(self._map.values())

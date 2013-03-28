@@ -4,6 +4,8 @@ News
 2.0.4 (unreleased)
 ------------------
 
+* Ignore socket.error following StopableWSGIServer.shutdown. [Laurence Rowe]
+
 * <button> without type='submit' attribute is treated as Submit
   control [Andrey Lebedev].
 
