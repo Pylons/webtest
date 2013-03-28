@@ -4,6 +4,9 @@ News
 2.0.4 (unreleased)
 ------------------
 
+* Correctly handle <option> elements with no value attribute
+  [Marius Gedminas]
+
 * Ignore socket.error following StopableWSGIServer.shutdown. [Laurence Rowe]
 
 * <button> without type='submit' attribute is treated as Submit
