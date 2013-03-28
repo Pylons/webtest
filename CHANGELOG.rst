@@ -7,6 +7,8 @@ News
 * Ignore select.error (not socket.error) following
   StopableWSGIServer.shutdown. [Laurence Rowe]
 
+* Handle the short form of <select multiple> [Marius Gedminas]
+
 
 2.0.4 (2013-03-28)
 ------------------

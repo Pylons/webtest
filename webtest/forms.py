@@ -383,7 +383,7 @@ class Form(object):
             tag_type = attrs.get('type', 'text').lower()
             if tag == 'select':
                 tag_type = 'select'
-            if tag_type == "select" and attrs.get("multiple"):
+            if tag_type == "select" and "multiple" in attrs:
                 tag_type = "multiple_select"
             if tag == 'button':
                 tag_type = 'submit'
