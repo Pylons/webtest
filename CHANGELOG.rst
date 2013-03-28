@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.4 (unreleased)
+2.0.4 (2013-03-28)
 ------------------
 
 * Correctly handle <option> elements with no value attribute
