@@ -411,7 +411,7 @@ class Form(object):
 
             if tag == 'select':
                 for option in node('option'):
-                    field.options.append((option.attrs.get('value'),
+                    field.options.append((option.attrs.get('value', option.text),
                                           'selected' in option.attrs))
 
         self.field_order = field_order

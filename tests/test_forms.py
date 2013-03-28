@@ -272,6 +272,60 @@ def select_app(environ, start_response):
     return [body]
 
 
+def select_app_without_values(environ, start_response):
+    req = Request(environ)
+    status = b"200 OK"
+    if req.method == "GET":
+        body = to_bytes(
+"""
+<html>
+    <head><title>form page</title></head>
+    <body>
+        <form method="POST" id="single_select_form">
+            <select id="single" name="single">
+                <option>Four</option>
+                <option>Five</option>
+                <option>Six</option>
+                <option>Seven</option>
+            </select>
+            <input name="button" type="submit" value="single">
+        </form>
+        <form method="POST" id="multiple_select_form">
+            <select id="multiple" name="multiple" multiple="multiple">
+                <option>Eight</option>
+                <option>Nine</option>
+                <option>Ten</option>
+                <option>Eleven</option>
+            </select>
+            <input name="button" type="submit" value="multiple">
+        </form>
+    </body>
+</html>
+""")
+    else:
+        select_type = req.POST.get("button")
+        if select_type == "single":
+            selection = req.POST.get("single")
+        elif select_type == "multiple":
+            selection = ", ".join(req.POST.getall("multiple"))
+        body = to_bytes(
+"""
+<html>
+    <head><title>display page</title></head>
+    <body>
+        <p>You submitted the %(select_type)s </p>
+        <p>You selected %(selection)s</p>
+    </body>
+</html>
+""" % dict(selection=selection, select_type=select_type))
+
+    headers = [
+        ('Content-Type', 'text/html; charset=utf-8'),
+        ('Content-Length', str(len(body)))]
+    start_response(status, headers)
+    return [body]
+
+
 def select_app_without_default(environ, start_response):
     req = Request(environ)
     status = b"200 OK"
@@ -545,6 +599,32 @@ class TestSelect(unittest.TestCase):
         display = multiple_form.submit("button")
         self.assertIn("<p>You selected 9</p>", display, display)
 
+    def test_select_no_value(self):
+        app = webtest.TestApp(select_app_without_values)
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'],
+                         'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
+
+        single_form = res.forms["single_select_form"]
+        self.assertEqual(single_form["single"].value, "Four")
+        display = single_form.submit("button")
+        self.assertIn("<p>You selected Four</p>", display, display)
+
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'],
+                         'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
+
+        single_form = res.forms["single_select_form"]
+        self.assertEqual(single_form["single"].value, "Four")
+        single_form.set("single", "Six")
+        self.assertEqual(single_form["single"].value, "Six")
+        display = single_form.submit("button")
+        self.assertIn("<p>You selected Six</p>", display, display)
+
 
 class SingleUploadFileApp(object):
 
@@ -569,7 +649,7 @@ class SingleUploadFileApp(object):
         else:
             body = b"""
 <html>
-    <head><title>isplay page</title></head>
+    <head><title>display page</title></head>
     <body>
         """ + self.get_files_page(req) + b"""
     </body>
