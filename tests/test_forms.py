@@ -237,7 +237,7 @@ def select_app(environ, start_response):
             <input name="button" type="submit" value="single">
         </form>
         <form method="POST" id="multiple_select_form">
-            <select id="multiple" name="multiple" multiple="multiple">
+            <select id="multiple" name="multiple" multiple>
                 <option value="8" selected="selected">Eight</option>
                 <option value="9">Nine</option>
                 <option value="10">Ten</option>
@@ -293,9 +293,9 @@ def select_app_without_values(environ, start_response):
         <form method="POST" id="multiple_select_form">
             <select id="multiple" name="multiple" multiple="multiple">
                 <option>Eight</option>
-                <option>Nine</option>
+                <option selected value="Nine">Nine</option>
                 <option>Ten</option>
-                <option>Eleven</option>
+                <option selected>Eleven</option>
             </select>
             <input name="button" type="submit" value="multiple">
         </form>
@@ -624,6 +624,32 @@ class TestSelect(unittest.TestCase):
         self.assertEqual(single_form["single"].value, "Six")
         display = single_form.submit("button")
         self.assertIn("<p>You selected Six</p>", display, display)
+
+    def test_multiple_select_no_value(self):
+        app = webtest.TestApp(select_app_without_values)
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'],
+                         'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
+
+        multiple_form = res.forms["multiple_select_form"]
+        self.assertEqual(multiple_form["multiple"].value, ["Nine", "Eleven"])
+        display = multiple_form.submit("button")
+        self.assertIn("<p>You selected Nine, Eleven</p>", display, display)
+
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'],
+                         'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
+
+        multiple_form = res.forms["multiple_select_form"]
+        self.assertEqual(multiple_form["multiple"].value, ["Nine", "Eleven"])
+        multiple_form.set("multiple", ["Nine", "Ten"])
+        self.assertEqual(multiple_form["multiple"].value, ["Nine", "Ten"])
+        display = multiple_form.submit("button")
+        self.assertIn("<p>You selected Nine, Ten</p>", display, display)
 
 
 class SingleUploadFileApp(object):
