@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.5 (unreleased)
+2.0.5 (2013-04-12)
 ------------------
 
 * Ignore select.error (not socket.error) following
