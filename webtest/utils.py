@@ -114,17 +114,15 @@ class _RequestCookieAdapter(object):
     def get_full_url(self):
         return self._request.url
 
-    def get_origin_req_host(self):
+    def origin_req_host(self):
         return self._request.host
+    get_origin_req_host = get_host = origin_req_host
 
     def add_unredirected_header(self, key, header):
         self._request.headers[key] = header
 
     def has_header(self, key):
         return key in self._request.headers
-
-    def get_host(self):
-        return self._request.host
 
     def get_type(self):
         return self._request.scheme
@@ -136,7 +134,6 @@ class _RequestCookieAdapter(object):
 
     def header_items(self):
         return self._request.headers.items()
-
 
 
 class _ResponseCookieAdapter(object):
