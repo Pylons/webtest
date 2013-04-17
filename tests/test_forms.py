@@ -91,6 +91,10 @@ class TestForms(unittest.TestCase):
         form = self.callFUT()
         self.assertTrue(repr(form).startswith('<Form id='))
 
+    def test_the_bs_node_must_not_change(self):
+        form = self.callFUT()
+        self.assertEqual(form.text, str(form.html))
+
 
 class TestResponseFormAttribute(unittest.TestCase):
 
