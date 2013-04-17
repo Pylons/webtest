@@ -4,7 +4,9 @@ News
 2.0.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- fixed #64. cookiejar api has changed in python3.3 [gawel]
+
+- allow to use a fixed StopableWSGIServer [gawel]
 
 
 2.0.5 (2013-04-12)

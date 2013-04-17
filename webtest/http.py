@@ -108,7 +108,8 @@ class StopableWSGIServer(WSGIServer):
         """Start a server to serve ``application``. Return a server
         instance."""
         host, port = get_free_port()
-        kwargs['port'] = port
+        if 'port' not in kwargs:
+            kwargs['port'] = port
         if 'host' not in kwargs:
             kwargs['host'] = host
         if 'expose_tracebacks' not in kwargs:
