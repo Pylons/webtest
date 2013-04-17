@@ -102,6 +102,7 @@ class _RequestCookieAdapter(object):
     """
     def __init__(self, request):
         self._request = request
+        self.origin_req_host = request.host
 
     def is_unverifiable(self):
         return True  # sure? Why not?
@@ -114,9 +115,9 @@ class _RequestCookieAdapter(object):
     def get_full_url(self):
         return self._request.url
 
-    def origin_req_host(self):
-        return self._request.host
-    get_origin_req_host = get_host = origin_req_host
+    def get_host(self):
+        return self.origin_req_host
+    get_origin_req_host = get_host
 
     def add_unredirected_header(self, key, header):
         self._request.headers[key] = header
