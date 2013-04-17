@@ -371,7 +371,7 @@ class Form(object):
         field_order = []
         tags = ('input', 'select', 'textarea', 'button')
         for pos, node in enumerate(self.html.findAll(tags)):
-            attrs = node.attrs
+            attrs = dict(node.attrs)
             tag = node.name
             name = None
             if 'name' in attrs:
