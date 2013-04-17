@@ -8,6 +8,9 @@ News
 
 - allow to use a fixed StopableWSGIServer [gawel]
 
+- Do not alter the BeautifulSoup object when parsing forms. [Georges
+  Dubus]
+
 
 2.0.5 (2013-04-12)
 ------------------
