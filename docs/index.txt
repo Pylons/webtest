@@ -68,11 +68,15 @@ Quick start
 
 The most important object in WebTest is :class:`~webtest.TestApp`, the wrapper
 for WSGI applications.  To use it, you simply instantiate it with your WSGI
-application. (Note: if your WSGI application requires any configuration, you
-must set that up manually in your tests.)
+application.
 
-The main class it :class:`~webtest.TestApp` which wrap your WSGI application and
-allow you to perform HTTP request on it.
+.. note::
+
+   If your WSGI application requires any configuration,
+   you must set that up manually in your tests.
+
+The main class is :class:`~webtest.TestApp` which wraps your WSGI application and
+allows you to perform HTTP requests on it.
 
 Here is a basic application::
 
@@ -91,7 +95,7 @@ Then you can get the response of a HTTP GET::
 
     >>> resp = app.get('/')
 
-And check the result. Like like reponse's status::
+And check the results, like response's status::
 
     >>> assert resp.status == '200 Ok'
     >>> assert resp.status_int == 200
@@ -106,7 +110,7 @@ Or response's body::
     >>> resp.mustcontain('<html>')
     >>> assert 'form' in resp
 
-WebTest can do much more. In particular it can handle :doc:`forms` and :doc:`json`.
+WebTest can do much more. In particular, it can handle :doc:`forms` and :doc:`json`.
 
 
 Contents
