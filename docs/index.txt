@@ -54,7 +54,7 @@ WebTest testing model is sometimes called a *functional test*,
 *integration test*, or *acceptance test* (though the latter two are
 not particularly good descriptions).  This is in contrast to a *unit
 test* which tests a particular piece of functionality in your
-application.  While complex programming tasks are often is suited to
+application.  While complex programming tasks are often suited to
 unit tests, template logic and simple web programming is often best
 done with functional tests; and regardless of the presence of unit
 tests, no testing strategy is complete without high-level tests to
