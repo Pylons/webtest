@@ -67,16 +67,13 @@ Quick start
 ===========
 
 The most important object in WebTest is :class:`~webtest.TestApp`, the wrapper
-for WSGI applications.  To use it, you simply instantiate it with your WSGI
-application.
+for WSGI applications. It also allows you to perform HTTP requests on it.
+To use it, you simply instantiate it with your WSGI application.
 
 .. note::
 
    If your WSGI application requires any configuration,
    you must set that up manually in your tests.
-
-The main class is :class:`~webtest.TestApp` which wraps your WSGI application and
-allows you to perform HTTP requests on it.
 
 Here is a basic application::
 
