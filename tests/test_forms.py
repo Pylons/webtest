@@ -195,6 +195,13 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form.get("textarea").value, "'foo&bar'")
         self.assertEqual(form.submit_fields(), [('textarea', "'foo&bar'")])
 
+    def test_textarea_emptyfirstline(self):
+        app = self.callFUT()
+        res = app.get('/form.html')
+        form = res.forms.get("textarea_emptyline_form")
+        self.assertEqual(form.get("textarea").value, "aaa")
+        self.assertEqual(form.submit_fields(), [('textarea', "aaa")])
+
 
 class TestFormLint(unittest.TestCase):
 
