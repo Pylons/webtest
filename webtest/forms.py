@@ -378,7 +378,13 @@ class Form(object):
                 name = attrs.pop('name')
 
             if tag == 'textarea':
-                attrs['value'] = node.text
+                if node.text.startswith('\r\n'):
+                    text = node.text[2:]
+                elif node.text.startswith('\n'):
+                    text = node.text[1:]
+                else:
+                    text = node.text
+                attrs['value'] = text
 
             tag_type = attrs.get('type', 'text').lower()
             if tag == 'select':
