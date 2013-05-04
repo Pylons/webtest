@@ -11,6 +11,9 @@ News
 - Do not alter the BeautifulSoup object when parsing forms. [Georges
   Dubus]
 
+- Remove first newline while parse textarea block, how modern browsers does.
+  [Victor Safronovich] pull #69
+
 
 2.0.5 (2013-04-12)
 ------------------
