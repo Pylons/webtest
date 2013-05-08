@@ -63,7 +63,7 @@ class AppError(Exception):
 
 
 class TestRequest(webob.BaseRequest):
-    """A subclass of webob.Requset"""
+    """A subclass of webob.Request"""
     ResponseClass = TestResponse
 
 
