@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.6 (unreleased)
+2.0.6 (2013-05-23)
 ------------------
 
 - fixed #64. cookiejar api has changed in python3.3 [gawel]
