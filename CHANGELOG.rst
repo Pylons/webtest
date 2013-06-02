@@ -4,7 +4,8 @@ News
 2.0.7 (unreleased)
 ------------------
 
-- Fixed #72. Use new api.
+- Fixed #72. Use WSGIServer new api even if there waitress has backward compat.
+  [gawel]
 
 
 2.0.6 (2013-05-23)
