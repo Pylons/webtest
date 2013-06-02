@@ -56,7 +56,7 @@ setup(name='WebTest',
       install_requires=[
         'six',
         'WebOb>=1.2',
-        'waitress',
+        'waitress>=0.8.5',
         'beautifulsoup4',
       ] + opt_install_requires,
       test_suite='nose.collector',
