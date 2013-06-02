@@ -4,7 +4,7 @@ News
 2.0.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed #72. Use new api.
 
 
 2.0.6 (2013-05-23)

@@ -14,7 +14,7 @@ import os
 import six
 import webob
 from six.moves import http_client
-from waitress.server import WSGIServer
+from waitress.server import TcpWSGIServer
 
 
 def get_free_port():
@@ -42,9 +42,9 @@ def check_server(host, port, path_info='/', timeout=3, retries=30):
     return 0
 
 
-class StopableWSGIServer(WSGIServer):
-    """StopableWSGIServer is a WSGIServer which run in a separated thread. This
-    allow to use tools like casperjs or selenium.
+class StopableWSGIServer(TcpWSGIServer):
+    """StopableWSGIServer is a TcpWSGIServer which run in a separated thread.
+    This allow to use tools like casperjs or selenium.
 
     Server instance have an ``application_url`` attribute formated with the
     server host and port.
