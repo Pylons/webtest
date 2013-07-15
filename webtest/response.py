@@ -61,6 +61,7 @@ class TestResponse(webob.Response):
 
     @property
     def testbody(self):
+        self.decode_content()
         if self.charset:
             try:
                 return self.text
