@@ -271,8 +271,9 @@ class TestApp(object):
                                  content_type=content_type,
                                  )
 
-    def delete(self, url, params='', headers=None, extra_environ=None,
-               status=None, expect_errors=False, content_type=None):
+    def delete(self, url, params=utils.NoDefault, headers=None,
+               extra_environ=None, status=None, expect_errors=False,
+               content_type=None):
         """
         Do a DELETE request. Similar to :meth:`~webtest.TestApp.get`.
 
