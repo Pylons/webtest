@@ -6,6 +6,7 @@ News
 
 - Fixed #72. Use WSGIServer new api even if there waitress has backward compat.
   [gawel]
+- Fixed #50. Corrected default value for the delete params argument. [noonat]
 
 
 2.0.6 (2013-05-23)
