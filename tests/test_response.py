@@ -1,10 +1,13 @@
 #coding: utf-8
 from __future__ import unicode_literals
 
+import zlib
+
 
 import webtest
 from webtest.debugapp import debug_app
 from webob import Request
+from webob.response import gzip_app_iter
 from webtest.compat import PY3
 
 from tests.compat import unittest
@@ -114,6 +117,18 @@ def links_app(environ, start_response):
 
     start_response(str(status), headers)
     return [body]
+
+
+def gzipped_app(environ, start_response):
+    status = "200 OK"
+    encoded_body = list(gzip_app_iter([b'test']))
+    headers = [
+        ('Content-Type', str('text/html')),
+        ('Content-Encoding', str('gzip')),
+    ]
+
+    start_response(str(status), headers)
+    return encoded_body
 
 
 class TestResponse(unittest.TestCase):
@@ -346,6 +361,11 @@ class TestResponse(unittest.TestCase):
             unicode(resp)
 
         print(resp.__unicode__())
+
+    def test_content_dezips(self):
+        app = webtest.TestApp(gzipped_app)
+        resp = app.get('/')
+        self.assertEqual(resp.body, b'test')
 
 
 class TestFollow(unittest.TestCase):

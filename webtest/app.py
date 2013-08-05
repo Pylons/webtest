@@ -466,6 +466,10 @@ class TestApp(object):
 
         ## FIXME: should it be an option to not catch exc_info?
         res = req.get_response(app, catch_exc_info=True)
+
+        # be sure to decode the content
+        res.decode_content()
+
         # set a few handy attributes
         res._use_unicode = self.use_unicode
         res.request = req
