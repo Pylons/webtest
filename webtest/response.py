@@ -494,9 +494,9 @@ class TestResponse(webob.Response):
         <http://goo.gl/B9g6s>`_ installed to use this, or be using a Python
         version with the json module.
 
-        The content type must be application/json to use this.
+        The content type must be one of json type to use this.
         """
-        if self.content_type != 'application/json':
+        if not self.content_type.endswith(('+json', '/json')):
             raise AttributeError(
                 "Not a JSON response body (content-type: %s)"
                 % self.content_type)
