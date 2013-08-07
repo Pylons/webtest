@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.7 (unreleased)
+2.0.7 (2013-08-07)
 ------------------
 
 - Detect JSON if mimetype ends with +json, such as application/vnd.webtest+json
