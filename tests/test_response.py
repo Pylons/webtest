@@ -99,7 +99,8 @@ def links_app(environ, start_response):
                     <a href='/foo/'>Foo Bar<span class='baz qux'>Quz</span></a>
                 </body>
             </html>
-        """
+        """,
+        '/json/' : '{"foo": "bar"}',
     }
 
     utf8_paths = ['/utf8/']
@@ -337,6 +338,22 @@ class TestResponse(unittest.TestCase):
 
         resp.content_type = 'text/xml'
         resp.xml
+
+    def test_json(self):
+        app = webtest.TestApp(links_app)
+
+        resp = app.get('/json/')
+        with self.assertRaises(AttributeError):
+            resp.json
+
+        resp.content_type = 'text/json'
+        self.assertIn('foo', resp.json)
+
+        resp.content_type = 'application/json'
+        self.assertIn('foo', resp.json)
+
+        resp.content_type = 'application/vnd.webtest+json'
+        self.assertIn('foo', resp.json)
 
     def test_unicode(self):
         app = webtest.TestApp(links_app)
