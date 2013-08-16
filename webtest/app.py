@@ -146,7 +146,7 @@ class TestApp(object):
         self.cookiejar.clear()
 
     def get(self, url, params=None, headers=None, extra_environ=None,
-            status=None, expect_errors=False):
+            status=None, expect_errors=False, xhr=False):
         """
         Do a GET request given the url path.
 
@@ -173,6 +173,11 @@ class TestApp(object):
             If it is True, then non-200/3xx responses are also okay.
         :type expect_errors:
             boolean
+        :param xhr:
+            If this is true, then marks response as ajax. The same as
+            headers={'X-REQUESTED-WITH': 'XMLHttpRequest', }
+        :type xhr:
+            boolean
 
         :returns: :class:`webtest.TestResponse` instance.
 
@@ -193,6 +198,8 @@ class TestApp(object):
         else:
             environ['QUERY_STRING'] = str('')
         req = self.RequestClass.blank(url, environ)
+        if xhr:
+            headers = self._add_xhr_header(headers)
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,
@@ -200,7 +207,7 @@ class TestApp(object):
 
     def post(self, url, params='', headers=None, extra_environ=None,
              status=None, upload_files=None, expect_errors=False,
-             content_type=None):
+             content_type=None, xhr=False):
         """
         Do a POST request. Similar to :meth:`~webtest.TestApp.get`.
 
@@ -229,25 +236,34 @@ class TestApp(object):
         :type content_type:
             string
 
+        :param xhr:
+            If this is true, then marks response as ajax. The same as
+            headers={'X-REQUESTED-WITH': 'XMLHttpRequest', }
+        :type xhr:
+            boolean
+
         :returns: :class:`webtest.TestResponse` instance.
 
         """
+        if xhr:
+            headers = self._add_xhr_header(headers)
         return self._gen_request('POST', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 )
+                                 content_type=content_type)
 
     def put(self, url, params='', headers=None, extra_environ=None,
             status=None, upload_files=None, expect_errors=False,
-            content_type=None):
+            content_type=None, xhr=False):
         """
         Do a PUT request. Similar to :meth:`~webtest.TestApp.post`.
 
         :returns: :class:`webtest.TestResponse` instance.
 
         """
+        if xhr:
+            headers = self._add_xhr_header(headers)
         return self._gen_request('PUT', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
@@ -257,63 +273,67 @@ class TestApp(object):
 
     def patch(self, url, params='', headers=None, extra_environ=None,
               status=None, upload_files=None, expect_errors=False,
-              content_type=None):
+              content_type=None, xhr=False):
         """
         Do a PATCH request. Similar to :meth:`~webtest.TestApp.post`.
 
         :returns: :class:`webtest.TestResponse` instance.
 
         """
+        if xhr:
+            headers = self._add_xhr_header(headers)
         return self._gen_request('PATCH', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 )
+                                 content_type=content_type)
 
     def delete(self, url, params=utils.NoDefault, headers=None,
                extra_environ=None, status=None, expect_errors=False,
-               content_type=None):
+               content_type=None, xhr=False):
         """
         Do a DELETE request. Similar to :meth:`~webtest.TestApp.get`.
 
         :returns: :class:`webtest.TestResponse` instance.
 
         """
+        if xhr:
+            headers = self._add_xhr_header(headers)
         return self._gen_request('DELETE', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
                                  expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 )
+                                 content_type=content_type)
 
     def options(self, url, headers=None, extra_environ=None,
-                status=None, expect_errors=False):
+                status=None, expect_errors=False, xhr=False):
         """
         Do a OPTIONS request. Similar to :meth:`~webtest.TestApp.get`.
 
         :returns: :class:`webtest.TestResponse` instance.
 
         """
+        if xhr:
+            headers = self._add_xhr_header(headers)
         return self._gen_request('OPTIONS', url, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
-                                 expect_errors=expect_errors,
-                                 )
+                                 expect_errors=expect_errors)
 
     def head(self, url, headers=None, extra_environ=None,
-             status=None, expect_errors=False):
+             status=None, expect_errors=False, xhr=False):
         """
         Do a HEAD request. Similar to :meth:`~webtest.TestApp.get`.
 
         :returns: :class:`webtest.TestResponse` instance.
 
         """
+        if xhr:
+            headers = self._add_xhr_header(headers)
         return self._gen_request('HEAD', url, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
-                                 expect_errors=expect_errors,
-                                 )
+                                 expect_errors=expect_errors)
 
     post_json = utils.json_method('POST')
     put_json = utils.json_method('PUT')
@@ -542,9 +562,9 @@ class TestApp(object):
         scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
         return urlparse.urlunsplit((scheme, netloc, path, query, ""))
 
-    def _gen_request(self, method, url, params=utils.NoDefault, headers=None,
-                     extra_environ=None, status=None, upload_files=None,
-                     expect_errors=False, content_type=None):
+    def _gen_request(self, method, url, params=utils.NoDefault,
+                     headers=None, extra_environ=None, status=None,
+                     upload_files=None, expect_errors=False, content_type=None):
         """
         Do a generic request.
         """
@@ -620,3 +640,10 @@ class TestApp(object):
                 "filename, filecontent) or (fieldname, filename); "
                 "you gave: %r"
                 % repr(file_info)[:100])
+
+    @staticmethod
+    def _add_xhr_header(headers):
+        headers = headers or {}
+        # if remove str we will be have an error in lint.middleware
+        headers.update({'X-REQUESTED-WITH': str('XMLHttpRequest')})
+        return headers

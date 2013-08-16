@@ -78,6 +78,7 @@ class TestApp(unittest.TestCase):
         assert 'HTTP_ACCEPT: text/plain' in resp.text
 
 
+
 class TestStatus(unittest.TestCase):
 
     def setUp(self):
@@ -576,3 +577,20 @@ class TestWSGIProxy(unittest.TestCase):
 
     def tearDown(self):
         self.s.shutdown()
+
+class TestAppXhrParam(unittest.TestCase):
+
+    def setUp(self):
+        self.app = webtest.TestApp(debug_app)
+
+    def test_xhr_param_change_headers(self):
+        app = self.app
+        # FIXME: this test isn`t work for head request
+        # now I don't know how to test head request
+        functions = (app.get, app.post, app.delete,
+            app.put, app.options) #app.head
+        for func in functions:
+            resp = func('/', xhr=True)
+            resp.charset = 'ascii'
+            assert 'HTTP_X_REQUESTED_WITH: XMLHttpRequest' in resp.text, resp.text
+
