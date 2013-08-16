@@ -5,7 +5,7 @@ News
 ------------------
 
 - Added `xhr=True` parameter to `TestApp.get`, `TestApp.post`, `TestApp.head`, `TestApp.delete`
-  [jamielennox]
+  [kharandziuk]
 
 
 2.0.7 (2013-08-07)
