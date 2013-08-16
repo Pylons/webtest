@@ -100,18 +100,23 @@ class TestInputWrapper(unittest.TestCase):
         input_wrapper = InputWrapper(BytesIO(data))
         self.assertEquals(to_bytes("").join(input_wrapper), data, '')
 
-
-def application_exc_info(environ, start_response):
-    body = to_bytes('body stuff')
-    headers = [
-        ('Content-Type', 'text/plain; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
-    start_response(to_bytes('200 OK'), headers, ('stuff',))
-    return [body]
+    def test_seek(self):
+        data = to_bytes("A line\nAnother line\nA final line\n")
+        input_wrapper = InputWrapper(BytesIO(data))
+        input_wrapper.seek(0)
+        self.assertEquals(to_bytes("").join(input_wrapper), data, '')
 
 
-class TestMiddleware(unittest.TestCase):
+class TestMiddleware2(unittest.TestCase):
     def test_exc_info(self):
+        def application_exc_info(environ, start_response):
+            body = to_bytes('body stuff')
+            headers = [
+                ('Content-Type', 'text/plain; charset=utf-8'),
+                ('Content-Length', str(len(body)))]
+            start_response(to_bytes('200 OK'), headers, ('stuff',))
+            return [body]
+
         app = TestApp(application_exc_info)
         app.get('/')
         # don't know what to assert here... a bit cheating, just covers code

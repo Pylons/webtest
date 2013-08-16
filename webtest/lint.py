@@ -240,6 +240,9 @@ class InputWrapper(object):
     def close(self):
         assert 0, "input.close() must not be called"
 
+    def seek(self, *a, **kw):
+        return self.input.seek(*a, **kw)
+
 
 class ErrorWrapper(object):
 
