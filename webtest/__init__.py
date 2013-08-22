@@ -20,19 +20,3 @@ from webtest.forms import Textarea
 from webtest.forms import Hidden
 from webtest.forms import Submit
 from webtest.forms import Upload
-
-# backward compat
-try:
-    import webtest_casperjs
-except ImportError:
-    from webtest.ext import casperjs
-else:  # pragma: no cover
-    from webtest_casperjs import casperjs
-try:
-    import webtest_selenium
-except ImportError:
-    from webtest.sel import SeleniumApp
-    from webtest.sel import selenium
-else:  # pragma: no cover
-    from webtest_selenium import SeleniumApp
-    from webtest_selenium import selenium

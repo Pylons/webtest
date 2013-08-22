@@ -7,6 +7,9 @@ News
 - Added `xhr=True` parameter to `TestApp.get`, `TestApp.post`, `TestApp.head`, `TestApp.delete`
   [kharandziuk]
 
+- Remove old (and broken?) casperjs/selenium backward compat imports. Fix
+  https://github.com/gawel/webtest-selenium/issues/9
+
 
 2.0.7 (2013-08-07)
 ------------------
