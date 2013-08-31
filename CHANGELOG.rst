@@ -4,6 +4,9 @@ News
 2.0.8 (unreleased)
 ------------------
 
+- Allow checking/unchecking a set of same-named checkboxes by assigning a list of values.
+  [carljm]
+
 - Added `xhr=True` parameter to `TestApp.get`, `TestApp.post`, `TestApp.head`, `TestApp.delete`
   [kharandziuk]
 

@@ -427,6 +427,10 @@ class Form(object):
         """Set the value of the named field. If there is 0 or multiple fields
         by that name, it is an error.
 
+        Multiple checkboxes of the same name are special-cased; a list may be
+        assigned to them to check the checkboxes whose value is present in the
+        list (and uncheck all others).
+
         Setting the value of a ``<select>`` selects the given option (and
         confirms it is an option). Setting radio fields does the same.
         Checkboxes get boolean values. You cannot set hidden fields or buttons.
@@ -437,10 +441,16 @@ class Form(object):
         assert fields is not None, (
             "No field by the name %r found (fields: %s)"
             % (name, ', '.join(map(repr, self.fields.keys()))))
-        assert len(fields) == 1, (
-            "Multiple fields match %r: %s"
-            % (name, ', '.join(map(repr, fields))))
-        fields[0].value = value
+        all_checkboxes = all(isinstance(f, Checkbox) for f in fields)
+        if all_checkboxes and isinstance(value, list):
+            values = set(utils.stringify(v) for v in value)
+            for f in fields:
+                f.checked = f._value in values
+        else:
+            assert len(fields) == 1, (
+                "Multiple fields match %r: %s"
+                % (name, ', '.join(map(repr, fields))))
+            fields[0].value = value
 
     def __getitem__(self, name):
         """Get the named field object (ambiguity is an error)."""
