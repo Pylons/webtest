@@ -142,6 +142,17 @@ If the checkbox has no value then it will be 'on' if you checked it::
     >>> print(form['checkbox2'].value)
     on
 
+If there are multiple checkboxes of the same name, you can assign a list to
+that name to check all the checkboxes whose value is present in the list::
+
+    >>> form['checkboxes'] = ['a', 'c']
+    >>> print(form.get('checkboxes', index=0).value)
+    a
+    >>> print(form.get('checkboxes', index=1).value)
+    None
+    >>> print(form.get('checkboxes', index=2).value)
+    c
+
 Radio
 *****
 
