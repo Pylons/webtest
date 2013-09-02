@@ -19,11 +19,11 @@ from tests.compat import u
 
 class TestForms(unittest.TestCase):
 
-    def callFUT(self, filename='form_inputs.html'):
+    def callFUT(self, filename='form_inputs.html', formid='simple_form'):
         dirname = os.path.join(os.path.dirname(__file__), 'html')
         app = DebugApp(form=os.path.join(dirname, filename), show_form=True)
         resp = webtest.TestApp(app).get('/form.html')
-        return resp.forms['simple_form']
+        return resp.forms[formid]
 
     def test_set_submit_field(self):
         form = self.callFUT()
@@ -94,6 +94,14 @@ class TestForms(unittest.TestCase):
     def test_the_bs_node_must_not_change(self):
         form = self.callFUT()
         self.assertEqual(form.text, str(form.html))
+
+    def test_set_multiple_checkboxes(self):
+        form = self.callFUT(formid='multiple_checkbox_form')
+        form['checkbox'] = [10, 30]
+
+        self.assertEqual(form.get('checkbox', index=0).value, '10')
+        self.assertEqual(form.get('checkbox', index=1).value, None)
+        self.assertEqual(form.get('checkbox', index=2).value, '30')
 
 
 class TestResponseFormAttribute(unittest.TestCase):
