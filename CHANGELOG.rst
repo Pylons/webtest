@@ -13,6 +13,9 @@ News
 - Remove old (and broken?) casperjs/selenium backward compat imports. Fix
   https://github.com/gawel/webtest-selenium/issues/9
 
+- Allow optionally specifying the MIME type of an uploaded form file. Fixes #86
+  [Marius Gedminas]
+
 
 2.0.7 (2013-08-07)
 ------------------

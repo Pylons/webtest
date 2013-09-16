@@ -44,6 +44,16 @@ class TestApp(unittest.TestCase):
             [(six.b('key'), six.b('value'))], [])
         self.assertIn(to_bytes('name="key"'), data[-1])
 
+    def test_encode_multipart_content_type(self):
+        data = self.app.encode_multipart(
+            [], [('file', 'data.txt', six.b('data'), 'text/x-custom-mime-type')])
+        self.assertIn(to_bytes('Content-Type: text/x-custom-mime-type'), data[-1])
+
+        data = self.app.encode_multipart(
+            [('file', webtest.Upload('data.txt', six.b('data'),
+                                     'text/x-custom-mime-type'))], [])
+        self.assertIn(to_bytes('Content-Type: text/x-custom-mime-type'), data[-1])
+
     def test_get_params(self):
         resp = self.app.get('/', 'a=b')
         resp.mustcontain('a=b')

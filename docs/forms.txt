@@ -172,6 +172,7 @@ You can deal with file upload by using the Upload class:
     >>> from webtest import Upload
     >>> form['file'] = Upload('README.rst')
     >>> form['file'] = Upload('README.rst', b'data')
+    >>> form['file'] = Upload('README.rst', b'data', 'text/x-rst')
 
 Submit a form
 --------------
