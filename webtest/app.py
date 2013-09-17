@@ -343,7 +343,7 @@ class TestApp(object):
     def encode_multipart(self, params, files):
         """
         Encodes a set of parameters (typically a name/value list) and
-        a set of files (a list of (name, filename, file_body)) into a
+        a set of files (a list of (name, filename, file_body, mimetype)) into a
         typical POST body, returning the (content_type, body).
 
         """
@@ -352,20 +352,19 @@ class TestApp(object):
         lines = []
 
         def _append_file(file_info):
-            key, filename, value = self._get_file_info(file_info)
+            key, filename, value, fcontent = self._get_file_info(file_info)
             if isinstance(key, text_type):
                 try:
                     key = key.encode('ascii')
                 except:  # pragma: no cover
                     raise  # file name must be ascii
             if isinstance(filename, text_type):
-                fcontent = mimetypes.guess_type(filename)[0]
                 try:
                     filename = filename.encode('utf8')
                 except:  # pragma: no cover
                     raise  # file name must be ascii or utf8
-            else:
-                fcontent = mimetypes.guess_type(filename.decode('ascii'))[0]
+            if not fcontent:
+                fcontent = mimetypes.guess_type(filename.decode('utf8'))[0]
             fcontent = to_bytes(fcontent)
             fcontent = fcontent or b'application/octet-stream'
             lines.extend([
@@ -387,6 +386,8 @@ class TestApp(object):
                 file_info = [key, value.filename]
                 if value.content is not None:
                     file_info.append(value.content)
+                    if value.content_type is not None:
+                        file_info.append(value.content_type)
                 _append_file(file_info)
             else:
                 if isinstance(value, text_type):
@@ -627,16 +628,20 @@ class TestApp(object):
             f = open(filename, 'rb')
             content = f.read()
             f.close()
-            return (file_info[0], filename, content)
-        elif len(file_info) == 3:
+            return (file_info[0], filename, content, None)
+        elif 3 <= len(file_info) <= 4:
             content = file_info[2]
             if not isinstance(content, binary_type):
                 raise ValueError('File content must be %s not %s'
                                  % (binary_type, type(content)))
-            return file_info
+            if len(file_info) == 3:
+                return tuple(file_info) + (None,)
+            else:
+                return file_info
         else:
             raise ValueError(
                 "upload_files need to be a list of tuples of (fieldname, "
+                "filename, filecontent, mimetype) or (fieldname, "
                 "filename, filecontent) or (fieldname, filename); "
                 "you gave: %r"
                 % repr(file_info)[:100])

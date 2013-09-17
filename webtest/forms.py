@@ -16,6 +16,8 @@ class Upload(object):
     """
     A file to upload::
 
+        >>> Upload('filename.txt', 'data', 'application/octet-stream')
+        <Upload "filename.txt">
         >>> Upload('filename.txt', 'data')
         <Upload "filename.txt">
         >>> Upload("README.txt")
@@ -23,17 +25,20 @@ class Upload(object):
 
     :param filename: Name of the file to upload.
     :param content: Contents of the file.
+    :param content_type: MIME type of the file.
 
     """
 
-    def __init__(self, filename, content=None):
+    def __init__(self, filename, content=None, content_type=None):
         self.filename = filename
         self.content = content
+        self.content_type = content_type
 
     def __iter__(self):
         yield self.filename
         if self.content:
             yield self.content
+            # XXX: do we need to yield self.content_type here?
         # TODO: do we handle the case when we need to get
         # contents ourselves?
 
