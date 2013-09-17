@@ -7,11 +7,15 @@ News
 - Allow checking/unchecking a set of same-named checkboxes by assigning a list of values.
   [carljm]
 
+- fix "AttributeError: 'InputWrapper' object has no attribute 'seek'"
+  [iElectric]
+
 - Added `xhr=True` parameter to `TestApp.get`, `TestApp.post`, `TestApp.head`, `TestApp.delete`
   [kharandziuk]
 
 - Remove old (and broken?) casperjs/selenium backward compat imports. Fix
   https://github.com/gawel/webtest-selenium/issues/9
+  [gawel]
 
 - Allow optionally specifying the MIME type of an uploaded form file. Fixes #86
   [Marius Gedminas]
