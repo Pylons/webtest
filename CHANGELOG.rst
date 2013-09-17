@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.8 (unreleased)
+2.0.8 (2013-09-17)
 ------------------
 
 - Allow checking/unchecking a set of same-named checkboxes by assigning a list of values.
