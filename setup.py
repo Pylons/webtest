@@ -5,7 +5,7 @@ import sys
 from setuptools import setup
 from setuptools import find_packages
 
-version = '2.0.8'
+version = '2.0.9.dev0'
 
 tests_require = ['nose', 'coverage', 'mock', 'PasteDeploy', 'WSGIProxy2', 'pyquery']
 opt_install_requires = []
