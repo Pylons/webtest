@@ -12,7 +12,7 @@ from six import PY3
 from webob import Request
 from webtest.debugapp import DebugApp
 from webtest.compat import to_bytes
-from webtest.forms import NoValue, Submit
+from webtest.forms import NoValue, Submit, Upload
 from tests.compat import unittest
 from tests.compat import u
 
@@ -714,9 +714,11 @@ class SingleUploadFileApp(object):
         for name, uploaded_file in uploaded_files:
             filename = to_bytes(uploaded_file.filename)
             value = to_bytes(uploaded_file.value, 'ascii')
+            content_type = to_bytes(uploaded_file.type, 'ascii')
             file_parts.append(b"""
         <p>You selected '""" + filename + b"""'</p>
         <p>with contents: '""" + value + b"""'</p>
+        <p>with content type: '""" + content_type + b"""'</p>
 """)
         return b''.join(file_parts)
 
@@ -751,7 +753,7 @@ class MultipleUploadFileApp(SingleUploadFileApp):
 
 class TestFileUpload(unittest.TestCase):
 
-    def assertFile(self, name, contents, display):
+    def assertFile(self, name, contents, display, content_type=None):
         if isinstance(name, six.binary_type):
             text_name = name.decode('ascii')
         else:
@@ -764,6 +766,9 @@ class TestFileUpload(unittest.TestCase):
             text_contents = contents
         self.assertIn("<p>with contents: '" + text_contents + "'</p>",
                       display, display)
+        if content_type:
+            self.assertIn("<p>with content type: '" + content_type + "'</p>",
+                          display, display)
 
     def test_no_uploads_error(self):
         app = webtest.TestApp(SingleUploadFileApp())
@@ -813,6 +818,21 @@ class TestFileUpload(unittest.TestCase):
                         (uploaded_file_name, uploaded_file_contents))
         display = single_form.submit("button")
         self.assertFile(uploaded_file_name, uploaded_file_contents, display)
+
+    def test_file_upload_with_content_type(self):
+        uploaded_file_name = os.path.join(os.path.dirname(__file__),
+                                            "__init__.py")
+        with open(uploaded_file_name, 'rb') as f:
+            uploaded_file_contents = f.read()
+        app = webtest.TestApp(SingleUploadFileApp())
+        res = app.get('/')
+        single_form = res.forms["file_upload_form"]
+        single_form["file-field"].value = Upload(uploaded_file_name,
+                                                 uploaded_file_contents,
+                                                 'text/x-custom-type')
+        display = single_form.submit("button")
+        self.assertFile(uploaded_file_name, uploaded_file_contents, display,
+                        content_type='text/x-custom-type')
 
     def test_file_upload_binary(self):
         binary_data = struct.pack(str('255h'), *range(0, 255))
