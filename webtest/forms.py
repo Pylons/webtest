@@ -38,7 +38,7 @@ class Upload(object):
         yield self.filename
         if self.content:
             yield self.content
-            # XXX: do we need to yield self.content_type here?
+            yield self.content_type
         # TODO: do we handle the case when we need to get
         # contents ourselves?
 
