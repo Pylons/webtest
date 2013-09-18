@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.9 (unreleased)
+2.0.9 (2013-09-18)
 ------------------
 
 - Make sure Upload.content_type is not ignored
