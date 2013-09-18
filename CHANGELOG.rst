@@ -4,7 +4,9 @@ News
 2.0.9 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Make sure Upload.content_type is not ignored
+  https://github.com/Pylons/webtest/pull/88
+  [Marius Gedminas]
 
 
 2.0.8 (2013-09-17)
