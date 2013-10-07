@@ -357,10 +357,10 @@ class Form(object):
 
     FieldClass = Field
 
-    def __init__(self, response, text):
+    def __init__(self, response, text, parser_features='html.parser'):
         self.response = response
         self.text = text
-        self.html = BeautifulSoup(self.text, "html.parser")
+        self.html = BeautifulSoup(self.text, parser_features)
 
         attrs = self.html('form')[0].attrs
         self.action = attrs.get('action', '')

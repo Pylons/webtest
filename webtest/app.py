@@ -106,12 +106,16 @@ class TestApp(object):
         A convenient shortcut for a dict of all cookies in
         ``cookiejar``.
 
+    :param parser_features:
+        Passed to BeautifulSoup when parsing responses.
+    :type parser_features:
+        string or list
     """
 
     RequestClass = TestRequest
 
     def __init__(self, app, extra_environ=None, relative_to=None,
-                 use_unicode=True, cookiejar=None):
+                 use_unicode=True, cookiejar=None, parser_features=None):
         if 'WEBTEST_TARGET_URL' in os.environ:
             app = os.environ['WEBTEST_TARGET_URL']
         if isinstance(app, string_types):
@@ -133,6 +137,8 @@ class TestApp(object):
         self.extra_environ = extra_environ
         self.use_unicode = use_unicode
         self.cookiejar = cookiejar or http_cookiejar.CookieJar()
+        if parser_features:
+            self.RequestClass.ResponseClass.parser_features = parser_features
 
     @property
     def cookies(self):
