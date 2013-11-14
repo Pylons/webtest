@@ -4,7 +4,8 @@ News
 2.0.10 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Make StopableWSGIServer thread daemonic
+  [lrowe]
 
 
 2.0.9 (2013-09-18)
