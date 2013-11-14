@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.10 (unreleased)
+2.0.10 (2013-11-14)
 -------------------
 
 - Make StopableWSGIServer thread daemonic
