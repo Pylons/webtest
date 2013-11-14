@@ -116,6 +116,7 @@ class StopableWSGIServer(TcpWSGIServer):
             kwargs['expose_tracebacks'] = True
         server = cls(application, **kwargs)
         server.runner = threading.Thread(target=server.run)
+        server.runner.daemon = True
         server.runner.start()
         return server
 
