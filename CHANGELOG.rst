@@ -4,7 +4,9 @@ News
 2.0.11 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add an optional parameter to `TestApp`, allowing the user to specify the
+  parser used by BeautifulSoup
+  [lyndsysimon]
 
 
 2.0.10 (2013-11-14)
