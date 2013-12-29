@@ -10,13 +10,9 @@ version = '2.0.11.dev0'
 tests_require = ['nose', 'coverage', 'mock', 'PasteDeploy', 'WSGIProxy2', 'pyquery']
 opt_install_requires = []
 
-if sys.version_info[0] == 2:
-    tests_require.append('unittest2')
-else:
-    tests_require.append('unittest2py3k')
-
 if sys.version_info[0:2] < (2, 7):
     opt_install_requires.append('ordereddict')
+    tests_require.append('unittest2')
 
 
 setup(name='WebTest',

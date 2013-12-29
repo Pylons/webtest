@@ -4,6 +4,9 @@ News
 2.0.11 (unreleased)
 -------------------
 
+- Depend on `unittest2` only for Python versions lower than 2.7
+  [iElectric]
+
 - Add an optional parameter to `TestApp`, allowing the user to specify the
   parser used by BeautifulSoup
   [lyndsysimon]
