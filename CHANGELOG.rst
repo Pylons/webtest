@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.11 (unreleased)
+2.0.11 (2013-12-29)
 -------------------
 
 - Depend on `unittest2` only for Python versions lower than 2.7
