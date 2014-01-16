@@ -415,6 +415,9 @@ class Form(object):
                     field.options.append((attrs.get('value'),
                                           'checked' in attrs))
                     continue
+                elif tag_type == 'file':
+                    if 'value' in attrs:
+                        del attrs['value']
 
             field = FieldClass(self, tag, name, pos, **attrs)
             fields.setdefault(name, []).append(field)
