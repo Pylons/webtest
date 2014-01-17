@@ -4,7 +4,8 @@ News
 2.0.12 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Allow selecting the form submit button by its value
+  [Markus Bertheau]
 
 
 2.0.11 (2013-12-29)

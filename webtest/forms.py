@@ -520,9 +520,9 @@ class Form(object):
         assert isinstance(field, Select)
         field.value = value
 
-    def submit(self, name=None, index=None, **args):
+    def submit(self, name=None, index=None, value=None, **args):
         """Submits the form.  If ``name`` is given, then also select that
-        button (using ``index`` to disambiguate)``.
+        button (using ``index`` or ``value`` to disambiguate)``.
 
         Any extra keyword arguments are passed to the
         :meth:`webtest.TestResponse.get` or
@@ -531,7 +531,7 @@ class Form(object):
         Returns a :class:`webtest.TestResponse` object.
 
         """
-        fields = self.submit_fields(name, index=index)
+        fields = self.submit_fields(name, index=index, submit_value=value)
         if self.method.upper() != "GET":
             args.setdefault("content_type",  self.enctype)
         return self.response.goto(self.action, method=self.method,
@@ -554,7 +554,7 @@ class Form(object):
                     uploads.append([name] + list(field.value))
         return uploads
 
-    def submit_fields(self, name=None, index=None):
+    def submit_fields(self, name=None, index=None, submit_value=None):
         """Return a list of ``[(name, value), ...]`` for the current state of
         the form.
 
@@ -565,15 +565,22 @@ class Form(object):
         submit = []
         # Use another name here so we can keep function param the same for BWC.
         submit_name = name
-        if index is None:
+        if index is not None and submit_value is not None:
+            raise ValueError("Can't specify both submit_value and index.")
+
+        # If no particular button was selected, use the first one
+        if index is None and submit_value is None:
             index = 0
+
         # This counts all fields with the submit name not just submit fields.
         current_index = 0
         for name, field in self.field_order:
             if name is None:  # pragma: no cover
                 continue
             if submit_name is not None and name == submit_name:
-                if current_index == index:
+                if index is not None and current_index == index:
+                    submit.append((name, field.value_if_submitted()))
+                if submit_value is not None and field.value_if_submitted() == submit_value:
                     submit.append((name, field.value_if_submitted()))
                 current_index += 1
             else:

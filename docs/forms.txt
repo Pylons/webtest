@@ -192,11 +192,22 @@ Then you can submit the form:
     ...
     submit=Submit
 
-You can also use a specific submit button:
+You can also select a specific submit button by its index:
 
 .. code-block:: python
 
     >>> res = form.submit('submit', index=1)
+    >>> print(res)
+    Response: 200 OK
+    Content-Type: text/plain
+    ...
+    submit=Submit 2
+
+And you can select it by its value:
+
+.. code-block:: python
+
+    >>> res = form.submit('submit', value="Submit 2")
     >>> print(res)
     Response: 200 OK
     Content-Type: text/plain
