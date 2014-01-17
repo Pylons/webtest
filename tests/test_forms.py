@@ -103,6 +103,27 @@ class TestForms(unittest.TestCase):
         self.assertEqual(form.get('checkbox', index=1).value, None)
         self.assertEqual(form.get('checkbox', index=2).value, '30')
 
+    def test_button_submit(self):
+        form = self.callFUT(formid='multiple_buttons_form')
+        display = form.submit('action')
+        self.assertIn(u("action=deactivate"), display, display)
+
+    def test_button_submit_by_index(self):
+        form = self.callFUT(formid='multiple_buttons_form')
+        display = form.submit('action', index=1)
+        self.assertIn(u("action=activate"), display, display)
+
+    def test_button_submit_by_value(self):
+        form = self.callFUT(formid='multiple_buttons_form')
+        display = form.submit('action', value='activate')
+        self.assertIn(u("action=activate"), display, display)
+
+    def test_button_submit_by_value_and_index(self):
+        form = self.callFUT(formid='multiple_buttons_form')
+        self.assertRaises(ValueError,
+                          form.submit, "action", value="activate",
+                          index=0)
+
 
 class TestResponseFormAttribute(unittest.TestCase):
 
