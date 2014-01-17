@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.12 (unreleased)
+2.0.12 (2014-01-17)
 -------------------
 
 - Ignore the `value` attribute of file inputs
