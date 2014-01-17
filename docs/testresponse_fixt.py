@@ -27,9 +27,16 @@ def application(environ, start_response):
 
 def setup_test(test):
     ver = sys.version_info[:2]
+    is_pypy = 'PyPy' in sys.version
     test.globs.update(app=TestApp(application))
     for example in test.examples:
-        if "'xml'" in example.want and ver == (2, 6):
+        if "lxml" in example.source and is_pypy:
+            # minidom node do not render the same in 2.6
+            example.options[SKIP] = 1
+        elif "pyquery" in example.source and is_pypy:
+            # minidom node do not render the same in 2.6
+            example.options[SKIP] = 1
+        elif "'xml'" in example.want and ver == (2, 6):
             # minidom node do not render the same in 2.6
             example.options[SKIP] = 1
         else:
