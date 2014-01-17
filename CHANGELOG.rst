@@ -7,6 +7,9 @@ News
 - Ignore the `value` attribute of file inputs
   [Markus Bertheau]
 
+- Allow selecting the form submit button by its value
+  [Markus Bertheau]
+
 
 2.0.11 (2013-12-29)
 -------------------
