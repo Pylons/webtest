@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import sys
-import zlib
 
 
 import webtest
@@ -104,7 +103,7 @@ def links_app(environ, start_response):
                 </body>
             </html>
         """,
-        '/json/' : '{"foo": "bar"}',
+        '/json/': '{"foo": "bar"}',
     }
 
     utf8_paths = ['/utf8/']
@@ -392,7 +391,7 @@ class TestFollow(unittest.TestCase):
     def get_redirects_app(self, count=1, locations=None):
         """Return an app that issues a redirect ``count`` times"""
 
-        remaining_redirects = [count] # this means "nonlocal"
+        remaining_redirects = [count]  # this means "nonlocal"
         if locations is None:
             locations = ['/'] * count
 
@@ -415,11 +414,10 @@ class TestFollow(unittest.TestCase):
 
         return webtest.TestApp(app)
 
-
     def test_follow_with_cookie(self):
         app = webtest.TestApp(debug_app)
         app.get('/?header-set-cookie=foo=bar')
-        self.assertEqual(app.cookies['foo'],'bar')
+        self.assertEqual(app.cookies['foo'], 'bar')
         resp = app.get('/?status=302%20Found&header-location=/')
         resp = resp.follow()
         resp.mustcontain('HTTP_COOKIE: foo=bar')
@@ -444,7 +442,6 @@ class TestFollow(unittest.TestCase):
         resp = resp.follow()
         self.assertEqual(resp.body, b'done')
         self.assertEqual(resp.request.url, 'http://localhost/hello/foo/bar')
-
 
     def test_follow_twice(self):
         app = self.get_redirects_app(2)
