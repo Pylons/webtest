@@ -679,7 +679,7 @@ class SingleUploadFileApp(object):
     <body>
         <form method="POST" id="file_upload_form"
               enctype="multipart/form-data">
-            <input name="file-field" type="file" />
+            <input name="file-field" type="file" value="some/path/file.txt" />
             <input name="button" type="submit" value="single">
         </form>
     </body>

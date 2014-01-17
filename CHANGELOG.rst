@@ -4,7 +4,8 @@ News
 2.0.12 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Ignore the `value` attribute of file inputs
+  [Markus Bertheau]
 
 
 2.0.11 (2013-12-29)
