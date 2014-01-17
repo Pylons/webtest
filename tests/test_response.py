@@ -1,6 +1,7 @@
 #coding: utf-8
 from __future__ import unicode_literals
 
+import sys
 import zlib
 
 
@@ -272,6 +273,7 @@ class TestResponse(unittest.TestCase):
         resp.content_type = 'text/xml'
         resp.xml
 
+    @unittest.skipIf('PyPy' in sys.version, 'skip lxml tests on pypy')
     def test_lxml_attribute(self):
         app = webtest.TestApp(links_app)
         resp = app.post('/')
