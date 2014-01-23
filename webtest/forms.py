@@ -167,6 +167,22 @@ class MultipleSelect(Field):
         self._forced_values = values
         self.selectedIndices = []
 
+    def get_value_for_texts(self, texts):
+        str_texts = [utils.stringify(text) for text in texts]
+        value = []
+        for i, (option, checked, text) in enumerate(self.options):
+            if text in str_texts:
+                value.append(option)
+                str_texts.remove(text)
+
+        if str_texts:
+            raise ValueError(
+                "Option(s) %r not found (from %s)"
+                % (', '.join(str_texts),
+                   ', '.join([repr(t) for o, c, t in self.options])))
+
+        return value
+
     def value__set(self, values):
         str_values = [utils.stringify(value) for value in values]
         self.selectedIndices = []
@@ -539,6 +555,21 @@ class Form(object):
 
         if text is not None:
             value = field.get_value_for_text(text)
+
+        field.value = value
+
+    def select_multiple(self, name, value=None, texts=None, index=None):
+        """Like ``.set()``, except also confirms the target is a
+        ``<select multiple>`` and allows selecting options by text.
+        """
+        field = self.get(name, index=index)
+        assert isinstance(field, MultipleSelect)
+
+        if value is not None and texts is not None:
+            raise ValueError("Specify only one of value and texts.")
+
+        if texts is not None:
+            value = field.get_value_for_texts(texts)
 
         field.value = value
 

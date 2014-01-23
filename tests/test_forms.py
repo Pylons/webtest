@@ -602,6 +602,18 @@ class TestSelect(unittest.TestCase):
         display = multiple_form.submit("button")
         self.assertIn("<p>You selected 9</p>", display, display)
 
+        res = app.get('/')
+        multiple_form = res.forms["multiple_select_form"]
+        self.assertRaises(ValueError, multiple_form.select_multiple,
+                          "multiple",
+                          ["8", "10"], texts=["Eight", "Ten"])
+        self.assertRaises(ValueError, multiple_form.select_multiple,
+                          "multiple", texts=["Twelve"])
+        multiple_form.select_multiple("multiple",
+                                      texts=["Eight", "Nine", "Ten"])
+        display = multiple_form.submit("button")
+        self.assertIn("<p>You selected 8, 9, 10</p>", display, display)
+
     def test_multiple_select_forced_values(self):
         app = webtest.TestApp(select_app)
         res = app.get('/')
