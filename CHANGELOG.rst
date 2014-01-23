@@ -4,7 +4,8 @@ News
 2.0.14 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Allow `.select()` on <select>s and <select multiple>s.
+  [Markus Bertheau]
 
 
 2.0.13 (2014-01-23)
