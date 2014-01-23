@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.14 (unreleased)
+2.0.14 (2014-01-23)
 -------------------
 
 - Allow `.select()` on <select>s and <select multiple>s.
