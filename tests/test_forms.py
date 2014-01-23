@@ -520,6 +520,17 @@ class TestSelect(unittest.TestCase):
         display = single_form.submit("button")
         self.assertIn("<p>You selected 6</p>", display, display)
 
+        res = app.get('/')
+        single_form = res.forms["single_select_form"]
+        self.assertRaises(ValueError, single_form.select, "single", "5",
+                          text="Five")
+        self.assertRaises(ValueError, single_form.select, "single",
+                          text="Three")
+        single_form.select("single", text="Seven")
+        self.assertEqual(single_form["single"].value, "7")
+        display = single_form.submit("button")
+        self.assertIn("<p>You selected 7</p>", display, display)
+
     def test_single_select_forced_value(self):
         app = webtest.TestApp(select_app)
         res = app.get('/')

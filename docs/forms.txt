@@ -96,6 +96,14 @@ Select multiple:
     ['option2', 'option3']
     >>> form['multiple'] = ['option1']
 
+You can select an option by its text with ``.select()``:
+
+.. code-block:: python
+
+    >>> form.select('select', text="Option 2")
+    >>> print(form['select'].value)
+    option2
+
 Select fields can only be set to valid values (i.e., values in an ``<option>``)
 but you can also use ``.force_value()`` to enter values not present in an
 option.

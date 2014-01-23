@@ -112,6 +112,15 @@ class Select(Field):
         """
         self._forced_value = value
 
+    def get_value_for_text(self, text):
+        for i, (option_value, checked, option_text) in enumerate(self.options):
+            if option_text == utils.stringify(text):
+                return option_value
+
+        raise ValueError("Option with text %r not found (from %s)"
+                         % (text, ', '.join(
+                             [repr(t) for o, c, t in self.options])))
+
     def value__set(self, value):
         if self._forced_value is not NoValue:
             self._forced_value = NoValue
@@ -518,11 +527,19 @@ class Form(object):
             return self[name]
         return fields[index]
 
-    def select(self, name, value, index=None):
-        """Like ``.set()``, except also confirms the target is a ``<select>``.
+    def select(self, name, value=None, text=None, index=None):
+        """Like ``.set()``, except also confirms the target is a ``<select>``
+        and allows selecting options by text.
         """
         field = self.get(name, index=index)
         assert isinstance(field, Select)
+
+        if value is not None and text is not None:
+            raise ValueError("Specify only one of value and text.")
+
+        if text is not None:
+            value = field.get_value_for_text(text)
+
         field.value = value
 
     def submit(self, name=None, index=None, value=None, **args):
