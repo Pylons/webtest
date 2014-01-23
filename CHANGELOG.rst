@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.13 (unreleased)
+2.0.13 (2014-01-23)
 -------------------
 
 - Allow selecting <select> options by text
