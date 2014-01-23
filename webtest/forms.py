@@ -115,7 +115,7 @@ class Select(Field):
     def value__set(self, value):
         if self._forced_value is not NoValue:
             self._forced_value = NoValue
-        for i, (option, checked) in enumerate(self.options):
+        for i, (option, checked, text) in enumerate(self.options):
             if option == utils.stringify(value):
                 self.selectedIndex = i
                 break
@@ -123,7 +123,7 @@ class Select(Field):
             raise ValueError(
                 "Option %r not found (from %s)"
                 % (value, ', '.join(
-                [repr(o) for o, c in self.options])))
+                [repr(o) for o, c, t in self.options])))
 
     def value__get(self):
         if self._forced_value is not NoValue:
@@ -131,7 +131,7 @@ class Select(Field):
         elif self.selectedIndex is not None:
             return self.options[self.selectedIndex][0]
         else:
-            for option, checked in self.options:
+            for option, checked, text in self.options:
                 if checked:
                     return option
             else:
@@ -161,7 +161,7 @@ class MultipleSelect(Field):
     def value__set(self, values):
         str_values = [utils.stringify(value) for value in values]
         self.selectedIndices = []
-        for i, (option, checked) in enumerate(self.options):
+        for i, (option, checked, text) in enumerate(self.options):
             if option in str_values:
                 self.selectedIndices.append(i)
                 str_values.remove(option)
@@ -169,7 +169,7 @@ class MultipleSelect(Field):
             raise ValueError(
                 "Option(s) %r not found (from %s)"
                 % (', '.join(str_values),
-                   ', '.join([repr(o) for o, c in self.options])))
+                   ', '.join([repr(o) for o, c, t in self.options])))
 
     def value__get(self):
         selected_values = []
@@ -178,7 +178,7 @@ class MultipleSelect(Field):
                                for i in self.selectedIndices]
         elif not self._forced_values:
             selected_values = []
-            for option, checked in self.options:
+            for option, checked, text in self.options:
                 if checked:
                     selected_values.append(option)
         if self._forced_values:
@@ -197,7 +197,7 @@ class Radio(Select):
         if self.selectedIndex is not None:
             return self.options[self.selectedIndex][0]
         else:
-            for option, checked in self.options:
+            for option, checked, text in self.options:
                 if checked:
                     return option
             else:
@@ -413,7 +413,8 @@ class Form(object):
                         assert isinstance(field,
                                           self.FieldClass.classes['radio'])
                     field.options.append((attrs.get('value'),
-                                          'checked' in attrs))
+                                          'checked' in attrs,
+                                          None))
                     continue
                 elif tag_type == 'file':
                     if 'value' in attrs:
@@ -426,7 +427,8 @@ class Form(object):
             if tag == 'select':
                 for option in node('option'):
                     field.options.append((option.attrs.get('value', option.text),
-                                          'selected' in option.attrs))
+                                          'selected' in option.attrs,
+                                          option.text))
 
         self.field_order = field_order
         self.fields = fields
