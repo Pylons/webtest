@@ -4,7 +4,8 @@ News
 2.0.13 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Allow selecting <select> options by text
+  [Markus Bertheau]
 
 
 2.0.12 (2014-01-17)
