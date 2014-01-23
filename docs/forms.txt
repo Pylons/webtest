@@ -100,7 +100,7 @@ You can select an option by its text with ``.select()``:
 
 .. code-block:: python
 
-    >>> form.select('select', text="Option 2")
+    >>> form['select'].select(text="Option 2")
     >>> print(form['select'].value)
     option2
 
@@ -108,9 +108,9 @@ For select multiple use ``.select_multiple()``:
 
 .. code-block:: python
 
-    >>> form.select_multiple('multiple', texts=["Option 1", "Option 2"])
+    >>> form['multiple'].select_multiple(texts=["Option 1", "Option 2"])
     >>> print(form['multiple'].value) # doctest: +SKIP
-    [u'option1', u'option2']
+    ['option1', 'option2']
 
 Select fields can only be set to valid values (i.e., values in an ``<option>``)
 but you can also use ``.force_value()`` to enter values not present in an

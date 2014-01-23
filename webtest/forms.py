@@ -112,7 +112,16 @@ class Select(Field):
         """
         self._forced_value = value
 
-    def get_value_for_text(self, text):
+    def select(self, value=None, text=None):
+        if value is not None and text is not None:
+            raise ValueError("Specify only one of value and text.")
+
+        if text is not None:
+            value = self._get_value_for_text(text)
+
+        self.value = value
+
+    def _get_value_for_text(self, text):
         for i, (option_value, checked, option_text) in enumerate(self.options):
             if option_text == utils.stringify(text):
                 return option_value
@@ -167,7 +176,16 @@ class MultipleSelect(Field):
         self._forced_values = values
         self.selectedIndices = []
 
-    def get_value_for_texts(self, texts):
+    def select_multiple(self, value=None, texts=None):
+        if value is not None and texts is not None:
+            raise ValueError("Specify only one of value and texts.")
+
+        if texts is not None:
+            value = self._get_value_for_texts(texts)
+
+        self.value = value
+
+    def _get_value_for_texts(self, texts):
         str_texts = [utils.stringify(text) for text in texts]
         value = []
         for i, (option, checked, text) in enumerate(self.options):
@@ -550,13 +568,7 @@ class Form(object):
         field = self.get(name, index=index)
         assert isinstance(field, Select)
 
-        if value is not None and text is not None:
-            raise ValueError("Specify only one of value and text.")
-
-        if text is not None:
-            value = field.get_value_for_text(text)
-
-        field.value = value
+        field.select(value, text)
 
     def select_multiple(self, name, value=None, texts=None, index=None):
         """Like ``.set()``, except also confirms the target is a
@@ -565,13 +577,7 @@ class Form(object):
         field = self.get(name, index=index)
         assert isinstance(field, MultipleSelect)
 
-        if value is not None and texts is not None:
-            raise ValueError("Specify only one of value and texts.")
-
-        if texts is not None:
-            value = field.get_value_for_texts(texts)
-
-        field.value = value
+        field.select_multiple(value, texts)
 
     def submit(self, name=None, index=None, value=None, **args):
         """Submits the form.  If ``name`` is given, then also select that
