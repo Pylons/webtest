@@ -12,7 +12,10 @@ from webtest.app import AppError
 from tests.compat import unittest
 import webbrowser
 
+PY26 = sys.version_info[0:2] == (2, 6)
 
+
+@unittest.skipIf(PY26, 'issue with 2.6 and xunit')
 def test_print_unicode():
     print_stderr('°C')
 
@@ -147,6 +150,7 @@ class TestTesting(unittest.TestCase):
         self.app.get('/?status=404%20Not%20Found', status=404)
         self.assertRaises(webtest.AppError, self.app.get, '/', status=404)
 
+    @unittest.skipIf(PY26, 'issue with 2.6 and xunit')
     def test_print_stderr(self):
         res = self.app.get('/')
         res.charset = 'utf-8'
