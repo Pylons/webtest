@@ -24,8 +24,8 @@ Execute tests
 .. code-block:: bash
 
     $ bin/nosetests
-    Doctest: forms.txt ... ok
-    Doctest: index.txt ... ok
+    Doctest: forms.rst ... ok
+    Doctest: index.rst ... ok
 
     ...
 

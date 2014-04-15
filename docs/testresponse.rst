@@ -82,7 +82,7 @@ The added methods:
 
 .. toctree::
 
-    forms.txt
+    forms.rst
 
 
 Parsing the Body

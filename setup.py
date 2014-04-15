@@ -15,7 +15,7 @@ install_requires = [
 ]
 
 tests_require = [
-    'nose', 'coverage', 'mock',
+    'nose==1.3.0', 'coverage', 'mock',
     'PasteDeploy', 'WSGIProxy2', 'pyquery'
 ]
 

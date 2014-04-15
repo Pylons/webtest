@@ -12,10 +12,7 @@ from webtest.app import AppError
 from tests.compat import unittest
 import webbrowser
 
-PY26 = sys.version_info[0:2] == (2, 6)
 
-
-@unittest.skipIf(PY26, 'issue with 2.6 and xunit')
 def test_print_unicode():
     print_stderr('°C')
 
@@ -49,12 +46,12 @@ class TestTesting(unittest.TestCase):
 
     def test_post_unicode(self):
         res = self.app.post('/', params=dict(a='é'),
-               content_type='application/x-www-form-urlencoded;charset=utf8')
+            content_type='application/x-www-form-urlencoded;charset=utf8')
         res.mustcontain('a=%C3%A9')
 
     def test_post_unicode_body(self):
         res = self.app.post('/', params='é',
-               content_type='text/plain; charset=utf8')
+            content_type='text/plain; charset=utf8')
         self.assertTrue(res.body.endswith(b'\xc3\xa9'))
         res.mustcontain('é')
 
@@ -150,7 +147,6 @@ class TestTesting(unittest.TestCase):
         self.app.get('/?status=404%20Not%20Found', status=404)
         self.assertRaises(webtest.AppError, self.app.get, '/', status=404)
 
-    @unittest.skipIf(PY26, 'issue with 2.6 and xunit')
     def test_print_stderr(self):
         res = self.app.get('/')
         res.charset = 'utf-8'

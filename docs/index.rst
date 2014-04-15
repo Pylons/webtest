@@ -116,9 +116,9 @@ Contents
 
 .. toctree::
 
-   webtest.txt
-   api.txt
-   contributing.txt
-   changelog.txt
+   webtest.rst
+   api.rst
+   contributing.rst
+   changelog.rst
 
-.. include:: license.txt
+.. include:: license.rst
