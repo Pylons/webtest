@@ -120,7 +120,13 @@ class TestApp(object):
             app = os.environ['WEBTEST_TARGET_URL']
         if isinstance(app, string_types):
             if app.startswith('http'):
-                from wsgiproxy import HostProxy
+                try:
+                    from wsgiproxy import HostProxy
+                except ImportError:
+                    raise ImportError((
+                        'Using webtest with a real url requires WSGIProxy2. '
+                        'Please install it with: '
+                        'pip install WSGIProxy2'))
                 if '#' not in app:
                     app += '#httplib'
                 url, client = app.split('#', 1)
@@ -571,7 +577,8 @@ class TestApp(object):
 
     def _gen_request(self, method, url, params=utils.NoDefault,
                      headers=None, extra_environ=None, status=None,
-                     upload_files=None, expect_errors=False, content_type=None):
+                     upload_files=None, expect_errors=False,
+                     content_type=None):
         """
         Do a generic request.
         """

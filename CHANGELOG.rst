@@ -4,7 +4,7 @@ News
 2.0.15 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fixed #107 Explicit error message when WSGIProxy2 is not installer
 
 
 2.0.14 (2014-01-23)
