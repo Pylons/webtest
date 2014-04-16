@@ -11,7 +11,6 @@ from __future__ import unicode_literals
 
 import os
 import re
-import cgi
 import json
 import random
 import fnmatch
@@ -649,7 +648,7 @@ class TestApp(object):
             if upload_files or \
                 (content_type and
                  to_bytes(content_type).startswith(b'multipart')):
-                params = cgi.parse_qsl(params, keep_blank_values=True)
+                params = urlparse.parse_qsl(params, keep_blank_values=True)
                 content_type, params = self.encode_multipart(
                     params, upload_files or ())
                 environ['CONTENT_TYPE'] = content_type

@@ -13,12 +13,13 @@ News
 - Fixed #93 Support basic authentication
   [gawel]
 
-- Fixed #107 Explicit error message when WSGIProxy2 is not installer
-  [gawel]
-
 - Fixed #103 Broken "Edit me on GitHub" links in documentation
   [gawel]
 
+- Fixed #107 Explicit error message when WSGIProxy2 is not installer
+  [gawel]
+
+- Fixed #108 cgi.parse_qsl is pending deprecation
 
 2.0.14 (2014-01-23)
 -------------------
