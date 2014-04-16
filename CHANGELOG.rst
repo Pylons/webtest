@@ -6,6 +6,8 @@ News
 
 - Fixed #107 Explicit error message when WSGIProxy2 is not installer
 
+- Fixed #103 Broken "Edit me on GitHub" links in documentation
+
 
 2.0.14 (2014-01-23)
 -------------------

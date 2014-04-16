@@ -17,6 +17,8 @@ import random
 import re
 import warnings
 
+from base64 import b64encode
+
 from six import StringIO
 from six import BytesIO
 from six import string_types
@@ -145,6 +147,41 @@ class TestApp(object):
         self.cookiejar = cookiejar or http_cookiejar.CookieJar()
         if parser_features:
             self.RequestClass.ResponseClass.parser_features = parser_features
+
+    def get_authorization(self):
+        """Allow to set the HTTP_AUTHORIZATION environ key. Value should looks
+        like ``('Basic', ('user', 'password'))``
+
+        If value is None the the HTTP_AUTHORIZATION is removed
+        """
+        return self.authorization_value
+
+    def set_authorization(self, value):
+        self.authorization_value = value
+        if value is not None:
+            invalid_value = (
+                "You should use a value like ('Basic', ('user', 'password'))"
+            )
+            if isinstance(value, (list, tuple)) and len(value) == 2:
+                authtype, val = value
+                if authtype == 'Basic' and val and \
+                   isinstance(val, (list, tuple)):
+                    val = ':'.join(list(val))
+                    val = b64encode(to_bytes(val)).strip()
+                    val = val.decode('latin1')
+                else:
+                    raise ValueError(invalid_value)
+                value = str('%s %s' % (authtype, val))
+            else:
+                raise ValueError(invalid_value)
+            self.extra_environ.update({
+                'HTTP_AUTHORIZATION': value,
+            })
+        else:
+            if 'HTTP_AUTHORIZATION' in self.extra_environ:
+                del self.extra_environ['HTTP_AUTHORIZATION']
+
+    authorization = property(get_authorization, set_authorization)
 
     @property
     def cookies(self):

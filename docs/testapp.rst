@@ -96,6 +96,17 @@ If you want *all* your requests to have this key, do:
 
     app = TestApp(my_app, extra_environ=dict(REMOTE_USER='bob'))
 
+If you have to use HTTP authorization you can use the ``.authorization``
+property to set the ``HTTP_AUTHORIZATION`` key of the extra_environ
+dictionnary:
+
+.. code-block:: python
+
+    app = TestApp(my_app)
+    app.authorization = ('Basic', ('user', 'password'))
+
+Only Basic auth is supported for now.
+
 Testing a non wsgi application
 ------------------------------
 

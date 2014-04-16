@@ -11,7 +11,7 @@ class DebugApp(object):
     """The WSGI application used for testing"""
 
     def __init__(self, form=None, show_form=False):
-        if os.path.isfile(form):
+        if form and os.path.isfile(form):
             fd = open(form, 'rb')
             self.form = fd.read()
             fd.close()
