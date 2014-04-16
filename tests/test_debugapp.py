@@ -45,12 +45,14 @@ class TestTesting(unittest.TestCase):
         self.assertEqual(res.body, to_bytes(''))
 
     def test_post_unicode(self):
-        res = self.app.post('/', params=dict(a='é'),
+        res = self.app.post(
+            '/', params=dict(a='é'),
             content_type='application/x-www-form-urlencoded;charset=utf8')
         res.mustcontain('a=%C3%A9')
 
     def test_post_unicode_body(self):
-        res = self.app.post('/', params='é',
+        res = self.app.post(
+            '/', params='é',
             content_type='text/plain; charset=utf8')
         self.assertTrue(res.body.endswith(b'\xc3\xa9'))
         res.mustcontain('é')
@@ -86,7 +88,7 @@ class TestTesting(unittest.TestCase):
     def test_exception(self):
         self.assertRaises(Exception, self.app.get, '/?error=t')
         self.assertRaises(webtest.AppError, self.app.get,
-                                            '/?status=404%20Not%20Found')
+                          '/?status=404%20Not%20Found')
 
     def test_bad_content_type(self):
         resp = self.app.get('/')
@@ -101,7 +103,6 @@ class TestTesting(unittest.TestCase):
         app = webtest.TestApp('config:%s#main' % config)
         resp = app.get('/')
         self.assertEqual(resp.status_int, 200)
-
 
     def test_errors(self):
         try:

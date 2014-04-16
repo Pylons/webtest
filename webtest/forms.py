@@ -141,8 +141,7 @@ class Select(Field):
         else:
             raise ValueError(
                 "Option %r not found (from %s)"
-                % (value, ', '.join(
-                [repr(o) for o, c, t in self.options])))
+                % (value, ', '.join([repr(o) for o, c, t in self.options])))
 
     def value__get(self):
         if self._forced_value is not NoValue:
@@ -476,9 +475,10 @@ class Form(object):
 
             if tag == 'select':
                 for option in node('option'):
-                    field.options.append((option.attrs.get('value', option.text),
-                                          'selected' in option.attrs,
-                                          option.text))
+                    field.options.append(
+                        (option.attrs.get('value', option.text),
+                         'selected' in option.attrs,
+                         option.text))
 
         self.field_order = field_order
         self.fields = fields
@@ -646,7 +646,8 @@ class Form(object):
             if submit_name is not None and name == submit_name:
                 if index is not None and current_index == index:
                     submit.append((name, field.value_if_submitted()))
-                if submit_value is not None and field.value_if_submitted() == submit_value:
+                if submit_value is not None and \
+                   field.value_if_submitted() == submit_value:
                     submit.append((name, field.value_if_submitted()))
                 current_index += 1
             else:

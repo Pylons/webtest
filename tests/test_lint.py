@@ -169,7 +169,8 @@ class TestCheckEnviron(unittest.TestCase):
             warnings.simplefilter("always")
             check_environ(environ)
             self.assertEqual(len(w), 1, "We should have only one warning")
-            self.assertTrue("QUERY_STRING" in str(w[-1].message),
+            self.assertTrue(
+                "QUERY_STRING" in str(w[-1].message),
                 "The warning message should say something about QUERY_STRING")
 
     def test_no_valid_request(self):
@@ -191,8 +192,10 @@ class TestCheckEnviron(unittest.TestCase):
             warnings.simplefilter("always")
             check_environ(environ)
             self.assertEqual(len(w), 1, "We should have only one warning")
-            self.assertTrue("REQUEST_METHOD" in str(w[-1].message),
-              'The warning message should say something about REQUEST_METHOD')
+            self.assertTrue(
+                "REQUEST_METHOD" in str(w[-1].message),
+                "The warning message should say something "
+                "about REQUEST_METHOD")
 
     def test_handles_native_strings_in_variables(self):
         # "native string" means unicode in py3, but bytes in py2
@@ -261,7 +264,8 @@ class TestWriteWrapper(unittest.TestCase):
         mock = MockWriter()
         write_wrapper = WriteWrapper(mock)
         write_wrapper(data)
-        self.assertEqual(mock.written, [data],
+        self.assertEqual(
+            mock.written, [data],
             "WriterWrapper should call original writer when data is binary "
             "type")
 
@@ -293,11 +297,12 @@ class TestErrorWrapper(unittest.TestCase):
         data = [to_bytes('a line'), to_bytes('another line')]
         error_wrapper.writelines(data)
         self.assertEqual(fake_error.written, data,
-            "ErrorWrapper should call original writer")
+                         "ErrorWrapper should call original writer")
 
     def test_flush(self):
         fake_error = self.FakeError()
         error_wrapper = ErrorWrapper(fake_error)
         error_wrapper.flush()
-        self.assertTrue(fake_error.flushed,
+        self.assertTrue(
+            fake_error.flushed,
             "ErrorWrapper should have called original wsgi_errors's flush")

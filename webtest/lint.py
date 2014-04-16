@@ -395,23 +395,27 @@ def check_status(status):
     assert type(status) in METADATA_TYPE, (
         "Status must be a %s (not %r)" % (METADATA_TYPE, status))
     status = to_string(status)
-    assert len(status) > 5, ("The status string (%r) should be a three-digit "
+    assert len(status) > 5, (
+        "The status string (%r) should be a three-digit "
         "integer followed by a single space and a status explanation"
-        % status)
-    assert status[:3].isdigit(), ("The status string (%r) should start with"
-        "three digits" % status)
+        ) % status
+    assert status[:3].isdigit(), (
+        "The status string (%r) should start with"
+        "three digits") % status
 
     status_int = int(status[:3])
-    assert status_int >= 100, ("The status code must be greater or equal than "
-        "100 (got %d)" % status_int)
-    assert status[3] == ' ', ("The status string (%r) should start with three"
-        "digits and a space (4th characters is not a space here)" % status)
+    assert status_int >= 100, (
+        "The status code must be greater or equal than "
+        "100 (got %d)") % status_int
+    assert status[3] == ' ', (
+        "The status string (%r) should start with three"
+        "digits and a space (4th characters is not a space here)") % status
 
 
 def _assert_latin1_py3(string, message):
     if PY3 and type(string) is str:
         try:
-           string.encode('latin1')
+            string.encode('latin1')
         except UnicodeEncodeError:
             raise AssertionError(message)
 
@@ -427,7 +431,7 @@ def check_headers(headers):
         assert len(item) == 2
         name, value = item
         _assert_latin1_py3(
-            name, 
+            name,
             "Headers values must be latin1 string or bytes."
             "%r is not a valid latin1 string" % (value,)
         )
@@ -442,7 +446,7 @@ def check_headers(headers):
         assert not str_name.endswith('-') and not str_name.endswith('_'), (
             "Names may not end in '-' or '_': %r" % name)
         _assert_latin1_py3(
-            value, 
+            value,
             "Headers values must be latin1 string or bytes."
             "%r is not a valid latin1 string" % (value,)
         )
@@ -472,7 +476,7 @@ def check_content_type(status, headers):
             elif length == 0:
                 warnings.warn(("Content-Type header found in a %s response, "
                                "which not return content.") % code,
-                               WSGIWarning)
+                              WSGIWarning)
                 return
             else:
                 assert 0, (("Content-Type header found in a %s response, "
@@ -480,10 +484,12 @@ def check_content_type(status, headers):
     if code not in NO_MESSAGE_BODY and length is not None and length > 0:
         assert 0, "No Content-Type header found in headers (%s)" % headers
 
+
 def check_exc_info(exc_info):
     assert exc_info is None or type(exc_info) is tuple, (
         "exc_info (%r) is not a tuple: %r" % (exc_info, type(exc_info)))
     # More exc_info checks?
+
 
 def check_iterator(iterator):
     valid_type = PY3 and bytes or str

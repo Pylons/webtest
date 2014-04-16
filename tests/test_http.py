@@ -14,18 +14,18 @@ class TestServer(unittest.TestCase):
         s = self.s
         s.wait()
         self.assertEqual(200,
-                http.check_server(s.adj.host, s.adj.port,
-                                  '/__application__'))
+                         http.check_server(s.adj.host, s.adj.port,
+                                           '/__application__'))
         self.assertEqual(200,
-                http.check_server(s.adj.host, s.adj.port,
-                                  '/__file__?__file__=' + __file__))
+                         http.check_server(s.adj.host, s.adj.port,
+                                           '/__file__?__file__=' + __file__))
         self.assertEqual(404,
-                http.check_server(s.adj.host, s.adj.port,
-                                  '/__file__?__file__=XXX'))
+                         http.check_server(s.adj.host, s.adj.port,
+                                           '/__file__?__file__=XXX'))
 
         self.assertEqual(304,
-                http.check_server(s.adj.host, s.adj.port,
-                                  '/?status=304'))
+                         http.check_server(s.adj.host, s.adj.port,
+                                           '/?status=304'))
 
     def test_wsgi_wrapper(self):
         s = self.s

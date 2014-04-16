@@ -107,7 +107,7 @@ class TestResponse(webob.Response):
         Any keyword arguments are passed to :class:`webtest.app.TestApp.get`.
         Returns another :class:`TestResponse` object.
         """
-        remaining_redirects = 100 # infinite loops protection
+        remaining_redirects = 100  # infinite loops protection
         response = self
 
         while 300 <= response.status_int < 400 and remaining_redirects:
@@ -301,8 +301,7 @@ class TestResponse(webob.Response):
         Return the whitespace-normalized body
         """
         if getattr(self, '_normal_body', None) is None:
-            self._normal_body = self._normal_body_regex.sub(
-                                                b' ', self.body)
+            self._normal_body = self._normal_body_regex.sub(b' ', self.body)
         return self._normal_body
 
     _unicode_normal_body_regex = re.compile('[ \\n\\r\\t]+')
@@ -318,7 +317,7 @@ class TestResponse(webob.Response):
                  "unless charset is set"))
         if getattr(self, '_unicode_normal_body', None) is None:
             self._unicode_normal_body = self._unicode_normal_body_regex.sub(
-                                                ' ', self.testbody)
+                ' ', self.testbody)
         return self._unicode_normal_body
 
     def __contains__(self, s):
@@ -468,8 +467,8 @@ class TestResponse(webob.Response):
         have an earlier version of lxml then a ``lxml.HTML`` object
         will be returned.
         """
-        if ('html' not in self.content_type
-            and 'xml' not in self.content_type):
+        if 'html' not in self.content_type and \
+           'xml' not in self.content_type:
             raise AttributeError(
                 "Not an XML or HTML response body (content-type: %s)"
                 % self.content_type)

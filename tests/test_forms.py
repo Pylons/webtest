@@ -44,19 +44,23 @@ class TestForms(unittest.TestCase):
         form['select'].force_value('notavalue')
         form['select'].value__set('value3')
 
-        self.assertTrue(form['select']._forced_value is NoValue,
+        self.assertTrue(
+            form['select']._forced_value is NoValue,
             "Setting a value after having forced a value should keep a forced"
             " state")
-        self.assertEqual(form['select'].value, 'value3',
+        self.assertEqual(
+            form['select'].value, 'value3',
             "the value should the the one set by value__set")
-        self.assertEqual(form['select'].selectedIndex, 2,
+        self.assertEqual(
+            form['select'].selectedIndex, 2,
             "the value index should be the one set by value__set")
 
     def test_form_select(self):
         form = self.callFUT()
         form.select('select', 'value1')
 
-        self.assertEqual(form['select'].value, 'value1',
+        self.assertEqual(
+            form['select'].value, 'value1',
             "when using form.select, the input selected value should be "
             "changed")
 
@@ -262,8 +266,7 @@ def select_app(environ, start_response):
     req = Request(environ)
     status = b"200 OK"
     if req.method == "GET":
-        body = to_bytes(
-"""
+        body = to_bytes("""
 <html>
     <head><title>form page</title></head>
     <body>
@@ -294,8 +297,7 @@ def select_app(environ, start_response):
             selection = req.POST.get("single")
         elif select_type == "multiple":
             selection = ", ".join(req.POST.getall("multiple"))
-        body = to_bytes(
-"""
+        body = to_bytes("""
 <html>
     <head><title>display page</title></head>
     <body>
@@ -316,8 +318,7 @@ def select_app_without_values(environ, start_response):
     req = Request(environ)
     status = b"200 OK"
     if req.method == "GET":
-        body = to_bytes(
-"""
+        body = to_bytes("""
 <html>
     <head><title>form page</title></head>
     <body>
@@ -348,8 +349,7 @@ def select_app_without_values(environ, start_response):
             selection = req.POST.get("single")
         elif select_type == "multiple":
             selection = ", ".join(req.POST.getall("multiple"))
-        body = to_bytes(
-"""
+        body = to_bytes("""
 <html>
     <head><title>display page</title></head>
     <body>
@@ -370,8 +370,7 @@ def select_app_without_default(environ, start_response):
     req = Request(environ)
     status = b"200 OK"
     if req.method == "GET":
-        body = to_bytes(
-"""
+        body = to_bytes("""
 <html>
     <head><title>form page</title></head>
     <body>
@@ -402,8 +401,7 @@ def select_app_without_default(environ, start_response):
             selection = req.POST.get("single")
         elif select_type == "multiple":
             selection = ", ".join(req.POST.getall("multiple"))
-        body = to_bytes(
-"""
+        body = to_bytes("""
 <html>
     <head><title>display page</title></head>
     <body>
@@ -424,8 +422,7 @@ def select_app_unicode(environ, start_response):
     req = Request(environ)
     status = b"200 OK"
     if req.method == "GET":
-        body =\
-u("""
+        body = u("""
 <html>
     <head><title>form page</title></head>
     <body>
@@ -456,8 +453,7 @@ u("""
             selection = req.POST.get("single")
         elif select_type == "multiple":
             selection = ", ".join(req.POST.getall("multiple"))
-        body = (
-u("""
+        body = (u("""
 <html>
     <head><title>display page</title></head>
     <body>
@@ -626,7 +622,7 @@ class TestSelect(unittest.TestCase):
         self.assertEqual(multiple_form["multiple"].value, ["8", "11"],
                          multiple_form["multiple"].value)
         self.assertRaises(ValueError, multiple_form.set,
-                                      "multiple", ["24", "88"])
+                          "multiple", ["24", "88"])
         multiple_form["multiple"].force_value(["24", "88"])
         self.assertEqual(multiple_form["multiple"].value, ["24", "88"],
                          multiple_form["multiple"].value)
@@ -845,7 +841,7 @@ class TestFileUpload(unittest.TestCase):
 
     def test_file_upload_with_filename_and_contents(self):
         uploaded_file_name = os.path.join(os.path.dirname(__file__),
-                                            "__init__.py")
+                                          "__init__.py")
         uploaded_file_contents = open(uploaded_file_name).read()
         if PY3:
             uploaded_file_contents = to_bytes(uploaded_file_contents)
@@ -865,7 +861,7 @@ class TestFileUpload(unittest.TestCase):
 
     def test_file_upload_with_content_type(self):
         uploaded_file_name = os.path.join(os.path.dirname(__file__),
-                                            "__init__.py")
+                                          "__init__.py")
         with open(uploaded_file_name, 'rb') as f:
             uploaded_file_contents = f.read()
         app = webtest.TestApp(SingleUploadFileApp())
