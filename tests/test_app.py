@@ -12,7 +12,6 @@ import os
 import six
 import mock
 import webtest
-import warnings
 
 
 class TestApp(unittest.TestCase):
@@ -64,17 +63,6 @@ class TestApp(unittest.TestCase):
         resp.mustcontain('a=b', 'c=d')
         resp = self.app.get('/?a=b&c=d', dict(e='f'))
         resp.mustcontain('a=b', 'c=d', 'e=f')
-
-    def test_delete_params_warning(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            self.app.delete('/')
-            self.assertEqual(len(w), 0, "We should not have any warnings")
-            self.app.delete('/', params=dict(a=1))
-            self.assertEqual(len(w), 1, "We should have one warning")
-            self.assertTrue(
-                "DELETE" in str(w[-1].message),
-                "The warning message should say something about DELETE")
 
     def test_request_with_testrequest(self):
         req = webtest.TestRequest.blank('/')

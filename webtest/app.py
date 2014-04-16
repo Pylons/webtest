@@ -14,7 +14,6 @@ import re
 import json
 import random
 import fnmatch
-import warnings
 import mimetypes
 
 from base64 import b64encode
@@ -339,7 +338,7 @@ class TestApp(object):
                                  expect_errors=expect_errors,
                                  content_type=content_type)
 
-    def delete(self, url, params=utils.NoDefault, headers=None,
+    def delete(self, url, params='', headers=None,
                extra_environ=None, status=None, expect_errors=False,
                content_type=None, xhr=False):
         """
@@ -621,11 +620,6 @@ class TestApp(object):
         """
         Do a generic request.
         """
-
-        if method == 'DELETE' and params is not utils.NoDefault:
-            warnings.warn(('You are not supposed to send a body in a '
-                           'DELETE request. Most web servers will ignore it'),
-                          lint.WSGIWarning)
 
         environ = self._make_environ(extra_environ)
 
