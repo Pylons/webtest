@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from json import dumps
 import re
 import six
+from json import dumps
 from six.moves import html_parser
 
 from webtest.compat import urlencode
@@ -32,7 +32,7 @@ def json_method(method):
     def wrapper(self, url, params=NoDefault, **kw):
         content_type = 'application/json'
         if params is not NoDefault:
-            params = dumps(params)
+            params = dumps(params, cls=self.JSONEncoder)
         kw.update(
             params=params,
             content_type=content_type,

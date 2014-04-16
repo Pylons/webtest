@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 import re
-from json import dumps
+import json
 from .compat import unittest
 from webtest import utils
 
@@ -81,6 +81,7 @@ class json_methodTest(unittest.TestCase):
     class MockTestApp(object):
         """Mock TestApp used to test the json_object decorator."""
         from webtest.utils import json_method
+        JSONEncoder = json.JSONEncoder
         foo_json = json_method('FOO')
 
         def _gen_request(self, method, url, **kw):
@@ -100,7 +101,7 @@ class json_methodTest(unittest.TestCase):
         self.assertEquals(self.mock.foo_json('url', params={'a': 'b'}, c='c'),
                           ('FOO', 'url', {'content_type': 'application/json',
                                           'c': 'c',
-                                          'params': dumps({'a': 'b'}),
+                                          'params': json.dumps({'a': 'b'}),
                                           'upload_files': None}))
 
     def test_json_method_doc(self):

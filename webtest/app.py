@@ -9,13 +9,14 @@ Most interesting is TestApp
 """
 from __future__ import unicode_literals
 
-import cgi
-import fnmatch
-import mimetypes
 import os
-import random
 import re
+import cgi
+import json
+import random
+import fnmatch
 import warnings
+import mimetypes
 
 from base64 import b64encode
 
@@ -116,6 +117,8 @@ class TestApp(object):
 
     RequestClass = TestRequest
 
+    JSONEncoder = json.JSONEncoder
+
     def __init__(self, app, extra_environ=None, relative_to=None,
                  use_unicode=True, cookiejar=None, parser_features=None):
         if 'WEBTEST_TARGET_URL' in os.environ:
@@ -124,7 +127,7 @@ class TestApp(object):
             if app.startswith('http'):
                 try:
                     from wsgiproxy import HostProxy
-                except ImportError:
+                except ImportError:  # pragma: no cover
                     raise ImportError((
                         'Using webtest with a real url requires WSGIProxy2. '
                         'Please install it with: '

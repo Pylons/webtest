@@ -4,6 +4,8 @@ News
 2.0.15 (unreleased)
 -------------------
 
+- Fixed #92 You can now override TestApp.JSONEncoder to use a custom encoder
+
 - Fixed #93 Support basic authentication
 
 - Fixed #107 Explicit error message when WSGIProxy2 is not installer
