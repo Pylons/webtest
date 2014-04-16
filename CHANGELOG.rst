@@ -4,6 +4,8 @@ News
 2.0.15 (unreleased)
 -------------------
 
+- Fixed #93 Support basic authentication
+
 - Fixed #107 Explicit error message when WSGIProxy2 is not installer
 
 - Fixed #103 Broken "Edit me on GitHub" links in documentation
