@@ -4,13 +4,20 @@ News
 2.0.15 (unreleased)
 -------------------
 
+- Fixed #73. Python < 2.6.5 does not support unicode as keyword arguments names.
+  [Stepan Kolesnik]
+
 - Fixed #92 You can now override TestApp.JSONEncoder to use a custom encoder
+  [gawel]
 
 - Fixed #93 Support basic authentication
+  [gawel]
 
 - Fixed #107 Explicit error message when WSGIProxy2 is not installer
+  [gawel]
 
 - Fixed #103 Broken "Edit me on GitHub" links in documentation
+  [gawel]
 
 
 2.0.14 (2014-01-23)

@@ -2,6 +2,7 @@
 """Helpers to fill and submit forms."""
 
 import re
+import sys
 
 from bs4 import BeautifulSoup
 from webtest.compat import OrderedDict
@@ -444,6 +445,12 @@ class Form(object):
 
             FieldClass = self.FieldClass.classes.get(tag_type,
                                                      self.FieldClass)
+
+            # https://github.com/Pylons/webtest/issues/73
+            if sys.version_info[:2] <= (2, 6):
+                attrs = dict((k.encode('utf-8') if isinstance(k, unicode)
+                              else k, v) for k, v in attrs.items())
+
             if tag == 'input':
                 if tag_type == 'radio':
                     field = fields.get(name)
