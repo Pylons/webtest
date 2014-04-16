@@ -86,7 +86,7 @@ class StopableWSGIServer(TcpWSGIServer):
         """Run the server"""
         try:
             self.asyncore.loop(.5, map=self._map)
-        except select.error:
+        except select.error:  # pragma: no cover
             if not self.was_shutdown:
                 raise
 

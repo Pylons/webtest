@@ -146,8 +146,9 @@ class TestApp(object):
         self.extra_environ = extra_environ
         self.use_unicode = use_unicode
         self.cookiejar = cookiejar or http_cookiejar.CookieJar()
-        if parser_features:
-            self.RequestClass.ResponseClass.parser_features = parser_features
+        if parser_features is None:
+            parser_features = 'html.parser'
+        self.RequestClass.ResponseClass.parser_features = parser_features
 
     def get_authorization(self):
         """Allow to set the HTTP_AUTHORIZATION environ key. Value should looks

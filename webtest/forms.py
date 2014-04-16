@@ -426,7 +426,7 @@ class Form(object):
                 name = attrs.pop('name')
 
             if tag == 'textarea':
-                if node.text.startswith('\r\n'):
+                if node.text.startswith('\r\n'):  # pragma: no cover
                     text = node.text[2:]
                 elif node.text.startswith('\n'):
                     text = node.text[1:]

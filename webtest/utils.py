@@ -133,7 +133,8 @@ class _RequestCookieAdapter(object):
         # This is undocumented method that Python 3 cookielib uses
         return self.get_type()
 
-    def header_items(self):
+    def header_items(self):  # pragma: no cover
+        # This is unused on most python versions
         return self._request.headers.items()
 
 

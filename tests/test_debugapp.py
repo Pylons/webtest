@@ -43,6 +43,8 @@ class TestTesting(unittest.TestCase):
         self.assertEqual(res.headers['content-type'], 'text/plain')
         self.assertTrue(res.content_length > 0)
         self.assertEqual(res.body, to_bytes(''))
+        res = self.app.head('/', xhr=True)
+        self.assertEqual(res.status_int, 200)
 
     def test_post_unicode(self):
         res = self.app.post(

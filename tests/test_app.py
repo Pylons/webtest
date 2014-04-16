@@ -74,6 +74,9 @@ class TestApp(unittest.TestCase):
         resp = self.app.patch('/')
         self.assertIn('PATCH', resp)
 
+        resp = self.app.patch('/', xhr=True)
+        self.assertIn('PATCH', resp)
+
     def test_custom_headers(self):
         resp = self.app.post('/', headers={'Accept': 'text/plain'})
         resp.charset = 'ascii'
@@ -105,6 +108,14 @@ class TestStatus(unittest.TestCase):
     def test_check_status_none(self):
         self.assertEqual(self.check_status('200 Ok', None), None)
         self.assertRaises(webtest.AppError, self.check_status, '400 Ok')
+
+
+class TestParserFeature(unittest.TestCase):
+
+    def test_parser_features(self):
+        app = webtest.TestApp(debug_app, parser_features='custom')
+        self.assertEqual(app.RequestClass.ResponseClass.parser_features,
+                         'custom')
 
 
 class TestAppError(unittest.TestCase):
