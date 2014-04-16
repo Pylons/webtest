@@ -46,13 +46,16 @@ class TestApp(unittest.TestCase):
 
     def test_encode_multipart_content_type(self):
         data = self.app.encode_multipart(
-            [], [('file', 'data.txt', six.b('data'), 'text/x-custom-mime-type')])
-        self.assertIn(to_bytes('Content-Type: text/x-custom-mime-type'), data[-1])
+            [], [('file', 'data.txt', six.b('data'),
+                 'text/x-custom-mime-type')])
+        self.assertIn(to_bytes('Content-Type: text/x-custom-mime-type'),
+                      data[-1])
 
         data = self.app.encode_multipart(
             [('file', webtest.Upload('data.txt', six.b('data'),
                                      'text/x-custom-mime-type'))], [])
-        self.assertIn(to_bytes('Content-Type: text/x-custom-mime-type'), data[-1])
+        self.assertIn(to_bytes('Content-Type: text/x-custom-mime-type'),
+                      data[-1])
 
     def test_get_params(self):
         resp = self.app.get('/', 'a=b')
@@ -69,7 +72,8 @@ class TestApp(unittest.TestCase):
             self.assertEqual(len(w), 0, "We should not have any warnings")
             self.app.delete('/', params=dict(a=1))
             self.assertEqual(len(w), 1, "We should have one warning")
-            self.assertTrue("DELETE" in str(w[-1].message),
+            self.assertTrue(
+                "DELETE" in str(w[-1].message),
                 "The warning message should say something about DELETE")
 
     def test_request_with_testrequest(self):
@@ -86,7 +90,6 @@ class TestApp(unittest.TestCase):
         resp = self.app.post('/', headers={'Accept': 'text/plain'})
         resp.charset = 'ascii'
         assert 'HTTP_ACCEPT: text/plain' in resp.text
-
 
 
 class TestStatus(unittest.TestCase):
@@ -332,8 +335,7 @@ class TestEnviron(unittest.TestCase):
         self.assertIn("foo: 'baz'", res, res)
 
 
-deform_upload_fields_text = \
-"""
+deform_upload_fields_text = """
       <input type="hidden" name="_charset_" />
       <input type="hidden" name="__formid__" value="deform"/>
       <input type="text" name="title" value="" id="deformField1"/>
@@ -429,8 +431,8 @@ class TestFieldOrder(unittest.TestCase):
                         (uploaded_file_name, uploaded_file_contents))
         single_form.set("description", "testdescription")
         display = single_form.submit("Submit")
-        self.assertIn(
-"""_charset_:
+        self.assertIn("""
+_charset_:
 __formid__:deform
 title:testtitle
 __start__:fileupload:mapping
@@ -438,7 +440,7 @@ fileupload:test.txt:test content file upload
 __end__:fileupload:mapping
 description:testdescription
 Submit:Submit
-""", display, display)
+""".strip(), display, display)
 
     def test_post_with_file_upload(self):
         uploaded_file_name = 'test.txt'
@@ -447,7 +449,7 @@ Submit:Submit
             uploaded_file_contents = to_bytes(uploaded_file_contents)
 
         deform_upload_file_app = get_submit_app('deform',
-            deform_upload_fields_text)
+                                                deform_upload_fields_text)
         app = webtest.TestApp(deform_upload_file_app)
         display = app.post("/", OrderedDict([
             ('_charset_', ''),
@@ -460,15 +462,15 @@ Submit:Submit
             ('description', 'testdescription'),
             ('Submit', 'Submit')]))
 
-        self.assertIn(
-"""_charset_:
+        self.assertIn("""
+_charset_:
 __formid__:deform
 title:testtitle
 __start__:fileupload:mapping
 fileupload:test.txt:test content file upload
 __end__:fileupload:mapping
 description:testdescription
-Submit:Submit""", display, display)
+Submit:Submit""".strip(), display, display)
 
     def test_field_order_is_across_all_fields(self):
         fields = """
@@ -487,15 +489,15 @@ Submit:Submit""", display, display)
         get_res = app.get("/")
         # Submit the form with the second submit button.
         display = get_res.forms[0].submit('save', 1)
-        self.assertIn(
-"""letter:a
+        self.assertIn("""
+letter:a
 letter:b
 number:1
 letter:c
 number:2
 letter:d
 save:Save 2
-letter:e""", display, display)
+letter:e""".strip(), display, display)
 
 
 class TestFragments(unittest.TestCase):
@@ -588,6 +590,7 @@ class TestWSGIProxy(unittest.TestCase):
     def tearDown(self):
         self.s.shutdown()
 
+
 class TestAppXhrParam(unittest.TestCase):
 
     def setUp(self):
@@ -598,9 +601,9 @@ class TestAppXhrParam(unittest.TestCase):
         # FIXME: this test isn`t work for head request
         # now I don't know how to test head request
         functions = (app.get, app.post, app.delete,
-            app.put, app.options) #app.head
+                     app.put, app.options)  # app.head
         for func in functions:
             resp = func('/', xhr=True)
             resp.charset = 'ascii'
-            assert 'HTTP_X_REQUESTED_WITH: XMLHttpRequest' in resp.text, resp.text
-
+            self.assertIn('HTTP_X_REQUESTED_WITH: XMLHttpRequest',
+                          resp.text)
