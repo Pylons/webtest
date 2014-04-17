@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.15 (unreleased)
+2.0.15 (2014-04-17)
 -------------------
 
 - Fixed #73. Python < 2.6.5 does not support unicode as keyword arguments names.
