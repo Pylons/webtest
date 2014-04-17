@@ -111,14 +111,21 @@ class TestApp(object):
         Passed to BeautifulSoup when parsing responses.
     :type parser_features:
         string or list
+    :param json_encoder:
+        Passed to json.dumps when encoding json
+    :type json_encoder:
+        A subclass of json.JSONEncoder
+    :param lint:
+        If True (default) then check that the application is WSGI compliant
+    :type lint:
+        A boolean
     """
 
     RequestClass = TestRequest
 
-    JSONEncoder = json.JSONEncoder
-
     def __init__(self, app, extra_environ=None, relative_to=None,
-                 use_unicode=True, cookiejar=None, parser_features=None, lint=True):
+                 use_unicode=True, cookiejar=None, parser_features=None,
+                 json_encoder=None, lint=True):
         if 'WEBTEST_TARGET_URL' in os.environ:
             app = os.environ['WEBTEST_TARGET_URL']
         if isinstance(app, string_types):
@@ -150,6 +157,9 @@ class TestApp(object):
         if parser_features is None:
             parser_features = 'html.parser'
         self.RequestClass.ResponseClass.parser_features = parser_features
+        if json_encoder is None:
+            json_encoder = json.JSONEncoder
+        self.JSONEncoder = json_encoder
 
     def get_authorization(self):
         """Allow to set the HTTP_AUTHORIZATION environ key. Value should looks

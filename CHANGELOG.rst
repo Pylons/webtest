@@ -20,6 +20,9 @@ News
 - Fixed #103 Broken "Edit me on GitHub" links in documentation
   [gawel]
 
+- Fixed #106 Make wrapping the app in the lint middleware optional
+  [dmlayton]
+
 - Fixed #107 Explicit error message when WSGIProxy2 is not installer
   [gawel]
 
