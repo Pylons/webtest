@@ -118,7 +118,7 @@ class TestApp(object):
     JSONEncoder = json.JSONEncoder
 
     def __init__(self, app, extra_environ=None, relative_to=None,
-                 use_unicode=True, cookiejar=None, parser_features=None):
+                 use_unicode=True, cookiejar=None, parser_features=None, lint=True):
         if 'WEBTEST_TARGET_URL' in os.environ:
             app = os.environ['WEBTEST_TARGET_URL']
         if isinstance(app, string_types):
@@ -140,6 +140,7 @@ class TestApp(object):
                 # __file__
                 app = loadapp(app, relative_to=relative_to)
         self.app = app
+        self.lint = lint
         self.relative_to = relative_to
         if extra_environ is None:
             extra_environ = {}
@@ -534,7 +535,7 @@ class TestApp(object):
         self.cookiejar.add_cookie_header(utils._RequestCookieAdapter(req))
 
         # verify wsgi compatibility
-        app = lint.middleware(self.app)
+        app = lint.middleware(self.app) if self.lint else self.app
 
         ## FIXME: should it be an option to not catch exc_info?
         res = req.get_response(app, catch_exc_info=True)
