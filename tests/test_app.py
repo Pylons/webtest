@@ -293,6 +293,30 @@ class TestCookies(unittest.TestCase):
         self.assertEqual(res.request.environ['HTTP_COOKIE'], 'spam=eggs')
         self.assertEqual(dict(res.request.cookies), {'spam': 'eggs'})
 
+    def test_http_localhost_cookie(self):
+        def cookie_app(environ, start_response):
+            status = to_bytes("200 OK")
+            body = 'Cookie.'
+            headers = [
+                ('Content-Type', 'text/html'),
+                ('Content-Length', str(len(body))),
+                ('Set-Cookie',
+                 'spam=eggs; Domain=localhost;'),
+            ]
+            start_response(status, headers)
+            return [to_bytes(body)]
+
+        app = webtest.TestApp(cookie_app)
+        self.assertTrue(not app.cookies,
+                        'App should initially contain no cookies')
+
+        res = app.get('/')
+        res = app.get('/')
+        self.assertTrue(app.cookies,
+                        'Response should not have set cookies')
+        self.assertEqual(res.request.environ['HTTP_COOKIE'], 'spam=eggs')
+        self.assertEqual(dict(res.request.cookies), {'spam': 'eggs'})
+
 
 class TestEnviron(unittest.TestCase):
 

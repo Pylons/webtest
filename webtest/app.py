@@ -63,6 +63,23 @@ class AppError(Exception):
         Exception.__init__(self, message)
 
 
+class CookiePolicy(http_cookiejar.DefaultCookiePolicy):
+    """A subclass of DefaultCookiePolicy to allow cookie set for
+    Domain=localhost."""
+
+    def return_ok_domain(self, cookie, request):
+        if cookie.domain == '.localhost':
+            return True
+        return http_cookiejar.DefaultCookiePolicy.return_ok_domain(
+            self, cookie, request)
+
+    def set_ok_domain(self, cookie, request):
+        if cookie.domain == '.localhost':
+            return True
+        return http_cookiejar.DefaultCookiePolicy.set_ok_domain(
+            self, cookie, request)
+
+
 class TestRequest(webob.BaseRequest):
     """A subclass of webob.Request"""
     ResponseClass = TestResponse
@@ -153,7 +170,8 @@ class TestApp(object):
             extra_environ = {}
         self.extra_environ = extra_environ
         self.use_unicode = use_unicode
-        self.cookiejar = cookiejar or http_cookiejar.CookieJar()
+        self.cookiejar = cookiejar or http_cookiejar.CookieJar(
+            policy=CookiePolicy())
         if parser_features is None:
             parser_features = 'html.parser'
         self.RequestClass.ResponseClass.parser_features = parser_features

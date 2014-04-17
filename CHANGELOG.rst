@@ -7,6 +7,9 @@ News
 - Fixed #73. Python < 2.6.5 does not support unicode as keyword arguments names.
   [Stepan Kolesnik]
 
+- Fixed #84 Application cookies for localhost are no longer ignored
+  [gawel]
+
 - Fixed #89 remove WSGIWarning: You are not supposed to send a body in a DELETE
   request because we now have a good reason for that. See http://bit.ly/1tb3yxW
   [gawel]
