@@ -237,7 +237,9 @@ class Radio(Select):
     """Field representing ``<input type="radio">``"""
 
     def value__get(self):
-        if self.selectedIndex is not None:
+        if self._forced_value is not NoValue:
+            return self._forced_value
+        elif self.selectedIndex is not None:
             return self.options[self.selectedIndex][0]
         else:
             for option, checked, text in self.options:
