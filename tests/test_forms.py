@@ -176,6 +176,16 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form['foo'].value, 'bar')
         self.assertEqual(form.submit_fields(), [('foo', 'bar')])
 
+    def test_force_radio_input(self):
+        app = self.callFUT()
+        res = app.get('/form.html')
+
+        form = res.forms['radio_input_form']
+
+        form['foo'].force_value('fido')
+        self.assertEqual(form['foo'].value, 'fido')
+        self.assertEqual(form.submit_fields(), [('foo', 'fido')])
+
     def test_input_unicode(self):
         app = self.callFUT('form_unicode_inputs.html')
         res = app.get('/form.html')

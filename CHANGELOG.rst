@@ -4,7 +4,9 @@ News
 2.0.16 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fixed #110. Forced values for Radio inputs are no longer ignored by value
+  property on get.
+  [bayprogrammer]
 
 
 2.0.15 (2014-04-17)
