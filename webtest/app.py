@@ -530,7 +530,7 @@ class TestApp(object):
                                expect_errors=expect_errors,
                                )
 
-    def do_request(self, req, status, expect_errors):
+    def do_request(self, req, status=None, expect_errors=None):
         """
         Executes the given webob Request (``req``), with the expected
         ``status``.  Generally :meth:`~webtest.TestApp.get` and
