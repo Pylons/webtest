@@ -143,6 +143,7 @@ class TestApp(object):
     def __init__(self, app, extra_environ=None, relative_to=None,
                  use_unicode=True, cookiejar=None, parser_features=None,
                  json_encoder=None, lint=True):
+
         if 'WEBTEST_TARGET_URL' in os.environ:
             app = os.environ['WEBTEST_TARGET_URL']
         if isinstance(app, string_types):
@@ -224,6 +225,13 @@ class TestApp(object):
         saved cookies.
         """
         self.cookiejar.clear()
+
+    def set_parser_features(self, parser_features):
+        """
+        Changes the parser used by BeautifulSoup. See its documentation to
+        know the supported parsers.
+        """
+        self.RequestClass.ResponseClass.parser_features = parser_features
 
     def get(self, url, params=None, headers=None, extra_environ=None,
             status=None, expect_errors=False, xhr=False):
