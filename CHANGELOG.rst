@@ -8,6 +8,10 @@ News
   property on get.
   [bayprogrammer]
 
+- Added method TestApp.set_parser_features to change the parser_features used
+  by BeautifulSoup.
+  [tomasmoreyra]
+
 
 2.0.15 (2014-04-17)
 -------------------
