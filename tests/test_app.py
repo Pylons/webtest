@@ -166,6 +166,27 @@ class TestPasteVariables(unittest.TestCase):
 
 class TestCookies(unittest.TestCase):
 
+    def test_set_cookie(self):
+        def cookie_app(environ, start_response):
+            req = Request(environ)
+            self.assertEqual(req.cookies['foo'], 'bar')
+            self.assertEqual(req.cookies['fizz'], ';bar=baz')
+
+            status = to_bytes("200 OK")
+            body = ''
+            headers = [
+                ('Content-Type', 'text/html'),
+                ('Content-Length', str(len(body))),
+            ]
+            start_response(status, headers)
+            return [to_bytes(body)]
+
+        app = webtest.TestApp(cookie_app)
+        app.set_cookie('foo', 'bar')
+        app.set_cookie('fizz', ';bar=baz')  # Make sure we're escaping.
+        app.get('/')
+        app.reset()
+
     def test_preserves_cookies(self):
         def cookie_app(environ, start_response):
             req = Request(environ)
