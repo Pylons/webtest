@@ -15,7 +15,6 @@ import json
 import random
 import fnmatch
 import mimetypes
-import cookielib
 
 from base64 import b64encode
 
@@ -298,7 +297,7 @@ class TestApp(object):
         ))
 
         # Set the cookie
-        cookie = cookielib.Cookie(
+        cookie = http_cookiejar.Cookie(
             version=0,
             name=name,
             value=value,
