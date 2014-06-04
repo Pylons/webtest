@@ -28,7 +28,7 @@ from six.moves import http_cookiejar
 from webtest.compat import urlparse
 from webtest.compat import urlencode
 from webtest.compat import to_bytes
-from webtest.compat import COOKIE_ESCAPE_CHAR_MAP
+from webtest.compat import escape_cookie_value
 from webtest.response import TestResponse
 from webtest import forms
 from webtest import lint
@@ -224,7 +224,7 @@ class TestApp(object):
         Sets a cookie to be passed through with requests.
 
         """
-        value = self.escape_cookie(value)
+        value = escape_cookie_value(value)
         cookie = http_cookiejar.Cookie(
             version=0,
             name=name,
@@ -244,15 +244,6 @@ class TestApp(object):
             rest=None
         )
         self.cookiejar.set_cookie(cookie)
-
-    def escape_cookie(self, value):
-        """
-        Escapes a value so that it can be safely stored in a cookie.
-
-        """
-        return str(''.join(
-            COOKIE_ESCAPE_CHAR_MAP.get(x, x) for x in value
-        ))
 
     def reset(self):
         """

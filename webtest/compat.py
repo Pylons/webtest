@@ -40,6 +40,17 @@ try:
 except ImportError:  # pragma: no cover
     from ordereddict import OrderedDict  # noqa
 
+
+def escape_cookie_value(value):
+    """
+    Escapes a value so that it can be safely stored in a cookie.
+
+    """
+    return str(''.join(
+        COOKIE_ESCAPE_CHAR_MAP.get(x, x) for x in value
+    ))
+
+
 # A list of illegal characters in a cookie and the escaped equivalent.
 # Taken from Python's cookie module.
 COOKIE_ESCAPE_CHAR_MAP = {
@@ -106,5 +117,3 @@ COOKIE_ESCAPE_CHAR_MAP = {
     '\372' : '\\372',  '\373' : '\\373',  '\374' : '\\374',
     '\375' : '\\375',  '\376' : '\\376',  '\377' : '\\377'
     }
-
-
