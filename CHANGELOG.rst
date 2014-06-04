@@ -12,6 +12,9 @@ News
   by BeautifulSoup.
   [tomasmoreyra]
 
+- added app.set_sookie
+  [luhn]
+
 
 2.0.15 (2014-04-17)
 -------------------
