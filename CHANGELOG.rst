@@ -12,7 +12,7 @@ News
   by BeautifulSoup.
   [tomasmoreyra]
 
-- added app.set_sookie
+- Added app.cet_sookie
   [luhn]
 
 
