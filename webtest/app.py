@@ -28,6 +28,7 @@ from six.moves import http_cookiejar
 from webtest.compat import urlparse
 from webtest.compat import urlencode
 from webtest.compat import to_bytes
+from webtest.compat import escape_cookie_value
 from webtest.response import TestResponse
 from webtest import forms
 from webtest import lint
@@ -218,6 +219,32 @@ class TestApp(object):
     @property
     def cookies(self):
         return dict([(cookie.name, cookie.value) for cookie in self.cookiejar])
+
+    def set_cookie(self, name, value):
+        """
+        Sets a cookie to be passed through with requests.
+
+        """
+        value = escape_cookie_value(value)
+        cookie = http_cookiejar.Cookie(
+            version=0,
+            name=name,
+            value=value,
+            port=None,
+            port_specified=False,
+            domain='.localhost',
+            domain_specified=True,
+            domain_initial_dot=False,
+            path='/',
+            path_specified=True,
+            secure=False,
+            expires=None,
+            discard=False,
+            comment=None,
+            comment_url=None,
+            rest=None
+        )
+        self.cookiejar.set_cookie(cookie)
 
     def reset(self):
         """
