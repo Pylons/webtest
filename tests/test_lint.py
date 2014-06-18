@@ -112,8 +112,8 @@ class TestMiddleware2(unittest.TestCase):
         def application_exc_info(environ, start_response):
             body = to_bytes('body stuff')
             headers = [
-                ('Content-Type', 'text/plain; charset=utf-8'),
-                ('Content-Length', str(len(body)))]
+                (b'Content-Type', b'text/plain; charset=utf-8'),
+                (b'Content-Length', str(len(body)))]
             start_response(to_bytes('200 OK'), headers, ('stuff',))
             return [body]
 
@@ -126,15 +126,15 @@ class TestCheckContentType(unittest.TestCase):
     def test_no_content(self):
         status = "204 No Content"
         headers = [
-            ('Content-Type', 'text/plain; charset=utf-8'),
-            ('Content-Length', '4')
+            (b'Content-Type', b'text/plain; charset=utf-8'),
+            (b'Content-Length', b'4')
         ]
         self.assertRaises(AssertionError, check_content_type, status, headers)
 
     def test_no_content_type(self):
         status = "200 OK"
         headers = [
-            ('Content-Length', '4')
+            (b'Content-Length', b'4')
         ]
         self.assertRaises(AssertionError, check_content_type, status, headers)
 
@@ -148,6 +148,9 @@ class TestCheckHeaders(unittest.TestCase):
     @unittest.skipIf(not PY3, 'Useless in Python2')
     def test_header_unicode_name(self):
         self.assertRaises(AssertionError, check_headers, [('X-€', 'foo')])
+
+    def test_header_unicode_name_value(self):
+        self.assertRaises(AssertionError, check_headers, [('Content-Type', 'bar')])
 
 
 class TestCheckEnviron(unittest.TestCase):

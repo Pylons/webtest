@@ -318,8 +318,8 @@ def select_app(environ, start_response):
 """ % dict(selection=selection, select_type=select_type))
 
     headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
+        (b'Content-Type', b'text/html; charset=utf-8'),
+        (b'Content-Length', str(len(body)))]
     start_response(status, headers)
     return [body]
 
@@ -370,8 +370,8 @@ def select_app_without_values(environ, start_response):
 """ % dict(selection=selection, select_type=select_type))
 
     headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
+        (b'Content-Type', b'text/html; charset=utf-8'),
+        (b'Content-Length', str(len(body)))]
     start_response(status, headers)
     return [body]
 
@@ -422,8 +422,8 @@ def select_app_without_default(environ, start_response):
 """ % dict(selection=selection, select_type=select_type))
 
     headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
+        (b'Content-Type', b'text/html; charset=utf-8'),
+        (b'Content-Length', str(len(body)))]
     start_response(status, headers)
     return [body]
 
@@ -473,8 +473,8 @@ def select_app_unicode(environ, start_response):
 </html>
 """) % dict(selection=selection, select_type=select_type)).encode('utf8')
     headers = [
-        ('Content-Type', 'text/html; charset=utf-8'),
-        ('Content-Length', str(len(body)))]
+        (b'Content-Type', b'text/html; charset=utf-8'),
+        (b'Content-Length', str(len(body)))]
     start_response(status, headers)
     if not isinstance(body, binary_type):
         raise AssertionError('Body is not %s' % binary_type)
@@ -751,8 +751,8 @@ class SingleUploadFileApp(object):
 </html>
 """
         headers = [
-            ('Content-Type', 'text/html; charset=utf-8'),
-            ('Content-Length', str(len(body)))]
+            (b'Content-Type', b'text/html; charset=utf-8'),
+            (b'Content-Length', str(len(body)))]
         start_response(status, headers)
         assert(isinstance(body, binary_type))
         return [body]
