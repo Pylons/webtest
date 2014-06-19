@@ -149,6 +149,7 @@ class TestCheckHeaders(unittest.TestCase):
     def test_header_unicode_name(self):
         self.assertRaises(AssertionError, check_headers, [('X-€', 'foo')])
 
+    @unittest.skipIf(PY3, 'Useless in Python3')
     def test_header_unicode_name_value(self):
         self.assertRaises(AssertionError, check_headers, [('Content-Type', 'bar')])
 
