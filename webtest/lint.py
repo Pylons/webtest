@@ -455,9 +455,10 @@ def check_headers(headers):
             "Bad header value: %r (bad char: %r)"
             % (str_value, bad_header_value_re.search(str_value).group(0)))
 
-        assert isinstance(value, binary_type), (
-            "Header %r has a non-%r object: %r" % (name, binary_type, value)
-        )
+        if not PY3:
+            assert isinstance(value, binary_type), (
+                "Header %r has a non-%r object: %r" % (name, binary_type, value)
+            )
 
 
 def check_content_type(status, headers):
