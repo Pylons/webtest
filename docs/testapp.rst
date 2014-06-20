@@ -146,6 +146,7 @@ you are testing is something you should avoid).
 
 To indicate another status is expected, use the keyword argument
 ``status=404`` to (for example) check that it is a 404 status, or
-``status="*"`` to allow any status.
+``status="*"`` to allow any status, or ``status="400 Custom Bad Request"``
+to use custom reason phrase.
 
 If you expect errors to be printed, use ``expect_errors=True``.
