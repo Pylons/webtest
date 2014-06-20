@@ -643,6 +643,9 @@ class TestApp(object):
         if (isinstance(status, string_types) and '*' in status):
             if re.match(fnmatch.translate(status), res_status, re.I):
                 return
+        if isinstance(status, string_types):
+            if status == res_status:
+                return
         if isinstance(status, (list, tuple)):
             if res.status_int not in status:
                 raise AppError(

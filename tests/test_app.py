@@ -109,6 +109,13 @@ class TestStatus(unittest.TestCase):
         self.assertEqual(self.check_status('200 Ok', None), None)
         self.assertRaises(webtest.AppError, self.check_status, '400 Ok')
 
+    def test_check_status_with_custom_reason(self):
+        self.assertEqual(self.check_status('200 Ok', '200 Ok'), None)
+        self.assertRaises(webtest.AppError,
+                          self.check_status, '200 Ok', '200 Good Response')
+        self.assertRaises(webtest.AppError,
+                          self.check_status, '200 Ok', '400 Bad Request')
+
 
 class TestParserFeature(unittest.TestCase):
 
