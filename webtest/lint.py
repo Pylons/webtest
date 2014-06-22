@@ -456,6 +456,9 @@ def check_headers(headers):
             % (str_value, bad_header_value_re.search(str_value).group(0)))
 
         if not PY3:
+            assert isinstance(name, binary_type), (
+                "Header %r has a non-%r object: %r" % (name, binary_type, name)
+            )
             assert isinstance(value, binary_type), (
                 "Header %r has a non-%r object: %r" % (name, binary_type, value)
             )
