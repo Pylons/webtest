@@ -12,7 +12,7 @@ News
   by BeautifulSoup.
   [tomasmoreyra]
 
-- Added app.cet_sookie
+- Added app.set_cookie
   [luhn]
 
 
