@@ -46,9 +46,9 @@ def escape_cookie_value(value):
     Escapes a value so that it can be safely stored in a cookie.
 
     """
-    return str(''.join(
+    return '"' + ''.join(
         COOKIE_ESCAPE_CHAR_MAP.get(x, x) for x in value
-    ))
+    ) + '"'
 
 
 # A list of illegal characters in a cookie and the escaped equivalent.
