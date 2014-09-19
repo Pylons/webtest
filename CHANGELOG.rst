@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.16 (unreleased)
+2.0.16 (2014-09-19)
 -------------------
 
 - Fixed #110. Forced values for Radio inputs are no longer ignored by value
