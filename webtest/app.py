@@ -172,8 +172,9 @@ class TestApp(object):
             extra_environ = {}
         self.extra_environ = extra_environ
         self.use_unicode = use_unicode
-        self.cookiejar = cookiejar or http_cookiejar.CookieJar(
-            policy=CookiePolicy())
+        if cookiejar is None:
+            cookiejar = http_cookiejar.CookieJar(policy=CookiePolicy())
+        self.cookiejar = cookiejar
         if parser_features is None:
             parser_features = 'html.parser'
         self.RequestClass.ResponseClass.parser_features = parser_features

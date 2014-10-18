@@ -173,6 +173,11 @@ class TestPasteVariables(unittest.TestCase):
 
 class TestCookies(unittest.TestCase):
 
+    def test_supports_providing_cookiejar(self):
+        cookiejar = six.moves.http_cookiejar.CookieJar()
+        app = webtest.TestApp(debug_app, cookiejar=cookiejar)
+        self.assertIs(cookiejar, app.cookiejar)
+
     def test_set_cookie(self):
         def cookie_app(environ, start_response):
             req = Request(environ)
