@@ -46,7 +46,7 @@ class DebugApp(object):
 
             body = ''.join(parts)
             if not isinstance(body, six.binary_type):
-                body = body.encode('ascii')
+                body = body.encode('latin1')
 
             if req.content_length:
                 body += six.b('-- Body ----------\n')
