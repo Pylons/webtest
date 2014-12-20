@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.17 (unreleased)
+2.0.17 (2014-12-20)
 -------------------
 
 - Properly check for default cookiejar arguments
