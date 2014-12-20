@@ -4,7 +4,11 @@ News
 2.0.17 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Properly check for default cookiejar arguments
+  [Julian Berman]
+
+- Avoid raising encoding errors from debugapp (needed to use with WSGIProxy2)
+  [Laurence Rowe]
 
 
 2.0.16 (2014-09-19)
