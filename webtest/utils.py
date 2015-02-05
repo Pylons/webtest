@@ -2,12 +2,8 @@
 import re
 import six
 from json import dumps
-from six.moves import html_parser
 
 from webtest.compat import urlencode
-
-
-unescape_html = html_parser.HTMLParser().unescape
 
 
 class NoDefault(object):
