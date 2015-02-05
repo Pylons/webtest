@@ -3,7 +3,7 @@ include =
     */webtest/*.py
 omit =
     */tests*
-    */docs/conf.py
+    */docs/*.py
     */site-packages*
     */lib/python*
     */lib-python*
