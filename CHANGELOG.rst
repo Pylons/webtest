@@ -4,7 +4,7 @@ News
 2.0.18 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Avoid deprecation warning with py3.4
 
 
 2.0.17 (2014-12-20)
