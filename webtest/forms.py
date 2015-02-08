@@ -452,6 +452,12 @@ class Form(object):
                 attrs = dict((k.encode('utf-8') if isinstance(k, unicode)
                               else k, v) for k, v in attrs.items())
 
+            # https://github.com/Pylons/webtest/issues/131
+            reserved_attributes = ('form', 'tag', 'pos')
+            for attr in reserved_attributes:
+                if attr in attrs:
+                    del attrs[attr]
+
             if tag == 'input':
                 if tag_type == 'radio':
                     field = fields.get(name)
