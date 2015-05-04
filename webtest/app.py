@@ -100,7 +100,7 @@ class TestApp(object):
 
         It can also be an actual full URL to an http server and webtest
         will proxy requests with `WSGIProxy2
-        <https://pypi.python.org/pypi/WSGIProxy2/0.4.2>`_.
+        <https://pypi.python.org/pypi/WSGIProxy2/>`_.
     :type app:
         WSGI application
     :param extra_environ:
