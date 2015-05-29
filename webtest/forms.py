@@ -167,7 +167,7 @@ class MultipleSelect(Field):
         self.options = []
         # Undetermined yet:
         self.selectedIndices = []
-        self._forced_values = []
+        self._forced_values = NoValue
 
     def force_value(self, values):
         """Like setting a value, except forces it (even for, say, hidden
@@ -215,21 +215,16 @@ class MultipleSelect(Field):
                    ', '.join([repr(o) for o, c, t in self.options])))
 
     def value__get(self):
-        selected_values = []
-        if self.selectedIndices:
-            selected_values = [self.options[i][0]
-                               for i in self.selectedIndices]
-        elif not self._forced_values:
+        if self._forced_values is not NoValue:
+            return self._forced_values
+        elif self.selectedIndices:
+            return [self.options[i][0] for i in self.selectedIndices]
+        else:
             selected_values = []
             for option, checked, text in self.options:
                 if checked:
                     selected_values.append(option)
-        if self._forced_values:
-            selected_values += self._forced_values
-
-        if self.options and (not selected_values):
-            selected_values = None
-        return selected_values
+            return selected_values if selected_values else None
     value = property(value__get, value__set)
 
 
