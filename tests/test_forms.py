@@ -720,6 +720,20 @@ class TestSelect(unittest.TestCase):
         display = multiple_form.submit("button")
         self.assertIn("<p>You selected Nine, Ten</p>", display, display)
 
+    def test_multiple_select_reset_value(self):
+        app = webtest.TestApp(select_app_without_values)
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'],
+                         'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
+
+        multiple_form = res.forms["multiple_select_form"]
+        self.assertEqual(multiple_form["multiple"].value, ["Nine", "Eleven"])
+        multiple_form["multiple"].force_value(None)
+        self.assertIsNone(multiple_form["multiple"].value)
+        display = multiple_form.submit("button")
+        self.assertIn("<p>You selected </p>", display, display)
 
 class SingleUploadFileApp(object):
 
