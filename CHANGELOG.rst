@@ -4,8 +4,13 @@ News
 2.0.19 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- fixed #131 prevent passing HTML parameters that conflict with Field kwargs
 
+- fixed #135 Document that WSGIProxy2 is required for "using webtest with a real url"
+
+- fixed #136 reset values of select multiple
+
+- drop py32 support (still work but test dependencies fail)
 
 2.0.18 (2015-02-05)
 -------------------
