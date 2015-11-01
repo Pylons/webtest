@@ -2,6 +2,6 @@ graft docs
 prune docs/_build
 graft webtest
 graft tests
-include *.rst *.cfg *.ini
+include *.rst *.cfg *.ini .coveragerc
 global-exclude *.pyc
 global-exclude __pycache__
