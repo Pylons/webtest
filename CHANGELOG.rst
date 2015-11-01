@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.19 (unreleased)
+2.0.19 (2015-11-01)
 -------------------
 
 - fixed #131 prevent passing HTML parameters that conflict with Field kwargs
