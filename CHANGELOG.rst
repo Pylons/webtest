@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.20 (unreleased)
+2.0.20 (2015-11-03)
 -------------------
 
 - nothing new release. just try to make wheel available on pypi
