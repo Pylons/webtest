@@ -62,7 +62,9 @@ setup(name='WebTest',
       test_suite='nose.collector',
       tests_require=tests_require,
       extras_require={
+          ':python_version=="2.6"': ['ordereddict'],
           'tests': tests_require,
+          'tests:python_version=="2.6"': ['unittest2'],
       },
       entry_points="""
       [paste.app_factory]
