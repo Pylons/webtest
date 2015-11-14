@@ -104,6 +104,13 @@ class json_methodTest(unittest.TestCase):
                                           'params': json.dumps({'a': 'b'}),
                                           'upload_files': None}))
 
+    def test_json_method_request_respects_content_type_argument(self):
+        self.assertEquals(self.mock.foo_json('url', params={'a': 'b'}, c='c', content_type='application/vnd.api+json;charset=utf-8'),
+                          ('FOO', 'url', {'content_type': 'application/vnd.api+json;charset=utf-8',
+                                          'c': 'c',
+                                          'params': json.dumps({'a': 'b'}),
+                                          'upload_files': None}))
+
     def test_json_method_doc(self):
         self.assertIn('FOO request', self.mock.foo_json.__doc__)
         self.assertIn('TestApp.foo', self.mock.foo_json.__doc__)

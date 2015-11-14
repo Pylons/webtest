@@ -26,12 +26,11 @@ def json_method(method):
     """
 
     def wrapper(self, url, params=NoDefault, **kw):
-        content_type = 'application/json'
+        kw.setdefault('content_type', 'application/json')
         if params is not NoDefault:
             params = dumps(params, cls=self.JSONEncoder)
         kw.update(
             params=params,
-            content_type=content_type,
             upload_files=None,
         )
         return self._gen_request(method, url, **kw)
