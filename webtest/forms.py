@@ -603,6 +603,8 @@ class Form(object):
         fields = self.submit_fields(name, index=index, submit_value=value)
         if self.method.upper() != "GET":
             args.setdefault("content_type",  self.enctype)
+        extra_environ = args.setdefault('extra_environ', {})
+        extra_environ.setdefault('HTTP_REFERER', str(self.response.request.url))
         return self.response.goto(self.action, method=self.method,
                                   params=fields, **args)
 

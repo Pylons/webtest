@@ -269,6 +269,10 @@ class TestResponse(unittest.TestCase):
         self.assertIn('Referer', resp.request.headers)
         self.assertEqual(resp.request.headers['Referer'], 'http://localhost/')
 
+        resp = app.get('/one_forms/').form.submit()
+        self.assertIn('Referer', resp.request.headers)
+        self.assertEqual(resp.request.headers['Referer'], 'http://localhost/one_forms/')
+
     def test_xml_attribute(self):
         app = webtest.TestApp(links_app)
 
