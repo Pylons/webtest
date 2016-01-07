@@ -21,6 +21,8 @@ tests_require = [
 
 if sys.version_info[0:2] < (2, 7):
     install_requires.append('ordereddict')
+
+if sys.version_info[0:2] <= (2, 7):
     tests_require.append('unittest2')
 else:
     tests_require.append('unittest2py3k')
