@@ -161,6 +161,8 @@ class TestResponse(webob.Response):
             id=linkid,
             href_pattern=href,
             index=index, verbose=verbose)
+        extra_environ = extra_environ or {}
+        extra_environ.setdefault('HTTP_REFERER', str(self.request.url))
         return self.goto(str(found_attrs['uri']), extra_environ=extra_environ)
 
     def clickbutton(self, description=None, buttonid=None, href=None,
@@ -178,7 +180,8 @@ class TestResponse(webob.Response):
             id=buttonid,
             href_pattern=href,
             index=index, verbose=verbose)
-        return self.goto(str(found_attrs['uri']))
+        extra_environ = {'HTTP_REFERER': str(self.request.url)}
+        return self.goto(str(found_attrs['uri']), extra_environ=extra_environ)
 
     def _find_element(self, tag, href_attr, href_extract,
                       content, id,

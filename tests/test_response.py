@@ -259,6 +259,16 @@ class TestResponse(unittest.TestCase):
             app.get('/').clickbutton, buttonid='button3'
         )
 
+    def test_referer(self):
+        app = webtest.TestApp(links_app)
+        resp = app.get('/').click('Foo')
+        self.assertIn('Referer', resp.request.headers)
+        self.assertEqual(resp.request.headers['Referer'], 'http://localhost/')
+
+        resp = app.get('/').clickbutton(buttonid='button1')
+        self.assertIn('Referer', resp.request.headers)
+        self.assertEqual(resp.request.headers['Referer'], 'http://localhost/')
+
     def test_xml_attribute(self):
         app = webtest.TestApp(links_app)
 
