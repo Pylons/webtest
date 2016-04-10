@@ -206,7 +206,7 @@ class TestApp(object):
                     val = b64encode(to_bytes(val)).strip()
                     val = val.decode('latin1')
                 elif authtype == 'Bearer' and val and \
-                        isinstance(val, text_type):
+                        isinstance(val, (str, text_type)):
                     val = val.strip()
                 else:
                     raise ValueError(invalid_value)
