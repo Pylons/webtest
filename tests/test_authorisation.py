@@ -33,9 +33,27 @@ class TestAuthorization(unittest.TestCase):
         app.authorization = None
         self.assertNotIn('HTTP_AUTHORIZATION', app.extra_environ)
 
+    def test_bearer_authorization(self):
+        app = self.callFUT()
+        authorization = ('Bearer', '2588409761fcfa3e378bff4fb766e2e2')
+        app.authorization = authorization
+
+        self.assertIn('HTTP_AUTHORIZATION', app.extra_environ)
+        self.assertEquals(app.authorization, authorization)
+
+        resp = app.get('/')
+        resp.mustcontain('HTTP_AUTHORIZATION: Bearer 2588409761fcfa3e378bff4fb766e2e2')
+        header = resp.request.environ['HTTP_AUTHORIZATION']
+        self.assertTrue(header.startswith('Bearer '))
+
+        app.authorization = None
+        self.assertNotIn('HTTP_AUTHORIZATION', app.extra_environ)
+
     def test_invalid(self):
         app = self.callFUT()
         self.assertRaises(ValueError, app.set_authorization, ())
         self.assertRaises(ValueError, app.set_authorization, '')
         self.assertRaises(ValueError, app.set_authorization, ('Basic', ''))
         self.assertRaises(ValueError, app.set_authorization, ('Basic', ()))
+        self.assertRaises(ValueError, app.set_authorization, ('Bearer', ()))
+        self.assertRaises(ValueError, app.set_authorization, ('Bearer', []))
