@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 
 import os
 import re
+import sys
 import json
 import random
 import fnmatch
@@ -195,7 +196,7 @@ class TestApp(object):
         self.authorization_value = value
         if value is not None:
             invalid_value = (
-                "You should use a value like ('Basic', ('user', 'password'))"
+                "You should use a value like ('Basic', ('user', 'password')) OR ('Bearer', 'token')"
             )
             if isinstance(value, (list, tuple)) and len(value) == 2:
                 authtype, val = value
@@ -204,8 +205,17 @@ class TestApp(object):
                     val = ':'.join(list(val))
                     val = b64encode(to_bytes(val)).strip()
                     val = val.decode('latin1')
-                elif authtype == 'Bearer' and val and isinstance(val, (str, unicode)):
-                    val = val.strip()
+                elif authtype == 'Bearer':
+                    if sys.version_info >= (3, 0, 0):
+                        if val and isinstance(val, str):
+                            val = val.strip()
+                        else:
+                            raise ValueError(invalid_value)
+                    else:
+                        if val and isinstance(val, (str, unicode)):
+                            val = val.strip()
+                        else:
+                            raise ValueError(invalid_value)
                 else:
                     raise ValueError(invalid_value)
                 value = str('%s %s' % (authtype, val))
