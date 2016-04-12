@@ -4,8 +4,12 @@ News
 2.0.21 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- PR #154 Allow Bearer auth
 
+- PR #147,#148 Take care of REFERER when using form.submit(), .click() and
+  .clickbutton()
+
+- PR #145 Allow to override content-type when using json methods
 
 2.0.20 (2015-11-03)
 -------------------
