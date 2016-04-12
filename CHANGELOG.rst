@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.21 (unreleased)
+2.0.21 (2016-04-12)
 -------------------
 
 - PR #154 Allow Bearer auth
