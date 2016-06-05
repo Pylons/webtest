@@ -8,4 +8,4 @@ requests to that application, without starting up an HTTP server.
 This provides convenient full-stack testing of applications written
 with any WSGI-compatible framework.
 
-Full docs can be found at https://webtest.readthedocs.org/en/latest/
+Full docs can be found at https://webtest.readthedocs.io/en/latest/
