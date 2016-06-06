@@ -29,8 +29,8 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.intersphi
 
 intersphinx_mapping = {
     'python': ('http://docs.python.org/2.7', None),
-    'webob': ('https://webob.readthedocs.org/en/latest', None),
-    'waitrress': ('https://waitress.readthedocs.org/en/latest', None),
+    'webob': ('https://webob.readthedocs.io/en/latest', None),
+    'waitrress': ('https://waitress.readthedocs.io/en/latest', None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
