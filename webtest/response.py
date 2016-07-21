@@ -359,7 +359,7 @@ class TestResponse(webob.Response):
             raise TypeError(
                 "The only keyword argument allowed is 'no'")
         for s in strings:
-            if not s in self:
+            if s not in self:
                 print_stderr("Actual response (no %r):" % s)
                 print_stderr(str(self))
                 raise IndexError(
@@ -426,7 +426,11 @@ class TestResponse(webob.Response):
             raise AttributeError(
                 "Not an HTML response body (content-type: %s)"
                 % self.content_type)
-        soup = BeautifulSoup(self.testbody, self.parser_features)
+        if self.charset:
+            soup = BeautifulSoup(self.testbody, self.parser_features,
+                                 from_encoding=self.charset)
+        else:
+            soup = BeautifulSoup(self.testbody, self.parser_features)
         return soup
 
     @property
@@ -484,7 +488,7 @@ class TestResponse(webob.Response):
             from lxml.html import fromstring
         except ImportError:  # pragma: no cover
             fromstring = etree.HTML
-        ## FIXME: would be nice to set xml:base, in some fashion
+        # FIXME: would be nice to set xml:base, in some fashion
         if self.content_type == 'text/html':
             return fromstring(self.testbody, base_url=self.request.url)
         else:
