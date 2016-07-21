@@ -4,8 +4,7 @@ News
 2.0.22 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+-  Fix #160: Do not guess encoding if response's charset is set.
 
 2.0.21 (2016-04-12)
 -------------------
