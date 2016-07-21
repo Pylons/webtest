@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.23 (unreleased)
+2.0.23 (2016-07-21)
 -------------------
 
 - Create universal wheels.
