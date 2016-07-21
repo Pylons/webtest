@@ -4,7 +4,7 @@ News
 2.0.23 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Create universal wheels.
 
 
 2.0.22 (2016-07-21)
