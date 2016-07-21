@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.22 (unreleased)
+2.0.22 (2016-07-21)
 -------------------
 
 -  Fix #160: Do not guess encoding if response's charset is set.
