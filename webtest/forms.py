@@ -400,11 +400,7 @@ class Form(object):
     def __init__(self, response, text, parser_features='html.parser'):
         self.response = response
         self.text = text
-        if response and response.charset:
-            self.html = BeautifulSoup(self.text, parser_features,
-                                      from_encoding=response.charset)
-        else:
-            self.html = BeautifulSoup(self.text, parser_features)
+        self.html = BeautifulSoup(self.text, parser_features)
 
         attrs = self.html('form')[0].attrs
         self.action = attrs.get('action', '')

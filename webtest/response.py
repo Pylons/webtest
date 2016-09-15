@@ -74,7 +74,7 @@ class TestResponse(webob.Response):
 
     def _parse_forms(self):
         forms_ = self._forms_indexed = {}
-        form_texts = [str(f) for f in self.html('form')]
+        form_texts = [text_type(f) for f in self.html('form')]
         for i, text in enumerate(form_texts):
             form = forms.Form(self, text, self.parser_features)
             forms_[i] = form
@@ -426,11 +426,7 @@ class TestResponse(webob.Response):
             raise AttributeError(
                 "Not an HTML response body (content-type: %s)"
                 % self.content_type)
-        if self.charset:
-            soup = BeautifulSoup(self.testbody, self.parser_features,
-                                 from_encoding=self.charset)
-        else:
-            soup = BeautifulSoup(self.testbody, self.parser_features)
+        soup = BeautifulSoup(self.testbody, self.parser_features)
         return soup
 
     @property
