@@ -10,10 +10,10 @@ To make a request, use:
 
     app.get('/path', [params], [headers], [extra_environ], ...)
 
-This call to :meth:`~webtest.TestApp.get` does a request for
+This call to :meth:`~webtest.app.TestApp.get` does a request for
 ``/path``, with any params, extra headers or WSGI
 environment keys that you indicate.  This returns a
-:class:`~webtest.TestResponse` object,
+:class:`~webtest.response.TestResponse` object,
 based on :class:`webob.response.Response`.  It has some
 additional methods to make it easier to test.
 
@@ -24,7 +24,7 @@ If you want to do a POST request, use:
     app.post('/path', {'vars': 'values'}, [headers], [extra_environ],
              [upload_files], ...)
 
-Specifically the second argument of :meth:`~webtest.TestApp.post`
+Specifically the second argument of :meth:`~webtest.app.TestApp.post`
 is the *body* of the request.  You
 can pass in a dictionary (or dictionary-like object), or a string
 body (dictionary objects are turned into HTML form submissions).
@@ -33,8 +33,8 @@ You can also pass in the keyword argument upload_files, which is a
 list of ``[(fieldname, filename, field_content)]``.  File uploads use a
 different form submission data type to pass the structured data.
 
-You can use :meth:`~webtest.TestApp.put` and
-:meth:`~webtest.TestApp.delete` for PUT and DELETE requests.
+You can use :meth:`~webtest.app.TestApp.put` and
+:meth:`~webtest.app.TestApp.delete` for PUT and DELETE requests.
 
 
 Making JSON Requests
@@ -45,10 +45,10 @@ Webtest provide some facilities to test json apis.
 The ``*_json`` methods will transform data to json before ``POST``/``PUT`` and
 add the correct ``Content-Type`` for you.
 
-Also Response have an attribute ``.json`` to allow you to retrieve json
+Also Response have an attribute :attr:`~webtest.response.TestResponse.json` to allow you to retrieve json
 contents as a python dict.
 
-Doing *POST* request with :meth:`webtest.TestApp.post_json`:
+Doing *POST* request with :meth:`webtest.app.TestApp.post_json`:
 
 .. code-block:: python
 
@@ -63,7 +63,7 @@ Doing *POST* request with :meth:`webtest.TestApp.post_json`:
     True
 
 
-Doing *GET* request with :meth:`webtest.TestApp.get` and using :attr:`webtest.response.json`:
+Doing *GET* request with :meth:`webtest.app.TestApp.get` and using :attr:`~webtest.response.TestResponse.json`:
 
 To just parse body of the response, use Response.json:
 
