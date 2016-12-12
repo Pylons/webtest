@@ -107,7 +107,7 @@ Or response's body::
     >>> resp.mustcontain('<html>')
     >>> assert 'form' in resp
 
-WebTest can do much more. In particular, it can handle :doc:`forms` and :doc:`json`.
+WebTest can do much more. In particular, it can handle :doc:`forms`.
 
 
 Contents
