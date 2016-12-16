@@ -20,10 +20,10 @@ def application(environ, start_response):
         body = six.b('<xml><message>hey!</message></xml>')
     elif req.path_info.endswith('.json'):
         content_type = 'application/json'
-        body = json.dumps({"a": 1, "b": 2})
+        body = six.b(json.dumps({"a": 1, "b": 2}))
     elif '/resource/' in req.path_info:
         content_type = 'application/json'
-        body = json.dumps(dict(id=1, value='value'))
+        body = six.b(json.dumps(dict(id=1, value='value')))
     resp = Response(body, content_type=content_type)
     return resp(environ, start_response)
 
