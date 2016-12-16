@@ -6,6 +6,12 @@ News
 
 - Drop python 2.6 support. Newer versions may still work if you use waitress < 1.0
 
+- Remove bs4 warnings
+
+- Docs improvments
+
+- Tets are WebOb 1.7.x compatible
+
 
 2.0.23 (2016-07-21)
 -------------------
