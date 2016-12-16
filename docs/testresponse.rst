@@ -33,13 +33,13 @@ The added methods:
 ``response.follow(**kw)``:
     Follows the redirect, returning the new response.  It is an error
     if this response wasn't a redirect. All keyword arguments are
-    passed to :class:`webtest.TestApp` (e.g., ``status``). Returns
+    passed to :class:`webtest.app.TestApp` (e.g., ``status``). Returns
     another response object.
 
 ``response.maybe_follow(**kw)``:
     Follows all redirects; does nothing if this response
     is not a redirect. All keyword arguments are passed
-    to :class:`webtest.TestApp` (e.g., ``status``). Returns another
+    to :class:`webtest.app.TestApp` (e.g., ``status``). Returns another
     response object.
 
 ``x in response``:
@@ -62,7 +62,7 @@ The added methods:
     `doctest <http://python.org/doc/current/lib/module-doctest.html>`_
 
 ``response.click(description=None, linkid=None, href=None, anchor=None, index=None, verbose=False)``:
-    Clicks the described link (see :class:`~webtest.TestResponse.click`)
+    Clicks the described link (see :meth:`~webtest.response.TestResponse.click`)
 
 ``response.forms``:
     Return a dictionary of forms; you can use both indexes (refer to

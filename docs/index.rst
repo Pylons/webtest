@@ -66,7 +66,7 @@ run WSGI applications and verify the output.
 Quick start
 ===========
 
-The most important object in WebTest is :class:`~webtest.TestApp`, the wrapper
+The most important object in WebTest is :class:`~webtest.app.TestApp`, the wrapper
 for WSGI applications. It also allows you to perform HTTP requests on it.
 To use it, you simply instantiate it with your WSGI application.
 
@@ -83,7 +83,7 @@ Here is a basic application::
     ...     start_response('200 OK', headers)
     ...     return [body]
 
-Wrap it into a :class:`~webtest.TestApp`::
+Wrap it into a :class:`~webtest.app.TestApp`::
 
     >>> from webtest import TestApp
     >>> app = TestApp(application)
@@ -107,7 +107,7 @@ Or response's body::
     >>> resp.mustcontain('<html>')
     >>> assert 'form' in resp
 
-WebTest can do much more. In particular, it can handle :doc:`forms` and :doc:`json`.
+WebTest can do much more. In particular, it can handle :doc:`forms`.
 
 
 Contents
