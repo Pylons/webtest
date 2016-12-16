@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.24 (unreleased)
+2.0.24 (2016-12-16)
 -------------------
 
 - Drop python 2.6 support. Newer versions may still work if you use waitress < 1.0
