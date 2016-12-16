@@ -22,11 +22,6 @@ tests_require = [
 if sys.version_info[0:2] < (2, 7):
     install_requires.append('ordereddict')
 
-if sys.version_info[0:2] <= (2, 7):
-    tests_require.append('unittest2')
-else:
-    tests_require.append('unittest2py3k')
-
 
 setup(name='WebTest',
       version=version,
@@ -66,9 +61,7 @@ setup(name='WebTest',
       test_suite='nose.collector',
       tests_require=tests_require,
       extras_require={
-          ':python_version=="2.6"': ['ordereddict'],
           'tests': tests_require,
-          'tests:python_version=="2.6"': ['unittest2'],
       },
       entry_points="""
       [paste.app_factory]

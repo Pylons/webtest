@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
-try:
-    # py < 2.7
-    import unittest2 as unittest
-except ImportError:
-    import unittest  # noqa
+import unittest  # noqa
 
 try:
     unicode()
