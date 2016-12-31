@@ -43,7 +43,7 @@ object:
 .. code-block:: python
 
     >>> # dict of fields
-    >>> form.fields.values() #doctest: +SKIP
+    >>> form.fields.items() #doctest: +SKIP
     [(u'text', [<Text name="text">]), ..., (u'submit', [<Submit name="submit">])]
 
 You can check the current value:
