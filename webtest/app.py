@@ -618,7 +618,7 @@ class TestApp(object):
         res.app = app
         res.test_app = self
 
-        # We do this to make sure the app_iter is exausted:
+        # We do this to make sure the app_iter is exhausted:
         try:
             res.body
         except TypeError:  # pragma: no cover
