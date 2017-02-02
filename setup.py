@@ -19,9 +19,6 @@ tests_require = [
     'PasteDeploy', 'WSGIProxy2', 'pyquery'
 ]
 
-if sys.version_info[0:2] < (2, 7):
-    install_requires.append('ordereddict')
-
 
 setup(name='WebTest',
       version=version,

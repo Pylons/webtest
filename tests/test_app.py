@@ -4,7 +4,7 @@ from webob import Request
 from webob import Response
 from webtest.compat import to_bytes
 from webtest.compat import PY3
-from webtest.compat import OrderedDict
+from collections import OrderedDict
 from webtest.debugapp import debug_app
 from webtest import http
 from tests.compat import unittest
