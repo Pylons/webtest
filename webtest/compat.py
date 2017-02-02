@@ -35,11 +35,6 @@ def print_stderr(value):
             value = value.encode('utf8')
     six.print_(value, file=sys.stderr)
 
-try:
-    from collections import OrderedDict
-except ImportError:  # pragma: no cover
-    from ordereddict import OrderedDict  # noqa
-
 
 def escape_cookie_value(value):
     """

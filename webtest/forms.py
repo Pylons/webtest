@@ -5,7 +5,7 @@ import re
 import sys
 
 from bs4 import BeautifulSoup
-from webtest.compat import OrderedDict
+from collections import OrderedDict
 from webtest import utils
 
 
