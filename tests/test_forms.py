@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import cgi
 import os.path
 import struct
 import sys
@@ -776,9 +777,12 @@ class SingleUploadFileApp(object):
         uploaded_files = [(k, v) for k, v in req.POST.items() if 'file' in k]
         uploaded_files = sorted(uploaded_files)
         for name, uploaded_file in uploaded_files:
-            filename = to_bytes(uploaded_file.filename)
-            value = to_bytes(uploaded_file.value, 'ascii')
-            content_type = to_bytes(uploaded_file.type, 'ascii')
+            if isinstance(uploaded_file, cgi.FieldStorage):
+                filename = to_bytes(uploaded_file.filename)
+                value = to_bytes(uploaded_file.value, 'ascii')
+                content_type = to_bytes(uploaded_file.type, 'ascii')
+            else:
+                filename = value = content_type = b''
             file_parts.append(b"""
         <p>You selected '""" + filename + b"""'</p>
         <p>with contents: '""" + value + b"""'</p>
