@@ -503,6 +503,10 @@ class TestApp(object):
             if isinstance(value, forms.File):
                 if value.value:
                     _append_file([key] + list(value.value))
+                else:
+                    # If no file was uploaded simulate an empty file with no
+                    # name like real browsers do:
+                    _append_file([key, b'', b''])
             elif isinstance(value, forms.Upload):
                 file_info = [key, value.filename]
                 if value.content is not None:

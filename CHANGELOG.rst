@@ -4,7 +4,8 @@ News
 2.0.25 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix #173: Do not omit file uploads without a file from post.
+  [Michael Howitz]
 
 
 2.0.24 (2016-12-16)
