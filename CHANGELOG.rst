@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.25 (unreleased)
+2.0.25 (2017-02-05)
 -------------------
 
 - Fix #173: Do not omit file uploads without a file from post.
