@@ -11,7 +11,6 @@ from __future__ import unicode_literals
 
 import os
 import re
-import sys
 import json
 import random
 import fnmatch
@@ -611,7 +610,7 @@ class TestApp(object):
         # verify wsgi compatibility
         app = lint.middleware(self.app) if self.lint else self.app
 
-        ## FIXME: should it be an option to not catch exc_info?
+        # FIXME: should it be an option to not catch exc_info?
         res = req.get_response(app, catch_exc_info=True)
 
         # be sure to decode the content
