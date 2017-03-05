@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.26 (unreleased)
+2.0.26 (2017-03-05)
 -------------------
 
 - Added JWT auth support
