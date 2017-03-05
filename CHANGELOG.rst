@@ -4,7 +4,9 @@ News
 2.0.26 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Added JWT auth support
+
+- Always show response body when response status is invalid
 
 
 2.0.25 (2017-02-05)
