@@ -672,7 +672,7 @@ class TestApp(object):
                 res)
         if status != res.status_int:
             raise AppError(
-                "Bad response: %s (not %s)", res_status, status)
+                "Bad response: %s (not %s)\n%s", res_status, status, res)
 
     def _check_errors(self, res):
         errors = res.errors
