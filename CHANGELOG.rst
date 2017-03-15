@@ -4,7 +4,9 @@ News
 2.0.27 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Bugfix: Allow to use set_cookie when HTTP_HOST is set
+
+- Fix #177: resp.json now always decode body as utf8
 
 
 2.0.26 (2017-03-05)
