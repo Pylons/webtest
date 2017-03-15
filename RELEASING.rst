@@ -37,38 +37,34 @@ Releasing with zest.releaser
 Marketing and communications
 ----------------------------
 
-- Announce to Twitter.
+- Announce to Twitter::
 
-```
-WebTest 1.x released.
+    WebTest 1.x released.
 
-PyPI
-https://pypi.python.org/pypi/webtest/2.x
+    PyPI
+    https://pypi.python.org/pypi/webtest/2.x
 
-Changes
-http://docs.pylonsproject.org/projects/webtest
+    Changes
+    http://docs.pylonsproject.org/projects/webtest
 
-Issues
-https://github.com/Pylons/webtest/issues
-```
+    Issues
+    https://github.com/Pylons/webtest/issues
 
-- Announce to maillist.
+- Announce to maillist::
 
-```
-WebTest 2.X.X has been released.
+    WebTest 2.X.X has been released.
 
-Here are the changes:
+    Here are the changes:
 
-<<changes>>
+    <<changes>>
 
-You can install it via PyPI:
+    You can install it via PyPI:
 
-  pip install WebTest==2.X
+      pip install WebTest==2.X
 
-Enjoy, and please report any issues you find to the issue tracker at
-https://github.com/Pylons/webtest/issues
+    Enjoy, and please report any issues you find to the issue tracker at
+    https://github.com/Pylons/webtest/issues
 
-Thanks!
+    Thanks!
 
-- WebTest developers
-```
+    - WebTest developers
