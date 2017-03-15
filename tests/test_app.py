@@ -199,6 +199,13 @@ class TestCookies(unittest.TestCase):
         app.get('/')
         app.reset()
 
+        app = webtest.TestApp(cookie_app,
+                              extra_environ={'HTTP_HOST': 'testserver'})
+        app.set_cookie('foo', 'bar')
+        app.set_cookie('fizz', ';bar=baz')  # Make sure we're escaping.
+        app.get('/')
+        app.reset()
+
     def test_preserves_cookies(self):
         def cookie_app(environ, start_response):
             req = Request(environ)

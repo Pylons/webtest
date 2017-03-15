@@ -69,13 +69,13 @@ class CookiePolicy(http_cookiejar.DefaultCookiePolicy):
     Domain=localhost."""
 
     def return_ok_domain(self, cookie, request):
-        if cookie.domain == '.localhost':
+        if cookie.domain.endswith(request.origin_req_host):
             return True
         return http_cookiejar.DefaultCookiePolicy.return_ok_domain(
             self, cookie, request)
 
     def set_ok_domain(self, cookie, request):
-        if cookie.domain == '.localhost':
+        if cookie.domain.endswith(request.origin_req_host):
             return True
         return http_cookiejar.DefaultCookiePolicy.set_ok_domain(
             self, cookie, request)
@@ -231,6 +231,9 @@ class TestApp(object):
         Sets a cookie to be passed through with requests.
 
         """
+        cookie_domain = self.extra_environ.get('HTTP_HOST', 'localhost')
+        cookie_domain = cookie_domain.split(':', 1)[0]
+        cookie_domain = '.' + cookie_domain
         value = escape_cookie_value(value)
         cookie = http_cookiejar.Cookie(
             version=0,
@@ -238,7 +241,7 @@ class TestApp(object):
             value=value,
             port=None,
             port_specified=False,
-            domain='.localhost',
+            domain=cookie_domain,
             domain_specified=True,
             domain_initial_dot=False,
             path='/',
