@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.27 (unreleased)
+2.0.27 (2017-03-15)
 -------------------
 
 - Bugfix: Allow to use set_cookie when HTTP_HOST is set
