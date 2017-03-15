@@ -493,17 +493,14 @@ class TestResponse(webob.Response):
     @property
     def json(self):
         """
-        Return the response as a JSON response.  You must have `simplejson
-        <http://goo.gl/B9g6s>`_ installed to use this, or be using a Python
-        version with the json module.
-
+        Return the response as a JSON response.
         The content type must be one of json type to use this.
         """
         if not self.content_type.endswith(('+json', '/json')):
             raise AttributeError(
                 "Not a JSON response body (content-type: %s)"
                 % self.content_type)
-        return loads(self.testbody)
+        return self.json_body
 
     @property
     def pyquery(self):
