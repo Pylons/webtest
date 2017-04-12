@@ -4,7 +4,9 @@ News
 2.0.28 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Bugfix: Allow to set an int value to form fields when enctype is multipart
+
+- Fixed #146: Improve fields value checking when enctype is multipart
 
 
 2.0.27 (2017-03-15)

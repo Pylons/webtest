@@ -518,8 +518,15 @@ class TestApp(object):
                         file_info.append(value.content_type)
                 _append_file(file_info)
             else:
-                if isinstance(value, text_type):
+                if isinstance(value, int):
+                    value = str(value).encode('utf8')
+                elif isinstance(value, text_type):
                     value = value.encode('utf8')
+                elif not isinstance(value, (bytes, str)):
+                    raise ValueError((
+                        'Value for field {0} is a {1} ({2}). '
+                        'It must be str, bytes or an int'
+                    ).format(key, type(value), value))
                 lines.extend([
                     b'--' + boundary,
                     b'Content-Disposition: form-data; name="' + key + b'"',

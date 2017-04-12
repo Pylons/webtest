@@ -736,6 +736,7 @@ class TestSelect(unittest.TestCase):
         display = multiple_form.submit("button")
         self.assertIn("<p>You selected </p>", display, display)
 
+
 class SingleUploadFileApp(object):
 
     body = b"""
@@ -745,6 +746,7 @@ class SingleUploadFileApp(object):
         <form method="POST" id="file_upload_form"
               enctype="multipart/form-data">
             <input name="file-field" type="file" value="some/path/file.txt" />
+            <input name="int-field" type="text" value="" />
             <input name="button" type="submit" value="single">
         </form>
     </body>
@@ -939,6 +941,25 @@ class TestFileUpload(unittest.TestCase):
         display = single_form.submit("button")
         self.assertFile(uploaded_file1_name, uploaded_file1_contents, display)
         self.assertFile(uploaded_file1_name, uploaded_file1_contents, display)
+
+    def test_post_int(self):
+        binary_data = struct.pack(str('255h'), *range(0, 255))
+        app = webtest.TestApp(SingleUploadFileApp())
+        res = app.get('/')
+        single_form = res.forms["file_upload_form"]
+        single_form.set("file-field", ('my_file.dat', binary_data))
+        single_form.set("int-field", 100)
+        # just check it does not raise
+        single_form.submit("button")
+
+    def test_invalid_types(self):
+        binary_data = struct.pack(str('255h'), *range(0, 255))
+        app = webtest.TestApp(SingleUploadFileApp())
+        res = app.get('/')
+        single_form = res.forms["file_upload_form"]
+        single_form.set("file-field", ('my_file.dat', binary_data))
+        single_form.set("int-field", SingleUploadFileApp())
+        self.assertRaises(ValueError, single_form.submit, "button")
 
     def test_upload_invalid_content(self):
         app = webtest.TestApp(SingleUploadFileApp())
