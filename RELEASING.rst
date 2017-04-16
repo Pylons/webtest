@@ -24,7 +24,7 @@ Releasing with zest.releaser
 
 - Add this to your ``~/.pypirc``::
 
-    [test.releaser]
+    [zest.releaser]
     no-input = true
     create-wheel = yes
 
