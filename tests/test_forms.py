@@ -321,6 +321,8 @@ def select_app(environ, start_response):
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
+    # PEP 3333 requires native strings:
+    headers = [(str(k), str(v)) for k, v in headers]
     start_response(status, headers)
     return [body]
 
@@ -373,6 +375,8 @@ def select_app_without_values(environ, start_response):
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
+    # PEP 3333 requires native strings:
+    headers = [(str(k), str(v)) for k, v in headers]
     start_response(status, headers)
     return [body]
 
@@ -425,6 +429,8 @@ def select_app_without_default(environ, start_response):
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
+    # PEP 3333 requires native strings:
+    headers = [(str(k), str(v)) for k, v in headers]
     start_response(status, headers)
     return [body]
 
@@ -476,6 +482,8 @@ def select_app_unicode(environ, start_response):
     headers = [
         ('Content-Type', 'text/html; charset=utf-8'),
         ('Content-Length', str(len(body)))]
+    # PEP 3333 requires native strings:
+    headers = [(str(k), str(v)) for k, v in headers]
     start_response(status, headers)
     if not isinstance(body, binary_type):
         raise AssertionError('Body is not %s' % binary_type)
@@ -770,6 +778,8 @@ class SingleUploadFileApp(object):
         headers = [
             ('Content-Type', 'text/html; charset=utf-8'),
             ('Content-Length', str(len(body)))]
+        # PEP 3333 requires native strings:
+        headers = [(str(k), str(v)) for k, v in headers]
         start_response(status, headers)
         assert(isinstance(body, binary_type))
         return [body]

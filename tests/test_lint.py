@@ -114,6 +114,8 @@ class TestMiddleware2(unittest.TestCase):
             headers = [
                 ('Content-Type', 'text/plain; charset=utf-8'),
                 ('Content-Length', str(len(body)))]
+            # PEP 3333 requires native strings:
+            headers = [(str(k), str(v)) for k, v in headers]
             start_response(to_bytes('200 OK'), headers, ('stuff',))
             return [body]
 
