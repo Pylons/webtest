@@ -115,7 +115,8 @@ def links_app(environ, start_response):
     ]
     if req.path_info in utf8_paths:
         headers[0] = ('Content-Type', str('text/html; charset=utf-8'))
-
+    # PEP 3333 requires native strings:
+    headers = [(str(k), str(v)) for k, v in headers]
     start_response(str(status), headers)
     return [body]
 
@@ -127,7 +128,8 @@ def gzipped_app(environ, start_response):
         ('Content-Type', str('text/html')),
         ('Content-Encoding', str('gzip')),
     ]
-
+    # PEP 3333 requires native strings:
+    headers = [(str(k), str(v)) for k, v in headers]
     start_response(str(status), headers)
     return encoded_body
 
@@ -423,6 +425,8 @@ class TestFollow(unittest.TestCase):
                 remaining_redirects[0] -= 1
 
             headers.append(('Content-Length', str(len(body))))
+            # PEP 3333 requires native strings:
+            headers = [(str(k), str(v)) for k, v in headers]
             start_response(str(status), headers)
             return [body]
 

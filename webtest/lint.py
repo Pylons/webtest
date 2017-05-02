@@ -59,7 +59,8 @@ Some of the things this checks:
 * That the headers is a list (not a subclass, not another kind of
   sequence).
 
-* That the items of the headers are tuples of strings.
+* That the items of the headers are tuples of 'native' strings (i.e.
+  bytestrings in Python2, and unicode strings in Python3).
 
 * That there is no 'status' header (that is used in CGI, but not in
   WSGI).
@@ -412,12 +413,12 @@ def check_status(status):
         "digits and a space (4th characters is not a space here)") % status
 
 
-def _assert_latin1_py3(string, message):
-    if PY3 and type(string) is str:
-        try:
-            string.encode('latin1')
-        except UnicodeEncodeError:
-            raise AssertionError(message)
+def _assert_latin1_str(string, message):
+    assert type(string) is str, message
+    try:
+        string.encode('latin1')
+    except UnicodeEncodeError:
+        raise AssertionError(message)
 
 
 def check_headers(headers):
@@ -430,30 +431,30 @@ def check_headers(headers):
             % (item, type(item)))
         assert len(item) == 2
         name, value = item
-        _assert_latin1_py3(
+        _assert_latin1_str(
             name,
-            "Headers values must be latin1 string or bytes."
-            "%r is not a valid latin1 string" % (value,)
+            "Header names must be latin1 string "
+            "(not Py2 unicode or Py3 bytes type). "
+            "%r is not a valid latin1 string" % (name,)
         )
-        str_name = to_string(name)
-        assert str_name.lower() != 'status', (
+        assert name.lower() != 'status', (
             "The Status header cannot be used; it conflicts with CGI "
             "script, and HTTP status is not given through headers "
             "(value: %r)." % value)
-        assert '\n' not in str_name and ':' not in str_name, (
+        assert '\n' not in name and ':' not in name, (
             "Header names may not contain ':' or '\\n': %r" % name)
-        assert header_re.search(str_name), "Bad header name: %r" % name
-        assert not str_name.endswith('-') and not str_name.endswith('_'), (
+        assert header_re.search(name), "Bad header name: %r" % name
+        assert not name.endswith('-') and not name.endswith('_'), (
             "Names may not end in '-' or '_': %r" % name)
-        _assert_latin1_py3(
+        _assert_latin1_str(
             value,
-            "Headers values must be latin1 string or bytes."
+            "Header values must be latin1 string "
+            "(not Py2 unicode or Py3 bytes type)."
             "%r is not a valid latin1 string" % (value,)
         )
-        str_value = to_string(value)
-        assert not bad_header_value_re.search(str_value), (
+        assert not bad_header_value_re.search(value), (
             "Bad header value: %r (bad char: %r)"
-            % (str_value, bad_header_value_re.search(str_value).group(0)))
+            % (str_value, bad_header_value_re.search(value).group(0)))
 
 
 def check_content_type(status, headers):
@@ -464,13 +465,11 @@ def check_content_type(status, headers):
     NO_MESSAGE_TYPE = (204, 304)
     length = None
     for name, value in headers:
-        str_name = to_string(name)
-        if str_name.lower() == 'content-length' and value.isdigit():
+        if name.lower() == 'content-length' and value.isdigit():
             length = int(value)
             break
     for name, value in headers:
-        str_name = to_string(name)
-        if str_name.lower() == 'content-type':
+        if name.lower() == 'content-type':
             if code not in NO_MESSAGE_TYPE:
                 return
             elif length == 0:
