@@ -143,13 +143,33 @@ class TestCheckContentType(unittest.TestCase):
 
 class TestCheckHeaders(unittest.TestCase):
 
-    @unittest.skipIf(not PY3, 'Useless in Python2')
-    def test_header_unicode_value(self):
-        self.assertRaises(AssertionError, check_headers, [('X-Price', '100€')])
-
-    @unittest.skipIf(not PY3, 'Useless in Python2')
+    @unittest.skipIf(PY3, 'unicode is str in Python3')
     def test_header_unicode_name(self):
-        self.assertRaises(AssertionError, check_headers, [('X-€', 'foo')])
+        headers = [(u'X-Price', str('100'))]
+        self.assertRaises(AssertionError, check_headers, headers)
+
+    @unittest.skipIf(PY3, 'unicode is str in Python3')
+    def test_header_unicode_value(self):
+        headers = [(str('X-Price'), u'100')]
+        self.assertRaises(AssertionError, check_headers, headers)
+
+    @unittest.skipIf(not PY3, 'bytes is str in Python2')
+    def test_header_bytes_name(self):
+        headers = [(b'X-Price', '100')]
+        self.assertRaises(AssertionError, check_headers, headers)
+
+    @unittest.skipIf(not PY3, 'bytes is str in Python2')
+    def test_header_bytes_value(self):
+        headers = [('X-Price', b'100')]
+        self.assertRaises(AssertionError, check_headers, headers)
+
+    def test_header_non_latin1_value(self):
+        headers = [(str('X-Price'), '100€')]
+        self.assertRaises(AssertionError, check_headers, headers)
+
+    def test_header_non_latin1_name(self):
+        headers = [('X-€', str('foo'))]
+        self.assertRaises(AssertionError, check_headers, headers)
 
 
 class TestCheckEnviron(unittest.TestCase):
