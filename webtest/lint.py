@@ -131,7 +131,7 @@ valid_methods = (
     'TRACE', 'PATCH',
 )
 
-METADATA_TYPE = PY3 and (str, binary_type) or (str,)
+METADATA_TYPE = PY3 and (str, binary_type) or (str, unicode)
 
 # PEP-3333 says that environment variables must be "native strings",
 # i.e. str(), which however is something *different* in py2 and py3.
