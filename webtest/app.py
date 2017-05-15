@@ -459,6 +459,7 @@ class TestApp(object):
                                  upload_files=None,
                                  expect_errors=expect_errors)
 
+    get_json = utils.json_method('POST')
     post_json = utils.json_method('POST')
     put_json = utils.json_method('PUT')
     patch_json = utils.json_method('PATCH')
