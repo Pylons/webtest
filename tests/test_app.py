@@ -357,6 +357,39 @@ class TestCookies(unittest.TestCase):
         self.assertEqual(res.request.environ['HTTP_COOKIE'], 'spam=eggs')
         self.assertEqual(dict(res.request.cookies), {'spam': 'eggs'})
 
+    def test_cookie_policy(self):
+        from six.moves import http_cookiejar
+
+        def cookie_app(environ, start_response):
+            status = to_bytes("200 OK")
+            body = 'Cookie.'
+            headers = [
+                ('Content-Type', 'text/plain'),
+                ('Content-Length', str(len(body))),
+                ('Set-Cookie',
+                 'spam=eggs; secure; Domain=.example.org;'),
+            ]
+            start_response(status, headers)
+            return [to_bytes(body)]
+
+        policy = webtest.app.CookiePolicy()
+        flags = (
+            policy.DomainStrictNoDots |
+            policy.DomainRFC2965Match |
+            policy.DomainStrictNonDomain)
+        policy.strict_ns_domain |= flags
+        cookiejar = http_cookiejar.CookieJar(policy=policy)
+        app = webtest.TestApp(
+            cookie_app,
+            cookiejar=cookiejar,
+            extra_environ={'HTTP_HOST': 'example.org'})
+        res = app.get('/')
+        res = app.get('/')
+        self.assertFalse(app.cookies,
+                        'Response should not have set cookies')
+        self.assertNotIn('HTTP_COOKIE', res.request.environ)
+        self.assertEqual(dict(res.request.cookies), {})
+
 
 class TestEnviron(unittest.TestCase):
 
