@@ -97,7 +97,7 @@ class _RequestCookieAdapter(object):
     """
     def __init__(self, request):
         self._request = request
-        self.origin_req_host = request.host.split(':')[0]
+        self.origin_req_host = request.host
 
     def is_unverifiable(self):
         return True  # sure? Why not?
