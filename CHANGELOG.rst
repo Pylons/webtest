@@ -4,9 +4,16 @@ News
 2.0.28 (unreleased)
 -------------------
 
-- Bugfix: Allow to set an int value to form fields when enctype is multipart
+- Fixed #185: Fix strict cookie policy
 
 - Fixed #146: Improve fields value checking when enctype is multipart
+
+- Fixed #119: Assertion error should be raised when you have non-string
+  response header
+
+- Bugfix: Allow to set an int value to form fields when enctype is multipart
+
+- Added py36 to tox.ini / .travis.yaml
 
 
 2.0.27 (2017-03-15)
