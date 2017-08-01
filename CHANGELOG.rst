@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.28 (unreleased)
+2.0.28 (2017-08-01)
 -------------------
 
 - Fixed #185: Fix strict cookie policy
