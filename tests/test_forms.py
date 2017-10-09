@@ -166,6 +166,7 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form.submit_fields(), [('foo', 'bar')])
 
         form = res.forms['radio_input_form']
+        self.assertEqual(form['foo'].selectedIndex, 1)
         self.assertEqual(form['foo'].value, 'baz')
         self.assertEqual(form.submit_fields(), [('foo', 'baz')])
 
@@ -187,6 +188,34 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form['foo'].value, 'fido')
         self.assertEqual(form.submit_fields(), [('foo', 'fido')])
 
+    def test_radio_input_order(self):
+        app = self.callFUT()
+        res = app.get('/form.html')
+        self.assertEqual(res.status_int, 200)
+        self.assertTrue(res.content_type.startswith('text/html'))
+
+        form = res.forms['complex_radio_input_form']
+        form['foo'].value = 'true'
+        self.assertEqual(form['foo'].value, 'true')
+        self.assertEqual(form['foo'].selectedIndex, 0)
+        self.assertEqual(form.submit_fields(), [
+            (u'__start__', u'item:mapping'),
+            ('foo', 'true'),
+            (u'__end__', u'item:mapping'),
+            (u'__start__', u'item:mapping'),
+            (u'__end__', u'item:mapping')])
+
+        res = app.get('/form.html')
+        form = res.forms['complex_radio_input_form']
+        self.assertEqual(form['foo'].value, 'true')
+        self.assertEqual(form['foo'].selectedIndex, 1)
+        self.assertEqual(form.submit_fields(), [
+            (u'__start__', u'item:mapping'),
+            (u'__end__', u'item:mapping'),
+            (u'__start__', u'item:mapping'),
+            ('foo', 'true'),
+            (u'__end__', u'item:mapping')])
+
     def test_input_unicode(self):
         app = self.callFUT('form_unicode_inputs.html')
         res = app.get('/form.html')
@@ -199,6 +228,7 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form.submit_fields(), [('foo', u('Хармс'))])
 
         form = res.forms['radio_input_form']
+        self.assertEqual(form['foo'].selectedIndex, 1)
         self.assertEqual(form['foo'].value, u('Блок'))
         self.assertEqual(form.submit_fields(), [('foo', u('Блок'))])
 
