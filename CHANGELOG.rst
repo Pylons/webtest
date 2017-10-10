@@ -4,7 +4,7 @@ News
 2.0.29 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Bugfix: Preserve submit order for radio inputs.
 
 
 2.0.28 (2017-08-01)

@@ -21,6 +21,15 @@
             <input name="foo" type="radio" value="baz" checked>
             <input name="button" type="submit" value="radio">
         </form>
+        <form method="POST" id="complex_radio_input_form">
+            <input name="__start__" value="item:mapping">
+            <input name="foo" type="radio" value="true">
+            <input name="__end__" value="item:mapping">
+            <input name="__start__" value="item:mapping">
+            <input name="foo" type="radio" value="true" checked>
+            <input name="__end__" value="item:mapping">
+            <input name="button" type="submit" value="radio">
+        </form>
         <form method="POST" id="checkbox_input_form">
             <input name="foo" type="checkbox" value="bar" checked>
             <input name="button" type="submit" value="text">

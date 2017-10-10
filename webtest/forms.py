@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Helpers to fill and submit forms."""
 
+import operator
 import re
 import sys
 
@@ -102,6 +103,7 @@ class Select(Field):
     def __init__(self, *args, **attrs):
         super(Select, self).__init__(*args, **attrs)
         self.options = []
+        self.optionPositions = []
         # Undetermined yet:
         self.selectedIndex = None
         # we have no forced value
@@ -111,7 +113,12 @@ class Select(Field):
         """Like setting a value, except forces it (even for, say, hidden
         fields).
         """
-        self._forced_value = value
+        try:
+            self.value = value
+            self._forced_value = NoValue
+        except ValueError:
+            self.selectedIndex = None
+            self._forced_value = value
 
     def select(self, value=None, text=None):
         if value is not None and text is not None:
@@ -467,6 +474,9 @@ class Form(object):
                     field.options.append((attrs.get('value'),
                                           'checked' in attrs,
                                           None))
+                    field.optionPositions.append(pos)
+                    if 'checked' in attrs:
+                        field.selectedIndex = len(field.options) - 1
                     continue
                 elif tag_type == 'file':
                     if 'value' in attrs:
@@ -650,24 +660,29 @@ class Form(object):
                 continue
             if submit_name is not None and name == submit_name:
                 if index is not None and current_index == index:
-                    submit.append((name, field.value_if_submitted()))
+                    submit.append((field.pos, name, field.value_if_submitted()))
                 if submit_value is not None and \
                    field.value_if_submitted() == submit_value:
-                    submit.append((name, field.value_if_submitted()))
+                    submit.append((field.pos, name, field.value_if_submitted()))
                 current_index += 1
             else:
                 value = field.value
                 if value is None:
                     continue
                 if isinstance(field, File):
-                    submit.append((name, field))
+                    submit.append((field.pos, name, field))
                     continue
+                if isinstance(field, Radio):
+                    if field.selectedIndex is not None:
+                        submit.append((field.optionPositions[field.selectedIndex], name, value))
+                        continue
                 if isinstance(value, list):
                     for item in value:
-                        submit.append((name, item))
+                        submit.append((field.pos, name, item))
                 else:
-                    submit.append((name, value))
-        return submit
+                    submit.append((field.pos, name, value))
+        submit.sort(key=operator.itemgetter(0))
+        return [x[1:] for x in submit]
 
     def __repr__(self):
         value = '<Form'
