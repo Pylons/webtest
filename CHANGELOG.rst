@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.29 (unreleased)
+2.0.29 (2017-10-21)
 -------------------
 
 - Bugfix: Preserve submit order for radio inputs.
