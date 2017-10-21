@@ -6,6 +6,9 @@ News
 
 - Bugfix: Preserve submit order for radio inputs.
 
+- Fixed #186: avoid UnicodeDecodeError in linter with py2 when a header contain
+  non ascii chars
+
 
 2.0.28 (2017-08-01)
 -------------------
