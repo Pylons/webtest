@@ -39,20 +39,20 @@ Marketing and communications
 
 - Announce to Twitter::
 
-    WebTest 1.x released.
+    WebTest 2.0.x released.
 
     PyPI
-    https://pypi.python.org/pypi/webtest/2.x
+    https://pypi.python.org/pypi/webtest/2.0.x
 
     Changes
-    http://docs.pylonsproject.org/projects/webtest
+    https://docs.pylonsproject.org/projects/webtest/en/latest/changelog.html
 
     Issues
     https://github.com/Pylons/webtest/issues
 
 - Announce to maillist::
 
-    WebTest 2.X.X has been released.
+    WebTest 2.0.x has been released.
 
     Here are the changes:
 
@@ -60,7 +60,7 @@ Marketing and communications
 
     You can install it via PyPI:
 
-      pip install WebTest==2.X
+      pip install WebTest==2.0.x
 
     Enjoy, and please report any issues you find to the issue tracker at
     https://github.com/Pylons/webtest/issues
@@ -68,3 +68,7 @@ Marketing and communications
     Thanks!
 
     - WebTest developers
+
+Here is a command line to get those text without indent and version replaced::
+
+    cat RELEASING.rst | sed 's/2.0.x/version/' | sed 's/    //'
