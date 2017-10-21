@@ -122,6 +122,7 @@ import warnings
 from six import PY3
 from six import binary_type
 from six import string_types
+from six import text_type
 
 header_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9\-_]*$')
 bad_header_value_re = re.compile(r'[\000-\037]')
@@ -415,10 +416,12 @@ def check_status(status):
 
 def _assert_latin1_str(string, message):
     assert type(string) is str, message
-    try:
-        string.encode('latin1')
-    except UnicodeEncodeError:
-        raise AssertionError(message)
+    if type(string) is text_type:
+        try:
+            string.encode('latin1')
+        except UnicodeEncodeError:
+            raise AssertionError(message)
+    return string
 
 
 def check_headers(headers):

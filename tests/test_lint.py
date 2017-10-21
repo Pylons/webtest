@@ -20,6 +20,7 @@ from webtest.lint import ErrorWrapper
 from webtest.lint import InputWrapper
 from webtest.lint import to_string
 from webtest.lint import middleware
+from webtest.lint import _assert_latin1_str
 
 from six import BytesIO
 
@@ -39,6 +40,21 @@ def application(environ, start_response):
     elif req.path_info == '/close':
         resp.body = env_input.close()
     return resp(environ, start_response)
+
+
+class TestLatin1Assertion(unittest.TestCase):
+
+    def test_valid_type(self):
+        value = "useful-inførmation-5"
+        if not PY3:
+            value = value.encode("latin1")
+        assert value == _assert_latin1_str(value, "fail")
+
+    def test_invalid_type(self):
+        value = b"useful-information-5"
+        if not PY3:
+            value = value.decode("utf8")
+        self.assertRaises(AssertionError, _assert_latin1_str, value, "fail")
 
 
 class TestToString(unittest.TestCase):
@@ -63,7 +79,7 @@ class TestMiddleware(unittest.TestCase):
                                                      "allowed"):
             linter({}, 'foo', baz='baz')
 
-    #TODO: test start_response_wrapper
+    # TODO: test start_response_wrapper
 
     @mock.patch.multiple('webtest.lint',
                          check_environ=lambda x: True,  # don't block too early
