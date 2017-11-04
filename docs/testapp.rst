@@ -98,7 +98,7 @@ If you want *all* your requests to have this key, do:
 
 If you have to use HTTP authorization you can use the ``.authorization``
 property to set the ``HTTP_AUTHORIZATION`` key of the extra_environ
-dictionnary:
+dictionary:
 
 .. code-block:: python
 
