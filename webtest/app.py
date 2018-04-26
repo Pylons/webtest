@@ -184,8 +184,12 @@ class TestApp(object):
         self.JSONEncoder = json_encoder
 
     def get_authorization(self):
-        """Allow to set the HTTP_AUTHORIZATION environ key. Value should looks
-        like ``('Basic', ('user', 'password'))``
+        """Allow to set the HTTP_AUTHORIZATION environ key. Value should look
+        like one of the following:
+
+        * ``('Basic', ('user', 'password'))``
+        * ``('Bearer', 'mytoken')``
+        * ``('JWT', 'myjwt')``
 
         If value is None the the HTTP_AUTHORIZATION is removed
         """

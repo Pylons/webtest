@@ -105,7 +105,14 @@ dictionary:
     app = TestApp(my_app)
     app.authorization = ('Basic', ('user', 'password'))
 
-Only Basic auth is supported for now.
+You can also use bearer token or JWT authorization types:
+
+.. code-block:: python
+
+    app = TestApp(my_app)
+    app.authorization = ('Bearer', 'mytoken')
+    # or
+    app.authorization = ('JWT', 'myjwt')
 
 Testing a non wsgi application
 ------------------------------
