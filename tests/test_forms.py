@@ -1043,3 +1043,18 @@ class TestFileUpload(unittest.TestCase):
         )
         resp.mustcontain("<p>You selected 'filename'</p>",
                          "<p>with contents: 'content'</p>")
+
+    def test_post_upload_empty_files(self):
+        app = webtest.TestApp(SingleUploadFileApp())
+        resp = app.post(
+            '/',
+            upload_files=[('file', 'filename', b'')]
+        )
+        resp.mustcontain("<p>You selected 'filename'</p>",
+                         "<p>with contents: ''</p>")
+        resp = app.get('/')
+        form = resp.form
+        form['file-field'] = Upload('filename', b'', 'text/plain')
+        resp = form.submit()
+        resp.mustcontain("<p>You selected 'filename'</p>",
+                         "<p>with contents: ''</p>")

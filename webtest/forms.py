@@ -38,7 +38,7 @@ class Upload(object):
 
     def __iter__(self):
         yield self.filename
-        if self.content:
+        if self.content is not None:
             yield self.content
             yield self.content_type
         # TODO: do we handle the case when we need to get
