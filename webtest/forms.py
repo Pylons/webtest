@@ -293,6 +293,10 @@ class Text(Field):
     """Field representing ``<input type="text">``"""
 
 
+class Email(Field):
+    """Field representing ``<input type="email">``"""
+
+
 class File(Field):
     """Field representing ``<input type="file">``"""
 
@@ -347,6 +351,8 @@ Field.classes['hidden'] = Hidden
 Field.classes['file'] = File
 
 Field.classes['text'] = Text
+
+Field.classes['email'] = Email
 
 Field.classes['password'] = Text
 

@@ -4,7 +4,7 @@ News
 2.0.30 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add ``Email`` class for input fields with type "email".
 
 
 2.0.29 (2017-10-21)
