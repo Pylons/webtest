@@ -6,6 +6,8 @@ News
 
 - Add ``Email`` class for input fields with type "email".
 
+- Documentation bearer token and JWT authorization
+
 
 2.0.29 (2017-10-21)
 -------------------
