@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.30 (unreleased)
+2.0.30 (2018-06-23)
 -------------------
 
 - Add ``Email`` class for input fields with type "email".
