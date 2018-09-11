@@ -11,6 +11,6 @@ matrix:
       dist: xenial
 
 install:
-  - python setup.py dev
+  - travis_retry pip install tox
 script:
   - nosetests -s -v --with-coverage
