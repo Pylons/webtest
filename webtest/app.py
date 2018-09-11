@@ -341,18 +341,17 @@ class TestApp(object):
         Do a POST request. Similar to :meth:`~webtest.TestApp.get`.
 
         :param params:
-            Are put in the body of the request. If params is a
-            iterator it will be urlencoded, if it is string it will not
+            Are put in the body of the request. If params is an
+            iterator, it will be urlencoded. If it is a string, it will not
             be encoded, but placed in the body directly.
 
-            Can be a collections.OrderedDict with
+            Can be a :class:`python:collections.OrderedDict` with
             :class:`webtest.forms.Upload` fields included::
 
-
-            app.post('/myurl', collections.OrderedDict([
-                ('textfield1', 'value1'),
-                ('uploadfield', webapp.Upload('filename.txt', 'contents'),
-                ('textfield2', 'value2')])))
+                app.post('/myurl', collections.OrderedDict([
+                    ('textfield1', 'value1'),
+                    ('uploadfield', webapp.Upload('filename.txt', 'contents'),
+                    ('textfield2', 'value2')])))
 
         :param upload_files:
             It should be a list of ``(fieldname, filename, file_content)``.
