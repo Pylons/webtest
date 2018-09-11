@@ -389,13 +389,13 @@ News
 1.3.6
 ------
 
-* fix `#42 <https://bitbucket.org/ianb/webtest/issue/42>`_ Check uppercase
+* fix `#42 <https://bitbucket.org/ianb/webtest/issues/42>`_ Check uppercase
   method.
 
-* fix `#36 <https://bitbucket.org/ianb/webtest/issue/36>`_ Radio can use forced
+* fix `#36 <https://bitbucket.org/ianb/webtest/issues/36>`_ Radio can use forced
   value.
 
-* fix `#24 <https://bitbucket.org/ianb/webtest/issue/24>`_ Include test
+* fix `#24 <https://bitbucket.org/ianb/webtest/issues/24>`_ Include test
   fixtures.
 
 * fix bug when trying to print a response which contain some unicode chars
@@ -403,26 +403,26 @@ News
 1.3.5
 ------
 
-* fix `#39 <https://bitbucket.org/ianb/webtest/issue/39>`_ Add PATCH to
+* fix `#39 <https://bitbucket.org/ianb/webtest/issues/39>`_ Add PATCH to
   acceptable methods.
 
 
 1.3.4
 -----
 
-* fix `#33 <https://bitbucket.org/ianb/webtest/issue/33>`_ Remove
+* fix `#33 <https://bitbucket.org/ianb/webtest/issues/33>`_ Remove
   CaptureStdout. Do nothing and break pdb
 
 * use OrderedDict to store fields in form. See
-  `#31 <https://bitbucket.org/ianb/webtest/issue/31>`_
+  `#31 <https://bitbucket.org/ianb/webtest/issues/31>`_
 
-* fix `#38 <https://bitbucket.org/ianb/webtest/issue/38>`_ Allow to post falsey
+* fix `#38 <https://bitbucket.org/ianb/webtest/issues/38>`_ Allow to post falsey
   values.
 
-* fix `#37 <https://bitbucket.org/ianb/webtest/issue/37>`_ Allow
+* fix `#37 <https://bitbucket.org/ianb/webtest/issues/37>`_ Allow
   Content-Length: 0 without Content-Type
 
-* `fix #30 <https://bitbucket.org/ianb/webtest/issue/30>`_ bad link to pyquery
+* `fix #30 <https://bitbucket.org/ianb/webtest/issues/30>`_ bad link to pyquery
   documentation
 
 * Never catch NameError during iteration
@@ -432,20 +432,20 @@ News
 
 * added ``post_json``, ``put_json``, ``delete_json``
 
-* fix `#25 <https://bitbucket.org/ianb/webtest/issue/25>`_ params dictionary of
+* fix `#25 <https://bitbucket.org/ianb/webtest/issues/25>`_ params dictionary of
   webtest.AppTest.post() does not support unicode values
 
 1.3.2
 -----
 
-* improve showbrowser. fixed `#23 <https://bitbucket.org/ianb/webtest/issue/23>`_
+* improve showbrowser. fixed `#23 <https://bitbucket.org/ianb/webtest/issues/23>`_
 
 * print_stderr fail with unicode string on python2
 
 1.3.1
 -----
 
-* Added .option() `#20 <https://bitbucket.org/ianb/webtest/issue/20>`_
+* Added .option() `#20 <https://bitbucket.org/ianb/webtest/issues/20>`_
 
 * Fix #21
 
@@ -466,13 +466,13 @@ News
 
 * Allow to use url that starts with the SCRIPT_NAME found in extra_environ
 
-* Fix `#16 <https://bitbucket.org/ianb/webtest/issue/16>`_  Default
+* Fix `#16 <https://bitbucket.org/ianb/webtest/issues/16>`_  Default
   content-type is now correctly set to `application/octet-stream`
 
-* Fix `#14 and #18 <https://bitbucket.org/ianb/webtest/issue/18>`_ Allow to use
+* Fix `#14 and #18 <https://bitbucket.org/ianb/webtest/issues/18>`_ Allow to use
   `.delete(params={})`
 
-* Fix `#12 <https://bitbucket.org/ianb/webtest/issue/12>`_ 
+* Fix `#12 <https://bitbucket.org/ianb/webtest/issues/12>`_ 
 
 
 1.2.3
