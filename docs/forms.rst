@@ -129,10 +129,8 @@ option.
     >>> form['select'].force_value(['optionX'])
     >>> form['multiple'].force_value(['optionX'])
 
-Checkbox
-********
-
-.. autoclass:: Checkbox
+:class:`~webtest.forms.Checkbox`
+*********************************
 
 You can check if the checkbox is checked and is value:
 
