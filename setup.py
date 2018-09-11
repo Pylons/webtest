@@ -44,7 +44,7 @@ setup(name='WebTest',
       author_email='ianb at colorstudy com',
       maintainer='Gael Pasgrimaud',
       maintainer_email='gael@gawel.org',
-      url='http://webtest.pythonpaste.org/',
+      url='https://docs.pylonsproject.org/projects/webtest/en/latest/',
       license='MIT',
       packages=find_packages(exclude=[
           'ez_setup',
