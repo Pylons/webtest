@@ -11,11 +11,6 @@ matrix:
       dist: xenial
 
 install:
-  - travis_retry pip install tox
-
+  - python setup.py dev
 script:
-  - travis_retry tox
-
-cache:
-  directories:
-    - $HOME/.cache/pip
+  - nosetests -s -v --with-coverage
