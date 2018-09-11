@@ -12,6 +12,8 @@
 # serve to show the default.
 
 import sys, os
+import datetime
+import pylons_sphinx_themes
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -28,9 +30,9 @@ import sys, os
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.intersphinx']
 
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/2.7', None),
-    'webob': ('https://webob.readthedocs.io/en/latest', None),
-    'waitrress': ('https://waitress.readthedocs.io/en/latest', None),
+    'python': ('https://docs.python.org/3/', None),
+    'webob': ('https://docs.pylonsproject.org/projects/webob/en/latest/', None),
+    'waitress': ('https://docs.pylonsproject.org/projects/waitress/en/latest/', None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -47,7 +49,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'WebTest'
-copyright = '2012, Ian Bicking'
+thisyear = datetime.datetime.now().year
+copyright = '2012-%s, Ian Bicking' % thisyear
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -95,8 +98,11 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'nature'
-
+html_theme = 'pylons'
+html_theme_path = pylons_sphinx_themes.get_html_themes_path()
+html_theme_options = dict(
+    github_url='https://github.com/Pylons/webtest',
+    )
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -130,9 +136,8 @@ html_static_path = []
 # using the given strftime format.
 #html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-#html_use_smartypants = True
+# Do not use smart quotes.
+smartquotes = False
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
@@ -244,29 +249,3 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
-
-
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if on_rtd:
-    from subprocess import call, Popen, PIPE
-
-    p = Popen('which git', shell=True, stdout=PIPE)
-    git = p.stdout.read().strip()
-    cwd = os.getcwd()
-    _themes = os.path.join(cwd, '_themes')
-
-    if not os.path.isdir(_themes):
-        call([git, 'clone', 'git://github.com/Pylons/pylons_sphinx_theme.git',
-                '_themes'])
-    else:
-        os.chdir(_themes)
-        call([git, 'checkout', 'master'])
-        call([git, 'pull'])
-        os.chdir(cwd)
-
-    sys.path.append(os.path.abspath('_themes'))
-    html_theme_path = ['_themes']
-    html_theme = 'pylons'
-    html_theme_options = dict(github_url='https://github.com/Pylons/webtest')
-
-intersphinx_mapping = {'webob': ('http://docs.webob.org/en/latest/', None)}

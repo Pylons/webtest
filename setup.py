@@ -19,6 +19,11 @@ tests_require = [
     'PasteDeploy', 'WSGIProxy2', 'pyquery'
 ]
 
+docs_extras = [
+    'Sphinx >= 1.7.9',
+    'docutils',
+    'pylons-sphinx-themes',
+]
 
 setup(name='WebTest',
       version=version,
@@ -60,6 +65,7 @@ setup(name='WebTest',
       tests_require=tests_require,
       extras_require={
           'tests': tests_require,
+          'docs': docs_extras,
       },
       entry_points="""
       [paste.app_factory]
