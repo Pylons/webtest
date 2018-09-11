@@ -153,7 +153,8 @@ News
   [gawel]
 
 - Fixed #89 remove WSGIWarning: You are not supposed to send a body in a DELETE
-  request because we now have a good reason for that. See http://bit.ly/1tb3yxW
+  request because we now have a good reason for that. See
+  https://stackoverflow.com/questions/299628/is-an-entity-body-allowed-for-an-http-delete-request/299701#299701
   [gawel]
 
 - Fixed #92 You can now override TestApp.JSONEncoder to use a custom encoder
@@ -376,7 +377,7 @@ News
 
 * allow equals sign in the cookie by spliting name-value-string pairs on
   the first '=' sign as per
-  http://tools.ietf.org/html/rfc6265#section-5.2
+  https://tools.ietf.org/html/rfc6265#section-5.2
 
 * fix an error when you use AssertionError(response) with unicode chars in
   response
@@ -479,7 +480,7 @@ News
 -----
 
 * Fix `#10
-  <http://bitbucket.org/ianb/webtest/issue/10/testapprequest-method-overwrites-specifics-with-testapp-scoped>`_,
+  <https://bitbucket.org/ianb/webtest/issues/10/testapprequest-method-overwrites-specifics-with-testapp-scoped>`_,
   now `TestApp.extra_environ` doesn't take precedence over a WSGI
   environment passed in through the request.
 
@@ -491,7 +492,7 @@ News
 * Revert change to cookies that would add ``"`` around cookie values.
 
 * Added property :meth:`webtest.Response.pyquery` which returns a
-  `PyQuery <http://pyquery.org/>`_ object.
+  `PyQuery <https://pypi.org/project/pyquery/>`_ object.
 
 * Set base_url on ``resp.lxml``
 
@@ -532,7 +533,7 @@ News
 * Removed the copying of stdout to stderr during requests.
 
 * Fix file upload fields in forms (`#340
-  <http://trac.pythonpaste.org/pythonpaste/ticket/340>`_) -- you could
+  <https://web.archive.org/web/20120516124643/http://trac.pythonpaste.org/pythonpaste/ticket/340>`_) -- you could
   upload files with :meth:`webtest.TestApp.post`, but if you use
   ``resp.form`` file upload fields would not work (from rcs-comp.com
   and Matthew Desmarais).

@@ -59,7 +59,7 @@ The added methods:
 ``str(response)``:
     Gives a slightly-compacted version of the response.  This is
     compacted to remove newlines, making it easier to use with
-    `doctest <http://python.org/doc/current/lib/module-doctest.html>`_
+    :mod:`python:doctest`.
 
 ``response.click(description=None, linkid=None, href=None, anchor=None, index=None, verbose=False)``:
     Clicks the described link (see :meth:`~webtest.response.TestResponse.click`)
@@ -93,7 +93,7 @@ are the attributes:
 
 ``response.html``:
     Return a `BeautifulSoup
-    <http://www.crummy.com/software/BeautifulSoup/>`_ version of the
+    <https://www.crummy.com/software/BeautifulSoup/>`_ version of the
     response body::
 
         >>> res = app.get('/index.html')
@@ -103,8 +103,7 @@ are the attributes:
         <class '...BeautifulSoup'>
 
 ``response.xml``:
-    Return an `ElementTree
-    <http://python.org/doc/current/lib/module-xml.etree.ElementTree.html>`_
+    Return an :mod:`ElementTree <python:xml.etree.ElementTree>`
     version of the response body::
 
         >>> res = app.get('/document.xml')
@@ -117,8 +116,7 @@ are the attributes:
 
 
 ``response.lxml``:
-    Return an `lxml <http://codespeak.net/lxml/>`_ version of the
-    response body::
+    Return an `lxml <https://lxml.de/>`_ version of the response body::
 
         >>> res = app.get('/index.html')
         >>> res.lxml
@@ -135,7 +133,7 @@ are the attributes:
         'hey!'
 
 ``response.pyquery``:
-    Return an `PyQuery <http://pypi.python.org/pypi/pyquery>`_ version of the
+    Return a `PyQuery <https://pypi.org/project/pyquery/>`_ version of the
     response body::
 
         >>> res.pyquery('message')

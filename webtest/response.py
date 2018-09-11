@@ -416,7 +416,7 @@ class TestResponse(webob.Response):
     def html(self):
         """
         Returns the response as a `BeautifulSoup
-        <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         object.
 
         Only works with HTML responses; other content-types raise
@@ -432,9 +432,8 @@ class TestResponse(webob.Response):
     @property
     def xml(self):
         """
-        Returns the response as an `ElementTree
-        <http://python.org/doc/current/lib/module-xml.etree.ElementTree.html>`_
-        object.
+        Returns the response as an :mod:`ElementTree
+        <python:xml.etree.ElementTree>` object.
 
         Only works with XML responses; other content-types raise
         AttributeError
@@ -461,9 +460,8 @@ class TestResponse(webob.Response):
     @property
     def lxml(self):
         """
-        Returns the response as an `lxml object
-        <http://codespeak.net/lxml/>`_.  You must have lxml installed
-        to use this.
+        Returns the response as an `lxml object <https://lxml.de/>`_.
+        You must have lxml installed to use this.
 
         If this is an HTML response and you have lxml 2.x installed,
         then an ``lxml.html.HTML`` object will be returned; if you
@@ -505,7 +503,8 @@ class TestResponse(webob.Response):
     @property
     def pyquery(self):
         """
-        Returns the response as a `PyQuery <http://pyquery.org/>`_ object.
+        Returns the response as a `PyQuery
+        <https://pypi.org/project/pyquery/>`_ object.
 
         Only works with HTML and XML responses; other content-types raise
         AttributeError.
