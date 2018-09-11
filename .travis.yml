@@ -12,5 +12,10 @@ matrix:
 
 install:
   - travis_retry pip install tox
+
 script:
-  - nosetests -s -v --with-coverage
+  - travis_retry tox
+
+cache:
+  directories:
+    - $HOME/.cache/pip
