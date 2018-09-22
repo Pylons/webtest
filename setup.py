@@ -20,9 +20,9 @@ tests_require = [
 ]
 
 docs_extras = [
-    'Sphinx >= 1.7.9',
+    'Sphinx >= 1.8.1',
     'docutils',
-    'pylons-sphinx-themes',
+    'pylons-sphinx-themes >= 1.0.8',
 ]
 
 setup(name='WebTest',
@@ -43,13 +43,14 @@ setup(name='WebTest',
           "Programming Language :: Python :: 3.4",
           "Programming Language :: Python :: 3.5",
           "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.7",
       ],
       keywords='wsgi test unit tests web',
       author='Ian Bicking',
       author_email='ianb at colorstudy com',
       maintainer='Gael Pasgrimaud',
       maintainer_email='gael@gawel.org',
-      url='http://webtest.pythonpaste.org/',
+      url='https://docs.pylonsproject.org/projects/webtest/en/latest/',
       license='MIT',
       packages=find_packages(exclude=[
           'ez_setup',
