@@ -1,6 +1,14 @@
 Form handling
 =============
 
+..
+  >>> from webtest.debugapp import make_debug_app
+  >>> from webtest.app import TestApp
+  >>> app = make_debug_app({},
+  ...                      form='docs/form.html',
+  ...                      show_form=True)
+  >>> app = TestApp(app)
+
 Getting a form
 --------------
 

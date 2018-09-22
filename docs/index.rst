@@ -70,6 +70,11 @@ The most important object in WebTest is :class:`~webtest.app.TestApp`, the wrapp
 for WSGI applications. It also allows you to perform HTTP requests on it.
 To use it, you simply instantiate it with your WSGI application.
 
+..
+   >>> import os
+   >>> with open('docs/form.html', 'rb') as fd:
+   ...      body = fd.read()
+
 .. note::
 
    If your WSGI application requires any configuration,

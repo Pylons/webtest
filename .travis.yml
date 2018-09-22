@@ -3,7 +3,6 @@ language: python
 matrix:
   include:
     - python: 2.7
-    - python: 3.3
     - python: 3.4
     - python: 3.5
     - python: 3.6
@@ -11,6 +10,6 @@ matrix:
       dist: xenial
 
 install:
-  - python setup.py dev
+  - pip install tox-travis
 script:
-  - nosetests -s -v --with-coverage
+  - tox
