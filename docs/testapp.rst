@@ -168,8 +168,7 @@ shouldn't have to check everytime you do a request.  It is assumed
 that the response will either be a 2xx or 3xx response; if it isn't an
 exception will be raised (you can override this for a request, of
 course).  The WSGI application is tested for WSGI compliance with
-a slightly modified version of `wsgiref.validate
-<http://python.org/doc/current/lib/module-wsgiref.validate.html>`_
+a slightly modified version of :mod:`python:wsgiref.validate`
 (modified to support arguments to ``InputWrapper.readline``)
 automatically.  Also it checks that nothing is printed to the
 ``environ['wsgi.errors']`` error stream, which typically indicates a

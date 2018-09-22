@@ -54,7 +54,7 @@ Execute tests
 Use tox to test many Python versions
 ====================================
 
-`Tox <http://tox.testrun.org/>`_ installation :
+`Tox <https://tox.readthedocs.io/en/latest/>`_ installation :
 
 .. code-block:: bash
 

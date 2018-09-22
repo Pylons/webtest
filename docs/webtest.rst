@@ -5,10 +5,9 @@ Functional Testing of Web Applications
 
 .. toctree::
 
-   testapp.rst
-   testresponse.rst
-   http.rst
-   debugapp.rst
+   testapp
+   testresponse
+   debugapp
 
 
 Framework Hooks

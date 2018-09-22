@@ -132,8 +132,6 @@ option.
 Checkbox
 ********
 
-.. autoclass:: Checkbox
-
 You can check if the checkbox is checked and is value:
 
 .. code-block:: python

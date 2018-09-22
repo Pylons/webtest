@@ -12,6 +12,7 @@
 # serve to show the default.
 
 import sys, os
+import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -28,9 +29,9 @@ import sys, os
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.intersphinx']
 
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/2.7', None),
-    'webob': ('https://webob.readthedocs.io/en/latest', None),
-    'waitrress': ('https://waitress.readthedocs.io/en/latest', None),
+    'python': ('https://docs.python.org/3/', None),
+    'webob': ('https://docs.pylonsproject.org/projects/webob/en/latest/', None),
+    'waitress': ('https://docs.pylonsproject.org/projects/waitress/en/latest/', None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -47,7 +48,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'WebTest'
-copyright = '2012, Ian Bicking'
+thisyear = datetime.datetime.now().year
+copyright = '2012-%s, Ian Bicking' % thisyear
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -130,9 +132,8 @@ html_static_path = []
 # using the given strftime format.
 #html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-#html_use_smartypants = True
+# Do not use smart quotes.
+smartquotes = False
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
