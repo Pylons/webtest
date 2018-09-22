@@ -4,7 +4,7 @@ News
 2.0.31 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- py33 is no longer supported. It may works but has been removed from tox config
 
 
 2.0.30 (2018-06-23)
