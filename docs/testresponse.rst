@@ -1,6 +1,29 @@
 TestResponse
 ############
 
+..
+  >>> import json
+  >>> import six
+  >>> import sys
+  >>> from webob import Request
+  >>> from webob import Response
+  >>> from webtest.app import TestApp
+  >>> def application(environ, start_response):
+  ...     req = Request(environ)
+  ...     if req.path_info.endswith('.html'):
+  ...         content_type = 'text/html'
+  ...         body = six.b('<html><body><div id="content">hey!</div></body>')
+  ...     elif req.path_info.endswith('.xml'):
+  ...         content_type = 'text/xml'
+  ...         body = six.b('<xml><message>hey!</message></xml>')
+  ...     elif req.path_info.endswith('.json'):
+  ...         content_type = 'application/json'
+  ...         body = six.b(json.dumps({"a": 1, "b": 2}))
+  ...     resp = Response(body, content_type=content_type)
+  ...     return resp(environ, start_response)
+  >>> app = TestApp(application)
+
+
 The response object is based on :class:`webob.response.Response` with some additions
 to help with testing.
 
