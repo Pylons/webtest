@@ -22,7 +22,7 @@ tests_require = [
 docs_extras = [
     'Sphinx >= 1.7.9',
     'docutils',
-    'pylons-sphinx-themes',
+    'pylons-sphinx-themes >= 1.0.8',
 ]
 
 setup(name='WebTest',
