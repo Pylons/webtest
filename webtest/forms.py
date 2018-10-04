@@ -332,8 +332,8 @@ class Submit(Field):
     value = property(value__get, value__set)
 
     def value_if_submitted(self):
-        # TODO: does this ever get set?
-        return self._value
+        # parsed value of the empty string
+        return self._value or ''
 
 
 Field.classes['submit'] = Submit

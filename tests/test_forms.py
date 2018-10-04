@@ -40,6 +40,17 @@ class TestForms(unittest.TestCase):
         self.assertTrue(isinstance(button, Submit),
                         "<button> without type is a submit button")
 
+    def test_button_value_if_submitted(self):
+        form = self.callFUT()
+        submit = form['submit']
+        self.assertEqual(
+            submit.value_if_submitted(), '',
+            "submit default value is ''")
+        button = form['button']
+        self.assertEqual(
+            button.value_if_submitted(), '',
+            "submit default value is ''")
+
     def test_force_select(self):
         form = self.callFUT()
         form['select'].force_value('notavalue')
