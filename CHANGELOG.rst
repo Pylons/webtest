@@ -6,6 +6,12 @@ News
 
 - py33 is no longer supported. It may works but has been removed from tox config
 
+- Fixed #205: Use empty string as default value for submit and button
+
+- tests use pytest
+
+- docs use the standard Pylons template on RTD
+
 
 2.0.30 (2018-06-23)
 -------------------
