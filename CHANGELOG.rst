@@ -4,7 +4,7 @@ News
 2.0.32 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- remove invalid email from setup.py
 
 
 2.0.31 (2018-10-05)
