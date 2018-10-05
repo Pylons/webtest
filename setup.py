@@ -5,7 +5,7 @@ import sys
 from setuptools import setup
 from setuptools import find_packages
 
-version = '2.0.31.dev0'
+version = '2.0.31'
 
 install_requires = [
     'six',
