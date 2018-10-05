@@ -128,4 +128,4 @@ Contents
 
 .. _license:
 
-.. include:: license.rst
+.. include:: ../license.rst
