@@ -116,13 +116,14 @@ Some of the things this checks:
 """
 from __future__ import unicode_literals
 
-import collections
 import re
 import warnings
 from six import PY3
 from six import binary_type
 from six import string_types
 from six import text_type
+
+from webtest.compat import Iterable
 
 header_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9\-_]*$')
 bad_header_value_re = re.compile(r'[\000-\037]')
@@ -198,7 +199,7 @@ def middleware(application, global_conf=None):
         environ['wsgi.errors'] = ErrorWrapper(environ['wsgi.errors'])
 
         iterator = application(environ, start_response_wrapper)
-        assert isinstance(iterator, collections.Iterable), (
+        assert isinstance(iterator, Iterable), (
             "The application must return an iterator, if only an empty list")
 
         check_iterator(iterator)
