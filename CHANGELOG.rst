@@ -4,7 +4,8 @@ News
 2.0.33 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fixed #196. Fix deprecation warnings for ``collections`` to use
+  ``collections.abc`` for ``Iterable`` on Python 3.
 
 
 2.0.32 (2018-10-05)
