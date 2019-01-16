@@ -36,7 +36,12 @@ def json_method(method):
         return self._gen_request(method, url, **kw)
 
     subst = dict(lmethod=method.lower(), method=method)
-    wrapper.__doc__ = json_method.__doc__ % subst
+
+    try:
+        wrapper.__doc__ = json_method.__doc__ % subst
+    except TypeError:
+        pass
+
     wrapper.__name__ = str('%(lmethod)s_json' % subst)
 
     return wrapper

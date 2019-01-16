@@ -448,8 +448,9 @@ class TestFollow(unittest.TestCase):
         resp = resp.follow()
         self.assertEqual(resp.body, b'done')
 
-        # can't follow non-redirect
-        self.assertRaises(AssertionError, resp.follow)
+        if sys.flags.optimize == 0:
+            # can't follow non-redirect
+            self.assertRaises(AssertionError, resp.follow)
 
     def test_follow_relative(self):
         app = self.get_redirects_app(2, ['hello/foo/', 'bar'])
@@ -483,6 +484,7 @@ class TestFollow(unittest.TestCase):
         resp = app.get('/').maybe_follow()
         self.assertEqual(resp.body, b'done')
 
+    @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_maybe_follow_infinite(self):
         app = self.get_redirects_app(100000)
         self.assertRaises(AssertionError, app.get('/').maybe_follow)
