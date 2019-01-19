@@ -110,7 +110,6 @@ class TestInputWrapper(unittest.TestCase):
         resp = app.post('/read_lines', 'hello\nt\n')
         self.assertEqual(resp.body, b'hello\n-t\n')
 
-    @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_close(self):
         input_wrapper = InputWrapper(None)
         self.assertRaises(AssertionError, input_wrapper.close)
@@ -316,7 +315,6 @@ class TestWriteWrapper(unittest.TestCase):
 
 class TestErrorWrapper(unittest.TestCase):
 
-    @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_dont_close(self):
         error_wrapper = ErrorWrapper(None)
         self.assertRaises(AssertionError, error_wrapper.close)

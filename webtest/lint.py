@@ -243,7 +243,7 @@ class InputWrapper(object):
             yield line
 
     def close(self):
-        assert 0, "input.close() must not be called"
+        raise AssertionError("input.close() must not be called")
 
     def seek(self, *a, **kw):
         return self.input.seek(*a, **kw)
@@ -267,7 +267,7 @@ class ErrorWrapper(object):
             self.write(line)
 
     def close(self):
-        assert 0, "errors.close() must not be called"
+        raise AssertionError("errors.close() must not be called")
 
 
 class WriteWrapper(object):
