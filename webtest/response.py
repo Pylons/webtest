@@ -96,9 +96,10 @@ class TestResponse(webob.Response):
         arguments are passed to :class:`webtest.app.TestApp.get`. Returns
         another :class:`TestResponse` object.
         """
-        assert 300 <= self.status_int < 400, (
-            "You can only follow redirect responses (not %s)"
-            % self.status)
+        if not (300 <= self.status_int < 400):
+            raise AssertionError(
+                "You can only follow redirect responses (not %s)" % self.status
+            )
         return self._follow(**kw)
 
     def maybe_follow(self, **kw):
@@ -114,7 +115,9 @@ class TestResponse(webob.Response):
             response = response._follow(**kw)
             remaining_redirects -= 1
 
-        assert remaining_redirects > 0, "redirects chain looks infinite"
+        if remaining_redirects <= 0:
+            raise AssertionError("redirects chain looks infinite")
+
         return response
 
     def click(self, description=None, linkid=None, href=None,

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import sys
 from six import PY3
 from six import StringIO
 from tests.compat import unittest
@@ -66,6 +67,7 @@ class TestToString(unittest.TestCase):
 
 class TestMiddleware(unittest.TestCase):
 
+    @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_lint_too_few_args(self):
         linter = middleware(application)
         with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
@@ -73,6 +75,7 @@ class TestMiddleware(unittest.TestCase):
         with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
             linter({})
 
+    @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_lint_no_keyword_args(self):
         linter = middleware(application)
         with self.assertRaisesRegexp(AssertionError, "No keyword arguments "
@@ -286,6 +289,8 @@ class TestIteratorWrapper(unittest.TestCase):
 
 
 class TestWriteWrapper(unittest.TestCase):
+
+    @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_wrong_type(self):
         write_wrapper = WriteWrapper(None)
         self.assertRaises(AssertionError, write_wrapper, 'not a binary')
