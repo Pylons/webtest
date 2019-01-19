@@ -43,7 +43,6 @@ def application(environ, start_response):
     return resp(environ, start_response)
 
 
-@unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
 class TestLatin1Assertion(unittest.TestCase):
 
     def test_valid_type(self):
@@ -66,9 +65,9 @@ class TestToString(unittest.TestCase):
         self.assertEqual(to_string(b'foo'), 'foo')
 
 
-@unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
 class TestMiddleware(unittest.TestCase):
 
+    @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_lint_too_few_args(self):
         linter = middleware(application)
         with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
@@ -76,6 +75,7 @@ class TestMiddleware(unittest.TestCase):
         with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
             linter({})
 
+    @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_lint_no_keyword_args(self):
         linter = middleware(application)
         with self.assertRaisesRegexp(AssertionError, "No keyword arguments "
@@ -144,7 +144,6 @@ class TestMiddleware2(unittest.TestCase):
         # don't know what to assert here... a bit cheating, just covers code
 
 
-@unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
 class TestCheckContentType(unittest.TestCase):
     def test_no_content(self):
         status = "204 No Content"
@@ -162,7 +161,6 @@ class TestCheckContentType(unittest.TestCase):
         self.assertRaises(AssertionError, check_content_type, status, headers)
 
 
-@unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
 class TestCheckHeaders(unittest.TestCase):
 
     @unittest.skipIf(PY3, 'unicode is str in Python3')
