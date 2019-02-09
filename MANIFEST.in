@@ -2,6 +2,7 @@ graft docs
 prune docs/_build
 graft webtest
 graft tests
+graft .github
 include *.txt *.rst *.cfg *.ini .coveragerc
 global-exclude *.pyc
 global-exclude __pycache__
