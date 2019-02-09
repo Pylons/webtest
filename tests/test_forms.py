@@ -780,6 +780,13 @@ class TestSelect(unittest.TestCase):
 
         multiple_form = res.forms["multiple_select_form"]
         self.assertEqual(multiple_form["multiple"].value, ["Nine", "Eleven"])
+        # reset with value
+        multiple_form["multiple"].value = []
+        self.assertIsNone(multiple_form["multiple"].value)
+        # re-set a value
+        multiple_form["multiple"].value = ['Nine']
+        assert multiple_form["multiple"].value == ['Nine']
+        # reset with force_value
         multiple_form["multiple"].force_value(None)
         self.assertIsNone(multiple_form["multiple"].value)
         display = multiple_form.submit("button")

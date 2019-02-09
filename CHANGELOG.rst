@@ -4,6 +4,10 @@ News
 2.0.33 (unreleased)
 -------------------
 
+- Fixed #210. Allow to reset select multiple with `field.value = []`
+
+- Support for PYTHONOPTIMIZE=2, fix tests on PYTHONOPTIMIZE=1, 2
+
 - Fixed #196. Fix deprecation warnings for ``collections`` to use
   ``collections.abc`` for ``Iterable`` on Python 3.
 

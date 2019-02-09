@@ -209,6 +209,10 @@ class MultipleSelect(Field):
         return value
 
     def value__set(self, values):
+        if not values:
+            self._forced_values = None
+        elif self._forced_values is not NoValue:
+            self._forced_values = NoValue
         str_values = [utils.stringify(value) for value in values]
         self.selectedIndices = []
         for i, (option, checked, text) in enumerate(self.options):
