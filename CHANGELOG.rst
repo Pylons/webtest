@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.33 (unreleased)
+2.0.33 (2019-02-09)
 -------------------
 
 - Fixed #210. Allow to reset select multiple with `field.value = []`
