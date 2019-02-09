@@ -5,4 +5,5 @@ graft tests
 graft .github
 include *.txt *.rst *.cfg *.ini .coveragerc
 global-exclude *.pyc
+global-exclude *.swp
 global-exclude __pycache__
