@@ -534,7 +534,7 @@ def check_content_type(status, headers):
         if name.lower() == 'content-type':
             if code not in NO_MESSAGE_TYPE:
                 return
-            elif length == 0:
+            elif not length:
                 warnings.warn(("Content-Type header found in a %s response, "
                                "which not return content.") % code,
                               WSGIWarning)

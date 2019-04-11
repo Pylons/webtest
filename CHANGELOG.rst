@@ -4,7 +4,7 @@ News
 2.0.34 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix the test ``length == 0`` in ``check_content_type``.
 
 
 2.0.33 (2019-02-09)
