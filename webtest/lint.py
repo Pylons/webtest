@@ -515,7 +515,7 @@ def check_headers(headers):
         if bad_header_value_re.search(value):
             raise AssertionError(
                 "Bad header value: %r (bad char: %r)"
-                % (str_value, bad_header_value_re.search(value).group(0))
+                % (value, bad_header_value_re.search(value).group(0))
             )
 
 
