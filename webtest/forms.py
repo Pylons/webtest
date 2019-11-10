@@ -356,6 +356,8 @@ Field.classes['file'] = File
 
 Field.classes['text'] = Text
 
+Field.classes['search'] = Text
+
 Field.classes['email'] = Email
 
 Field.classes['password'] = Text
