@@ -6,6 +6,8 @@ News
 
 - Fix the test ``length == 0`` in ``check_content_type``.
 
+- Treat ``<input type="search">`` like ``<input type="text">``.
+
 
 2.0.33 (2019-02-09)
 -------------------
