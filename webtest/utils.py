@@ -115,6 +115,10 @@ class _RequestCookieAdapter(object):
     def get_full_url(self):
         return self._request.url
 
+    @property
+    def host(self):
+        return self.origin_req_host
+
     def get_host(self):
         return self.origin_req_host
     get_origin_req_host = get_host
