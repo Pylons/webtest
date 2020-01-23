@@ -26,7 +26,6 @@ from six import text_type
 from six.moves import http_cookiejar
 
 from webtest.compat import urlparse
-from webtest.compat import urlencode
 from webtest.compat import to_bytes
 from webtest.compat import escape_cookie_value
 from webtest.response import TestResponse
@@ -315,13 +314,7 @@ class TestApp(object):
         url = str(url)
         url = self._remove_fragment(url)
         if params:
-            if not isinstance(params, string_types):
-                params = urlencode(params, doseq=True)
-            if str('?') in url:
-                url += str('&')
-            else:
-                url += str('?')
-            url += params
+            url = utils.build_params(url, params)
         if str('?') in url:
             url, environ['QUERY_STRING'] = url.split(str('?'), 1)
         else:
@@ -448,7 +441,7 @@ class TestApp(object):
                                  upload_files=None,
                                  expect_errors=expect_errors)
 
-    def head(self, url, headers=None, extra_environ=None,
+    def head(self, url, params=None, headers=None, extra_environ=None,
              status=None, expect_errors=False, xhr=False):
         """
         Do a HEAD request. Similar to :meth:`~webtest.TestApp.get`.
@@ -456,6 +449,8 @@ class TestApp(object):
         :returns: :class:`webtest.TestResponse` instance.
 
         """
+        if params:
+            url = utils.build_params(url, params)
         if xhr:
             headers = self._add_xhr_header(headers)
         return self._gen_request('HEAD', url, headers=headers,

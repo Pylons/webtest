@@ -8,6 +8,8 @@ News
 
 - Treat ``<input type="search">`` like ``<input type="text">``.
 
+- Handle query parameters for the ``head`` method.
+
 
 2.0.33 (2019-02-09)
 -------------------
