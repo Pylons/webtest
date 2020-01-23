@@ -26,7 +26,6 @@ from six import text_type
 from six.moves import http_cookiejar
 
 from webtest.compat import urlparse
-from webtest.compat import urlencode
 from webtest.compat import to_bytes
 from webtest.compat import escape_cookie_value
 from webtest.response import TestResponse
