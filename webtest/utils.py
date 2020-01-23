@@ -80,6 +80,17 @@ def encode_params(params, content_type):
     return params
 
 
+def build_params(url, params):
+    if not isinstance(params, six.string_types):
+        params = urlencode(params, doseq=True)
+    if str('?') in url:
+        url += str('&')
+    else:
+        url += str('?')
+    url += params
+    return url
+
+
 def make_pattern(pat):
     """Find element pattern can be a regex or a callable."""
     if pat is None:
