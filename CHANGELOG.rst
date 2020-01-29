@@ -1,7 +1,7 @@
 News
 ====
 
-2.0.34 (unreleased)
+2.0.34 (2020-01-29)
 -------------------
 
 - Fix the test ``length == 0`` in ``check_content_type``.
