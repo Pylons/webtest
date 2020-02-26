@@ -5,8 +5,6 @@ from json import loads
 from webtest import forms
 from webtest import utils
 from webtest.compat import print_stderr
-from webtest.compat import splittype
-from webtest.compat import splithost
 from webtest.compat import PY3
 from webtest.compat import urlparse
 from webtest.compat import to_bytes
@@ -84,8 +82,6 @@ class TestResponse(webob.Response):
     def _follow(self, **kw):
         location = self.headers['location']
         abslocation = urlparse.urljoin(self.request.url, location)
-        type_, rest = splittype(abslocation)
-        host, path = splithost(rest)
         # @@: We should test that it's not a remote redirect
         return self.test_app.get(abslocation, **kw)
 

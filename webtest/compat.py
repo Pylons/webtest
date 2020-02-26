@@ -18,14 +18,10 @@ def to_bytes(value, charset='latin1'):
 if PY3:  # pragma: no cover
     from html.entities import name2codepoint
     from urllib.parse import urlencode
-    from urllib.parse import splittype
-    from urllib.parse import splithost
     import urllib.parse as urlparse
     from collections.abc import Iterable  # noqa
 else:  # pragma: no cover
     from htmlentitydefs import name2codepoint  # noqa
-    from urllib import splittype  # noqa
-    from urllib import splithost  # noqa
     from urllib import urlencode  # noqa
     import urlparse  # noqa
     from collections import Iterable  # noqa
