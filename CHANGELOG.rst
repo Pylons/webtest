@@ -4,8 +4,9 @@ News
 2.0.35 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- python3.8 compat
 
+- Remove use of deprecated splittype and splithost
 
 2.0.34 (2020-01-29)
 -------------------
