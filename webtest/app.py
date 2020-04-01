@@ -116,7 +116,7 @@ class TestApp(object):
         string
     :param cookiejar:
         :class:`cookielib.CookieJar` alike API that keeps cookies
-        across requets.
+        across requests.
     :type cookiejar:
         CookieJar instance
 
