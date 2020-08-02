@@ -19,6 +19,9 @@ class TestApp(unittest.TestCase):
     def setUp(self):
         self.app = webtest.TestApp(debug_app)
 
+    def test_pytest_collection_disabled(self):
+        self.assertFalse(webtest.TestApp.__test__)
+
     def test_encode_multipart_relative_to(self):
         app = webtest.TestApp(debug_app,
                               relative_to=os.path.dirname(__file__))

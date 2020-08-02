@@ -141,6 +141,9 @@ class TestApp(object):
 
     RequestClass = TestRequest
 
+    # Tell pytest not to collect this class as tests
+    __test__ = False
+
     def __init__(self, app, extra_environ=None, relative_to=None,
                  use_unicode=True, cookiejar=None, parser_features=None,
                  json_encoder=None, lint=True):
