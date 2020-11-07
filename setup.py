@@ -6,14 +6,13 @@ from setuptools import find_packages
 version = '2.0.36.dev0'
 
 install_requires = [
-    'six',
     'WebOb>=1.2',
     'waitress>=0.8.5',
     'beautifulsoup4',
 ]
 
 tests_require = [
-    'nose<1.3.0', 'coverage', 'mock',
+    'nose<1.3.0', 'coverage',
     'PasteDeploy', 'WSGIProxy2', 'pyquery'
 ]
 
@@ -34,10 +33,7 @@ setup(name='WebTest',
           "License :: OSI Approved :: MIT License",
           "Topic :: Internet :: WWW/HTTP :: WSGI",
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Server",
-          "Programming Language :: Python :: 2",
-          "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.5",
           "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: 3.7",
           "Programming Language :: Python :: 3.8",

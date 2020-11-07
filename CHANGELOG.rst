@@ -4,7 +4,7 @@ News
 2.0.36 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Dropped support for Python 2.7 and 3.5.
 
 
 2.0.35 (2020-04-27)
