@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import re
 import six
 from json import dumps
@@ -6,7 +5,7 @@ from json import dumps
 from webtest.compat import urlencode
 
 
-class NoDefault(object):
+class NoDefault:
     """Sentinel to uniquely represent no default value."""
 
     def __repr__(self):
@@ -48,9 +47,9 @@ def json_method(method):
 
 
 def stringify(value):
-    if isinstance(value, six.text_type):
+    if isinstance(value, str):
         return value
-    elif isinstance(value, six.binary_type):
+    elif isinstance(value, bytes):
         return value.decode('utf8')
     else:
         return str(value)
@@ -72,7 +71,7 @@ def encode_params(params, content_type):
                 charset = charset.strip('; ').lower()
                 encoded_params = []
                 for k, v in params:
-                    if isinstance(v, six.text_type):
+                    if isinstance(v, str):
                         v = v.encode(charset)
                     encoded_params.append((k, v))
                 params = encoded_params
@@ -81,12 +80,12 @@ def encode_params(params, content_type):
 
 
 def build_params(url, params):
-    if not isinstance(params, six.string_types):
+    if not isinstance(params, str):
         params = urlencode(params, doseq=True)
-    if str('?') in url:
-        url += str('&')
+    if '?' in url:
+        url += '&'
     else:
-        url += str('?')
+        url += '?'
     url += params
     return url
 
@@ -95,9 +94,9 @@ def make_pattern(pat):
     """Find element pattern can be a regex or a callable."""
     if pat is None:
         return None
-    if isinstance(pat, six.binary_type):
+    if isinstance(pat, bytes):
         pat = pat.decode('utf8')
-    if isinstance(pat, six.text_type):
+    if isinstance(pat, str):
         pat = re.compile(pat)
     if hasattr(pat, 'search'):
         return pat.search
@@ -107,7 +106,7 @@ def make_pattern(pat):
         "Cannot make callable pattern object out of %r" % pat)
 
 
-class _RequestCookieAdapter(object):
+class _RequestCookieAdapter:
     """
     cookielib.CookieJar support for webob.Request
     """
@@ -153,7 +152,7 @@ class _RequestCookieAdapter(object):
         return self._request.headers.items()
 
 
-class _ResponseCookieAdapter(object):
+class _ResponseCookieAdapter:
     """
     cookielib.CookieJar support for webob.Response
     """

@@ -1,16 +1,13 @@
-# -*- coding: utf-8 -*-
-from six import binary_type
+from http import cookiejar as http_cookiejar
 from webob import Request
 from webob import Response
 from webtest.compat import to_bytes
-from webtest.compat import PY3
 from collections import OrderedDict
 from webtest.debugapp import debug_app
 from webtest import http
 from tests.compat import unittest
 import os
-import six
-import mock
+from unittest import mock
 import webtest
 
 
@@ -31,11 +28,11 @@ class TestApp(unittest.TestCase):
 
     def test_encode_multipart(self):
         data = self.app.encode_multipart(
-            [], [('file', 'data.txt', six.b('data'))])
+            [], [('file', 'data.txt', b'data')])
         self.assertIn(to_bytes('data.txt'), data[-1])
 
         data = self.app.encode_multipart(
-            [], [(six.b('file'), six.b('data.txt'), six.b('data'))])
+            [], [(b'file', b'data.txt', b'data')])
         self.assertIn(to_bytes('data.txt'), data[-1])
 
         data = self.app.encode_multipart(
@@ -43,18 +40,18 @@ class TestApp(unittest.TestCase):
         self.assertIn(to_bytes('name="key"'), data[-1])
 
         data = self.app.encode_multipart(
-            [(six.b('key'), six.b('value'))], [])
+            [(b'key', b'value')], [])
         self.assertIn(to_bytes('name="key"'), data[-1])
 
     def test_encode_multipart_content_type(self):
         data = self.app.encode_multipart(
-            [], [('file', 'data.txt', six.b('data'),
+            [], [('file', 'data.txt', b'data',
                  'text/x-custom-mime-type')])
         self.assertIn(to_bytes('Content-Type: text/x-custom-mime-type'),
                       data[-1])
 
         data = self.app.encode_multipart(
-            [('file', webtest.Upload('data.txt', six.b('data'),
+            [('file', webtest.Upload('data.txt', b'data',
                                      'text/x-custom-mime-type'))], [])
         self.assertIn(to_bytes('Content-Type: text/x-custom-mime-type'),
                       data[-1])
@@ -136,21 +133,21 @@ class TestAppError(unittest.TestCase):
         self.assertEqual(err.args, ('message blah',))
 
     def test_app_error_with_bytes_message(self):
-        resp = Response(six.u('\xe9').encode('utf8'))
+        resp = Response('\xe9'.encode('utf8'))
         resp.charset = 'utf8'
         err = webtest.AppError(to_bytes('message %s'), resp)
-        self.assertEqual(err.args, (six.u('message \xe9'),))
+        self.assertEqual(err.args, ('message \xe9',))
 
     def test_app_error_with_unicode(self):
-        err = webtest.AppError(six.u('messag\xe9 %s'), six.u('\xe9'))
-        self.assertEqual(err.args, (six.u('messag\xe9 \xe9'),))
+        err = webtest.AppError('messag\xe9 %s', '\xe9')
+        self.assertEqual(err.args, ('messag\xe9 \xe9',))
 
     def test_app_error_misc(self):
-        resp = Response(six.u('\xe9').encode('utf8'))
+        resp = Response('\xe9'.encode('utf8'))
         resp.charset = ''
         # dont check the output. just make sure it doesn't fail
         webtest.AppError(to_bytes('message %s'), resp)
-        webtest.AppError(six.u('messag\xe9 %s'), six.b('\xe9'))
+        webtest.AppError('messag\xe9 %s', b'\xe9')
 
 
 class TestPasteVariables(unittest.TestCase):
@@ -177,7 +174,7 @@ class TestPasteVariables(unittest.TestCase):
 class TestCookies(unittest.TestCase):
 
     def test_supports_providing_cookiejar(self):
-        cookiejar = six.moves.http_cookiejar.CookieJar()
+        cookiejar = http_cookiejar.CookieJar()
         app = webtest.TestApp(debug_app, cookiejar=cookiejar)
         self.assertIs(cookiejar, app.cookiejar)
 
@@ -287,7 +284,7 @@ class TestCookies(unittest.TestCase):
         else:
             self.fail('testapp.cookies should be read-only')
 
-    @mock.patch('six.moves.http_cookiejar.time.time')
+    @mock.patch('http.cookiejar.time.time')
     def test_expires_cookies(self, mock_time):
         def cookie_app(environ, start_response):
             status = to_bytes("200 OK")
@@ -361,7 +358,6 @@ class TestCookies(unittest.TestCase):
         self.assertEqual(dict(res.request.cookies), {'spam': 'eggs'})
 
     def test_cookie_policy(self):
-        from six.moves import http_cookiejar
 
         def cookie_app(environ, start_response):
             status = to_bytes("200 OK")
@@ -496,7 +492,7 @@ def get_submit_app(form_id, form_fields_text):
     </html>
     """
             body = body_head + "".join(body_parts) + body_foot
-        if not isinstance(body, binary_type):
+        if not isinstance(body, bytes):
             body = body.encode('utf8')
         headers = [
             ('Content-Type', 'text/html; charset=utf-8'),
@@ -510,9 +506,7 @@ class TestFieldOrder(unittest.TestCase):
 
     def test_submit_with_file_upload(self):
         uploaded_file_name = 'test.txt'
-        uploaded_file_contents = 'test content file upload'
-        if PY3:
-            uploaded_file_contents = to_bytes(uploaded_file_contents)
+        uploaded_file_contents = to_bytes('test content file upload')
 
         deform_upload_file_app = get_submit_app('deform',
                                                 deform_upload_fields_text)
@@ -543,9 +537,7 @@ Submit:Submit
 
     def test_post_with_file_upload(self):
         uploaded_file_name = 'test.txt'
-        uploaded_file_contents = 'test content file upload'
-        if PY3:
-            uploaded_file_contents = to_bytes(uploaded_file_contents)
+        uploaded_file_contents = to_bytes('test content file upload')
 
         deform_upload_file_app = get_submit_app('deform',
                                                 deform_upload_fields_text)

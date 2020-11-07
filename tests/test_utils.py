@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
 import re
 import json
 import sys
@@ -80,7 +77,7 @@ class stringifyTest(unittest.TestCase):
 
 class json_methodTest(unittest.TestCase):
 
-    class MockTestApp(object):
+    class MockTestApp:
         """Mock TestApp used to test the json_object decorator."""
         from webtest.utils import json_method
         JSONEncoder = json.JSONEncoder
