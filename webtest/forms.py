@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Helpers to fill and submit forms."""
 
 import operator
@@ -10,11 +9,11 @@ from collections import OrderedDict
 from webtest import utils
 
 
-class NoValue(object):
+class NoValue:
     pass
 
 
-class Upload(object):
+class Upload:
     """
     A file to upload::
 
@@ -48,7 +47,7 @@ class Upload(object):
         return '<Upload "%s">' % self.filename
 
 
-class Field(object):
+class Field:
     """Base class for all Field objects.
 
     .. attribute:: classes
@@ -101,7 +100,7 @@ class Select(Field):
     """Field representing ``<select />`` form element."""
 
     def __init__(self, *args, **attrs):
-        super(Select, self).__init__(*args, **attrs)
+        super().__init__(*args, **attrs)
         self.options = []
         self.optionPositions = []
         # Undetermined yet:
@@ -170,7 +169,7 @@ class MultipleSelect(Field):
     """Field representing ``<select multiple="multiple">``"""
 
     def __init__(self, *args, **attrs):
-        super(MultipleSelect, self).__init__(*args, **attrs)
+        super().__init__(*args, **attrs)
         self.options = []
         # Undetermined yet:
         self.selectedIndices = []
@@ -267,7 +266,7 @@ class Checkbox(Field):
     """
 
     def __init__(self, *args, **attrs):
-        super(Checkbox, self).__init__(*args, **attrs)
+        super().__init__(*args, **attrs)
         self._checked = 'checked' in attrs
 
     def value__set(self, value):
@@ -369,7 +368,7 @@ Field.classes['textarea'] = Textarea
 Field.classes['radio'] = Radio
 
 
-class Form(object):
+class Form:
     """This object represents a form that has been found in a page.
 
     :param response: `webob.response.TestResponse` instance
@@ -463,8 +462,8 @@ class Form(object):
 
             # https://github.com/Pylons/webtest/issues/73
             if sys.version_info[:2] <= (2, 6):
-                attrs = dict((k.encode('utf-8') if isinstance(k, unicode)
-                              else k, v) for k, v in attrs.items())
+                attrs = {k.encode('utf-8') if isinstance(k, unicode)
+                              else k: v for k, v in attrs.items()}
 
             # https://github.com/Pylons/webtest/issues/131
             reserved_attributes = ('form', 'tag', 'pos')
@@ -528,7 +527,7 @@ class Form(object):
             % (name, ', '.join(map(repr, self.fields.keys()))))
         all_checkboxes = all(isinstance(f, Checkbox) for f in fields)
         if all_checkboxes and isinstance(value, list):
-            values = set(utils.stringify(v) for v in value)
+            values = {utils.stringify(v) for v in value}
             for f in fields:
                 f.checked = f._value in values
         else:

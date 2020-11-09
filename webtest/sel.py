@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 __doc__ = 'webtest.sel is now in a separate package name webtest-selenium'
 
 
-class SeleniumApp(object):
+class SeleniumApp:
 
     def __init__(self, *args, **kwargs):
         raise ImportError(__doc__)

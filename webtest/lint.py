@@ -114,14 +114,9 @@ Some of the things this checks:
     is garbage collected).
 
 """
-from __future__ import unicode_literals
 
 import re
 import warnings
-from six import PY3
-from six import binary_type
-from six import string_types
-from six import text_type
 
 from webtest.compat import Iterable
 
@@ -133,15 +128,15 @@ valid_methods = (
     'TRACE', 'PATCH',
 )
 
-METADATA_TYPE = PY3 and (str, binary_type) or (str,)
+METADATA_TYPE = (str, bytes)
 
 # PEP-3333 says that environment variables must be "native strings",
 # i.e. str(), which however is something *different* in py2 and py3.
-SLASH = str('/')
+SLASH = '/'
 
 
 def to_string(value):
-    if not isinstance(value, string_types):
+    if not isinstance(value, str):
         return value.decode('latin1')
     else:
         return value
@@ -211,7 +206,7 @@ def middleware(application, global_conf=None):
     return lint_app
 
 
-class InputWrapper(object):
+class InputWrapper:
 
     def __init__(self, wsgi_input):
         self.input = wsgi_input
@@ -219,12 +214,12 @@ class InputWrapper(object):
     def read(self, *args):
         assert len(args) <= 1
         v = self.input.read(*args)
-        assert type(v) is binary_type
+        assert type(v) is bytes
         return v
 
     def readline(self, *args):
         v = self.input.readline(*args)
-        assert type(v) is binary_type
+        assert type(v) is bytes
         return v
 
     def readlines(self, *args):
@@ -232,7 +227,7 @@ class InputWrapper(object):
         lines = self.input.readlines(*args)
         assert isinstance(lines, list)
         for line in lines:
-            assert type(line) is binary_type
+            assert type(line) is bytes
         return lines
 
     def __iter__(self):
@@ -249,14 +244,12 @@ class InputWrapper(object):
         return self.input.seek(*a, **kw)
 
 
-class ErrorWrapper(object):
+class ErrorWrapper:
 
     def __init__(self, wsgi_errors):
         self.errors = wsgi_errors
 
     def write(self, s):
-        if not PY3:
-            assert type(s) is binary_type
         self.errors.write(s)
 
     def flush(self):
@@ -270,17 +263,17 @@ class ErrorWrapper(object):
         raise AssertionError("errors.close() must not be called")
 
 
-class WriteWrapper(object):
+class WriteWrapper:
 
     def __init__(self, wsgi_writer):
         self.writer = wsgi_writer
 
     def __call__(self, s):
-        assert type(s) is binary_type
+        assert type(s) is bytes
         self.writer(s)
 
 
-class IteratorWrapper(object):
+class IteratorWrapper:
 
     def __init__(self, wsgi_iterator, check_start_response):
         self.original_iterator = wsgi_iterator
@@ -300,9 +293,9 @@ class IteratorWrapper(object):
                 "The application returns and we started iterating over its"
                 " body, but start_response has not yet been called")
             self.check_start_response = None
-        assert isinstance(v, binary_type), (
+        assert isinstance(v, bytes), (
             "Iterator %r returned a non-%r object: %r"
-            % (self.iterator, binary_type, v))
+            % (self.iterator, bytes, v))
         return v
 
     __next__ = next
@@ -457,7 +450,7 @@ def _assert_latin1_str(string, message):
     if type(string) is not str:
         raise AssertionError(message)
 
-    if type(string) is text_type:
+    if type(string) is str:
         try:
             string.encode('latin1')
         except UnicodeEncodeError:
@@ -560,7 +553,7 @@ def check_exc_info(exc_info):
 
 
 def check_iterator(iterator):
-    valid_type = PY3 and bytes or str
+    valid_type = bytes
     # Technically a bytes (str for py2.x) is legal, which is why it's a
     # really bad idea, because it may cause the response to be returned
     # character-by-character

@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import sys
-from six import PY3
-from six import StringIO
 from tests.compat import unittest
 from webob import Request, Response
 
 import warnings
-import mock
+from unittest import mock
+from io import StringIO
 
 from webtest import TestApp
 from webtest.compat import to_bytes
@@ -47,14 +43,10 @@ class TestLatin1Assertion(unittest.TestCase):
 
     def test_valid_type(self):
         value = "useful-inførmation-5"
-        if not PY3:
-            value = value.encode("latin1")
         assert value == _assert_latin1_str(value, "fail")
 
     def test_invalid_type(self):
         value = b"useful-information-5"
-        if not PY3:
-            value = value.decode("utf8")
         self.assertRaises(AssertionError, _assert_latin1_str, value, "fail")
 
 
@@ -162,41 +154,29 @@ class TestCheckContentType(unittest.TestCase):
 
 class TestCheckHeaders(unittest.TestCase):
 
-    @unittest.skipIf(PY3, 'unicode is str in Python3')
-    def test_header_unicode_name(self):
-        headers = [(u'X-Price', str('100'))]
-        self.assertRaises(AssertionError, check_headers, headers)
-
-    @unittest.skipIf(PY3, 'unicode is str in Python3')
-    def test_header_unicode_value(self):
-        headers = [(str('X-Price'), u'100')]
-        self.assertRaises(AssertionError, check_headers, headers)
-
-    @unittest.skipIf(not PY3, 'bytes is str in Python2')
     def test_header_bytes_name(self):
         headers = [(b'X-Price', '100')]
         self.assertRaises(AssertionError, check_headers, headers)
 
-    @unittest.skipIf(not PY3, 'bytes is str in Python2')
     def test_header_bytes_value(self):
         headers = [('X-Price', b'100')]
         self.assertRaises(AssertionError, check_headers, headers)
 
     def test_header_non_latin1_value(self):
-        headers = [(str('X-Price'), '100€')]
+        headers = [('X-Price', '100€')]
         self.assertRaises(AssertionError, check_headers, headers)
 
     def test_header_non_latin1_name(self):
-        headers = [('X-€', str('foo'))]
+        headers = [('X-€', 'foo')]
         self.assertRaises(AssertionError, check_headers, headers)
 
 
 class TestCheckEnviron(unittest.TestCase):
     def test_no_query_string(self):
         environ = {
-            'REQUEST_METHOD': str('GET'),
-            'SERVER_NAME': str('localhost'),
-            'SERVER_PORT': str('80'),
+            'REQUEST_METHOD': 'GET',
+            'SERVER_NAME': 'localhost',
+            'SERVER_PORT': '80',
             'wsgi.version': (1, 0, 1),
             'wsgi.input': StringIO('test'),
             'wsgi.errors': StringIO(),
@@ -204,7 +184,7 @@ class TestCheckEnviron(unittest.TestCase):
             'wsgi.multiprocess': None,
             'wsgi.run_once': None,
             'wsgi.url_scheme': 'http',
-            'PATH_INFO': str('/'),
+            'PATH_INFO': '/',
         }
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -216,9 +196,9 @@ class TestCheckEnviron(unittest.TestCase):
 
     def test_no_valid_request(self):
         environ = {
-            'REQUEST_METHOD': str('PROPFIND'),
-            'SERVER_NAME': str('localhost'),
-            'SERVER_PORT': str('80'),
+            'REQUEST_METHOD': 'PROPFIND',
+            'SERVER_NAME': 'localhost',
+            'SERVER_PORT': '80',
             'wsgi.version': (1, 0, 1),
             'wsgi.input': StringIO('test'),
             'wsgi.errors': StringIO(),
@@ -226,8 +206,8 @@ class TestCheckEnviron(unittest.TestCase):
             'wsgi.multiprocess': None,
             'wsgi.run_once': None,
             'wsgi.url_scheme': 'http',
-            'PATH_INFO': str('/'),
-            'QUERY_STRING': str(''),
+            'PATH_INFO': '/',
+            'QUERY_STRING': '',
         }
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -239,14 +219,11 @@ class TestCheckEnviron(unittest.TestCase):
                 "about REQUEST_METHOD")
 
     def test_handles_native_strings_in_variables(self):
-        # "native string" means unicode in py3, but bytes in py2
         path = '/umläut'
-        if not PY3:
-            path = path.encode('utf-8')
         environ = {
-            'REQUEST_METHOD': str('GET'),
-            'SERVER_NAME': str('localhost'),
-            'SERVER_PORT': str('80'),
+            'REQUEST_METHOD': 'GET',
+            'SERVER_NAME': 'localhost',
+            'SERVER_PORT': '80',
             'wsgi.version': (1, 0, 1),
             'wsgi.input': StringIO('test'),
             'wsgi.errors': StringIO(),
@@ -255,7 +232,7 @@ class TestCheckEnviron(unittest.TestCase):
             'wsgi.run_once': None,
             'wsgi.url_scheme': 'http',
             'PATH_INFO': path,
-            'QUERY_STRING': str(''),
+            'QUERY_STRING': '',
         }
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -265,7 +242,7 @@ class TestCheckEnviron(unittest.TestCase):
 
 class TestIteratorWrapper(unittest.TestCase):
     def test_close(self):
-        class MockIterator(object):
+        class MockIterator:
 
             def __init__(self):
                 self.closed = False
@@ -296,7 +273,7 @@ class TestWriteWrapper(unittest.TestCase):
         self.assertRaises(AssertionError, write_wrapper, 'not a binary')
 
     def test_normal(self):
-        class MockWriter(object):
+        class MockWriter:
             def __init__(self):
                 self.written = []
 
@@ -319,7 +296,7 @@ class TestErrorWrapper(unittest.TestCase):
         error_wrapper = ErrorWrapper(None)
         self.assertRaises(AssertionError, error_wrapper.close)
 
-    class FakeError(object):
+    class FakeError:
         def __init__(self):
             self.written = []
             self.flushed = False

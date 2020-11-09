@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from tests.compat import unittest
 from webob import Request
 from webtest.debugapp import debug_app

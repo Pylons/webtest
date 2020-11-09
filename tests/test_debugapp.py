@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import os
 import sys
-import six
 import webtest
 from webtest.debugapp import debug_app
-from webtest.compat import PY3
 from webtest.compat import to_bytes
 from webtest.compat import print_stderr
 from webtest.app import AppError
@@ -112,7 +108,7 @@ class TestTesting(unittest.TestCase):
             assert(False, "An AppError should be raised")
         except AppError:
             e = sys.exc_info()[1]
-            assert six.text_type(e) \
+            assert str(e) \
                 == "Application had errors logged:\nsomelogs"
 
     def test_request_obj(self):
@@ -171,16 +167,12 @@ class TestTesting(unittest.TestCase):
         res = self.app.get('/')
         res.charset = 'utf-8'
         res.text = '°C'
-        if not PY3:
-            unicode(AssertionError(res))
         str(AssertionError(res))
         res.charset = None
-        if not PY3:
-            unicode(AssertionError(res))
         str(AssertionError(res))
 
     def test_fake_dict(self):
-        class FakeDict(object):
+        class FakeDict:
             def items(self):
                 return [('a', '10'), ('a', '20')]
         self.app.post('/params', params=FakeDict())

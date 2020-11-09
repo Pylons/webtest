@@ -1,37 +1,24 @@
-# -*- coding: utf-8 -*-
 import sys
-import six
-from six import PY3
-from six import text_type
-from six.moves import http_cookies
+from http import cookies
 
-SimpleCookie = http_cookies.SimpleCookie
-CookieError = http_cookies.CookieError
+SimpleCookie = cookies.SimpleCookie
+CookieError = cookies.CookieError
 
 
 def to_bytes(value, charset='latin1'):
-    if isinstance(value, text_type):
+    if isinstance(value, str):
         return value.encode(charset)
     return value
 
 
-if PY3:  # pragma: no cover
-    from html.entities import name2codepoint
-    from urllib.parse import urlencode
-    import urllib.parse as urlparse
-    from collections.abc import Iterable  # noqa
-else:  # pragma: no cover
-    from htmlentitydefs import name2codepoint  # noqa
-    from urllib import urlencode  # noqa
-    import urlparse  # noqa
-    from collections import Iterable  # noqa
+from html.entities import name2codepoint
+from urllib.parse import urlencode
+import urllib.parse as urlparse
+from collections.abc import Iterable  # noqa
 
 
 def print_stderr(value):
-    if not PY3:
-        if isinstance(value, text_type):
-            value = value.encode('utf8')
-    six.print_(value, file=sys.stderr)
+    print(value, file=sys.stderr)
 
 
 def escape_cookie_value(value):

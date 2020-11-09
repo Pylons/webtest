@@ -1,15 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import cgi
 import os.path
 import struct
 import sys
 
 import webtest
-import six
-from six import binary_type
-from six import PY3
 from webob import Request
 from webtest.debugapp import DebugApp
 from webtest.compat import to_bytes
@@ -210,22 +204,22 @@ class TestInput(unittest.TestCase):
         self.assertEqual(form['foo'].value, 'true')
         self.assertEqual(form['foo'].selectedIndex, 0)
         self.assertEqual(form.submit_fields(), [
-            (u'__start__', u'item:mapping'),
+            ('__start__', 'item:mapping'),
             ('foo', 'true'),
-            (u'__end__', u'item:mapping'),
-            (u'__start__', u'item:mapping'),
-            (u'__end__', u'item:mapping')])
+            ('__end__', 'item:mapping'),
+            ('__start__', 'item:mapping'),
+            ('__end__', 'item:mapping')])
 
         res = app.get('/form.html')
         form = res.forms['complex_radio_input_form']
         self.assertEqual(form['foo'].value, 'true')
         self.assertEqual(form['foo'].selectedIndex, 1)
         self.assertEqual(form.submit_fields(), [
-            (u'__start__', u'item:mapping'),
-            (u'__end__', u'item:mapping'),
-            (u'__start__', u'item:mapping'),
+            ('__start__', 'item:mapping'),
+            ('__end__', 'item:mapping'),
+            ('__start__', 'item:mapping'),
             ('foo', 'true'),
-            (u'__end__', u'item:mapping')])
+            ('__end__', 'item:mapping')])
 
     def test_input_unicode(self):
         app = self.callFUT('form_unicode_inputs.html')
@@ -526,8 +520,8 @@ def select_app_unicode(environ, start_response):
     # PEP 3333 requires native strings:
     headers = [(str(k), str(v)) for k, v in headers]
     start_response(status, headers)
-    if not isinstance(body, binary_type):
-        raise AssertionError('Body is not %s' % binary_type)
+    if not isinstance(body, bytes):
+        raise AssertionError('Body is not %s' % bytes)
     return [body]
 
 
@@ -793,7 +787,7 @@ class TestSelect(unittest.TestCase):
         self.assertIn("<p>You selected </p>", display, display)
 
 
-class SingleUploadFileApp(object):
+class SingleUploadFileApp:
 
     body = b"""
 <html>
@@ -829,7 +823,7 @@ class SingleUploadFileApp(object):
         # PEP 3333 requires native strings:
         headers = [(str(k), str(v)) for k, v in headers]
         start_response(status, headers)
-        assert(isinstance(body, binary_type))
+        assert(isinstance(body, bytes))
         return [body]
 
     def get_files_page(self, req):
@@ -856,10 +850,7 @@ class UploadBinaryApp(SingleUploadFileApp):
     def get_files_page(self, req):
         uploaded_files = [(k, v) for k, v in req.POST.items() if 'file' in k]
         data = uploaded_files[0][1].value
-        if PY3:
-            data = struct.unpack(b'255h', data[:510])
-        else:
-            data = struct.unpack(str('255h'), data)
+        data = struct.unpack(b'255h', data[:510])
         return b','.join([to_bytes(str(i)) for i in data])
 
 
@@ -882,13 +873,13 @@ class MultipleUploadFileApp(SingleUploadFileApp):
 class TestFileUpload(unittest.TestCase):
 
     def assertFile(self, name, contents, display, content_type=None):
-        if isinstance(name, six.binary_type):
+        if isinstance(name, bytes):
             text_name = name.decode('ascii')
         else:
             text_name = name
         self.assertIn("<p>You selected '" + text_name + "'</p>",
                       display, display)
-        if isinstance(contents, six.binary_type):
+        if isinstance(contents, bytes):
             text_contents = contents.decode('ascii')
         else:
             text_contents = contents
@@ -911,8 +902,7 @@ class TestFileUpload(unittest.TestCase):
         uploaded_file_name = os.path.join(os.path.dirname(__file__),
                                           "__init__.py")
         uploaded_file_contents = open(uploaded_file_name).read()
-        if PY3:
-            uploaded_file_contents = to_bytes(uploaded_file_contents)
+        uploaded_file_contents = to_bytes(uploaded_file_contents)
 
         app = webtest.TestApp(SingleUploadFileApp())
         res = app.get('/')
@@ -931,8 +921,7 @@ class TestFileUpload(unittest.TestCase):
         uploaded_file_name = os.path.join(os.path.dirname(__file__),
                                           "__init__.py")
         uploaded_file_contents = open(uploaded_file_name).read()
-        if PY3:
-            uploaded_file_contents = to_bytes(uploaded_file_contents)
+        uploaded_file_contents = to_bytes(uploaded_file_contents)
 
         app = webtest.TestApp(SingleUploadFileApp())
         res = app.get('/')
@@ -963,7 +952,7 @@ class TestFileUpload(unittest.TestCase):
                         content_type='text/x-custom-type')
 
     def test_file_upload_binary(self):
-        binary_data = struct.pack(str('255h'), *range(0, 255))
+        binary_data = struct.pack('255h', *range(0, 255))
         app = webtest.TestApp(UploadBinaryApp())
         res = app.get('/')
         single_form = res.forms["file_upload_form"]
@@ -975,14 +964,12 @@ class TestFileUpload(unittest.TestCase):
         uploaded_file1_name = os.path.join(os.path.dirname(__file__),
                                            "__init__.py")
         uploaded_file1_contents = open(uploaded_file1_name).read()
-        if PY3:
-            uploaded_file1_contents = to_bytes(uploaded_file1_contents)
+        uploaded_file1_contents = to_bytes(uploaded_file1_contents)
         uploaded_file2_name = __file__
         uploaded_file2_name = os.path.join(os.path.dirname(__file__), 'html',
                                            "404.html")
         uploaded_file2_contents = open(uploaded_file2_name).read()
-        if PY3:
-            uploaded_file2_contents = to_bytes(uploaded_file2_contents)
+        uploaded_file2_contents = to_bytes(uploaded_file2_contents)
 
         app = webtest.TestApp(MultipleUploadFileApp())
         res = app.get('/')
@@ -1001,7 +988,7 @@ class TestFileUpload(unittest.TestCase):
         self.assertFile(uploaded_file1_name, uploaded_file1_contents, display)
 
     def test_post_int(self):
-        binary_data = struct.pack(str('255h'), *range(0, 255))
+        binary_data = struct.pack('255h', *range(0, 255))
         app = webtest.TestApp(SingleUploadFileApp())
         res = app.get('/')
         single_form = res.forms["file_upload_form"]
@@ -1011,7 +998,7 @@ class TestFileUpload(unittest.TestCase):
         single_form.submit("button")
 
     def test_invalid_types(self):
-        binary_data = struct.pack(str('255h'), *range(0, 255))
+        binary_data = struct.pack('255h', *range(0, 255))
         app = webtest.TestApp(SingleUploadFileApp())
         res = app.get('/')
         single_form = res.forms["file_upload_form"]
@@ -1029,8 +1016,8 @@ class TestFileUpload(unittest.TestCase):
         except ValueError:
             e = sys.exc_info()[1]
             self.assertEquals(
-                six.text_type(e),
-                u('File content must be %s not %s' % (binary_type, int))
+                str(e),
+                u('File content must be %s not %s' % (bytes, int))
             )
 
     def test_invalid_uploadfiles(self):

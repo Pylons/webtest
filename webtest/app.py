@@ -7,7 +7,6 @@ Routines for testing WSGI applications.
 
 Most interesting is TestApp
 """
-from __future__ import unicode_literals
 
 import os
 import re
@@ -17,13 +16,8 @@ import fnmatch
 import mimetypes
 
 from base64 import b64encode
-
-from six import StringIO
-from six import BytesIO
-from six import string_types
-from six import binary_type
-from six import text_type
-from six.moves import http_cookiejar
+from http import cookiejar as http_cookiejar
+from io import BytesIO, StringIO
 
 from webtest.compat import urlparse
 from webtest.compat import to_bytes
@@ -42,18 +36,18 @@ __all__ = ['TestApp', 'TestRequest']
 class AppError(Exception):
 
     def __init__(self, message, *args):
-        if isinstance(message, binary_type):
+        if isinstance(message, bytes):
             message = message.decode('utf8')
         str_args = ()
         for arg in args:
             if isinstance(arg, webob.Response):
                 body = arg.body
-                if isinstance(body, binary_type):
+                if isinstance(body, bytes):
                     if arg.charset:
                         arg = body.decode(arg.charset)
                     else:
                         arg = repr(body)
-            elif isinstance(arg, binary_type):
+            elif isinstance(arg, bytes):
                 try:
                     arg = arg.decode('utf8')
                 except UnicodeDecodeError:
@@ -85,7 +79,7 @@ class TestRequest(webob.BaseRequest):
     ResponseClass = TestResponse
 
 
-class TestApp(object):
+class TestApp:
     """
     Wraps a WSGI application in a more convenient interface for
     testing. It uses extended version of :class:`webob.BaseRequest`
@@ -150,15 +144,15 @@ class TestApp(object):
 
         if 'WEBTEST_TARGET_URL' in os.environ:
             app = os.environ['WEBTEST_TARGET_URL']
-        if isinstance(app, string_types):
+        if isinstance(app, str):
             if app.startswith('http'):
                 try:
                     from wsgiproxy import HostProxy
                 except ImportError:  # pragma: no cover
-                    raise ImportError((
+                    raise ImportError(
                         'Using webtest with a real url requires WSGIProxy2. '
                         'Please install it with: '
-                        'pip install WSGIProxy2'))
+                        'pip install WSGIProxy2')
                 if '#' not in app:
                     app += '#httplib'
                 url, client = app.split('#', 1)
@@ -212,7 +206,7 @@ class TestApp(object):
                     val = b64encode(to_bytes(val)).strip()
                     val = val.decode('latin1')
                 elif authtype in ('Bearer', 'JWT') and val and \
-                        isinstance(val, (str, text_type)):
+                        isinstance(val, (str, str)):
                     val = val.strip()
                 else:
                     raise ValueError(invalid_value)
@@ -230,7 +224,7 @@ class TestApp(object):
 
     @property
     def cookies(self):
-        return dict([(cookie.name, cookie.value) for cookie in self.cookiejar])
+        return {cookie.name: cookie.value for cookie in self.cookiejar}
 
     def set_cookie(self, name, value):
         """
@@ -318,10 +312,10 @@ class TestApp(object):
         url = self._remove_fragment(url)
         if params:
             url = utils.build_params(url, params)
-        if str('?') in url:
-            url, environ['QUERY_STRING'] = url.split(str('?'), 1)
+        if '?' in url:
+            url, environ['QUERY_STRING'] = url.split('?', 1)
         else:
-            environ['QUERY_STRING'] = str('')
+            environ['QUERY_STRING'] = ''
         req = self.RequestClass.blank(url, environ)
         if xhr:
             headers = self._add_xhr_header(headers)
@@ -479,12 +473,12 @@ class TestApp(object):
 
         def _append_file(file_info):
             key, filename, value, fcontent = self._get_file_info(file_info)
-            if isinstance(key, text_type):
+            if isinstance(key, str):
                 try:
                     key = key.encode('ascii')
                 except:  # pragma: no cover
                     raise  # file name must be ascii
-            if isinstance(filename, text_type):
+            if isinstance(filename, str):
                 try:
                     filename = filename.encode('utf8')
                 except:  # pragma: no cover
@@ -500,7 +494,7 @@ class TestApp(object):
                 b'Content-Type: ' + fcontent, b'', value])
 
         for key, value in params:
-            if isinstance(key, text_type):
+            if isinstance(key, str):
                 try:
                     key = key.encode('ascii')
                 except:  # pragma: no cover
@@ -522,11 +516,11 @@ class TestApp(object):
             else:
                 if isinstance(value, int):
                     value = str(value).encode('utf8')
-                elif isinstance(value, text_type):
+                elif isinstance(value, str):
                     value = value.encode('utf8')
                 elif not isinstance(value, (bytes, str)):
                     raise ValueError((
-                        'Value for field {0} is a {1} ({2}). '
+                        'Value for field {} is a {} ({}). '
                         'It must be str, bytes or an int'
                     ).format(key, type(value), value))
                 lines.extend([
@@ -568,12 +562,12 @@ class TestApp(object):
             resp = app.do_request(req)
 
         """
-        if isinstance(url_or_req, text_type):
+        if isinstance(url_or_req, str):
             url_or_req = str(url_or_req)
         for (k, v) in req_params.items():
-            if isinstance(v, text_type):
+            if isinstance(v, str):
                 req_params[k] = str(v)
-        if isinstance(url_or_req, string_types):
+        if isinstance(url_or_req, str):
             req = self.RequestClass.blank(url_or_req, **req_params)
         else:
             req = url_or_req.copy()
@@ -662,10 +656,10 @@ class TestApp(object):
         if status == '*':
             return
         res_status = res.status
-        if (isinstance(status, string_types) and '*' in status):
+        if (isinstance(status, str) and '*' in status):
             if re.match(fnmatch.translate(status), res_status, re.I):
                 return
-        if isinstance(status, string_types):
+        if isinstance(status, str):
             if status == res_status:
                 return
         if isinstance(status, (list, tuple)):
@@ -738,7 +732,7 @@ class TestApp(object):
                 environ['CONTENT_TYPE'] = content_type
             elif params:
                 environ.setdefault('CONTENT_TYPE',
-                                   str('application/x-www-form-urlencoded'))
+                                   'application/x-www-form-urlencoded')
 
         if content_type is not None:
             environ['CONTENT_TYPE'] = content_type
@@ -746,7 +740,7 @@ class TestApp(object):
         url = str(url)
         url = self._remove_fragment(url)
         req = self.RequestClass.blank(url, environ)
-        if isinstance(params, text_type):
+        if isinstance(params, str):
             params = params.encode(req.charset or 'utf8')
         req.environ['wsgi.input'] = BytesIO(params)
         req.content_length = len(params)
@@ -767,9 +761,9 @@ class TestApp(object):
             return (file_info[0], filename, content, None)
         elif 3 <= len(file_info) <= 4:
             content = file_info[2]
-            if not isinstance(content, binary_type):
+            if not isinstance(content, bytes):
                 raise ValueError('File content must be %s not %s'
-                                 % (binary_type, type(content)))
+                                 % (bytes, type(content)))
             if len(file_info) == 3:
                 return tuple(file_info) + (None,)
             else:
@@ -786,5 +780,5 @@ class TestApp(object):
     def _add_xhr_header(headers):
         headers = headers or {}
         # if remove str we will be have an error in lint.middleware
-        headers.update({'X-REQUESTED-WITH': str('XMLHttpRequest')})
+        headers.update({'X-REQUESTED-WITH': 'XMLHttpRequest'})
         return headers

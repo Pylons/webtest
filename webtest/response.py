@@ -1,17 +1,11 @@
-# -*- coding: utf-8 -*-
 import re
 from json import loads
 
 from webtest import forms
 from webtest import utils
 from webtest.compat import print_stderr
-from webtest.compat import PY3
 from webtest.compat import urlparse
 from webtest.compat import to_bytes
-
-from six import string_types
-from six import binary_type
-from six import text_type
 
 from bs4 import BeautifulSoup
 
@@ -72,7 +66,7 @@ class TestResponse(webob.Response):
 
     def _parse_forms(self):
         forms_ = self._forms_indexed = {}
-        form_texts = [text_type(f) for f in self.html('form')]
+        form_texts = [str(f) for f in self.html('form')]
         for i, text in enumerate(form_texts):
             form = forms.Form(self, text, self.parser_features)
             forms_[i] = form
@@ -269,26 +263,6 @@ class TestResponse(webob.Response):
             'Only "get" or "post" are allowed for method (you gave %r)'
             % method)
 
-        # encode unicode strings for the outside world
-        if not PY3 and getattr(self, '_use_unicode', False):
-            def to_str(s):
-                if isinstance(s, text_type):
-                    return s.encode(self.charset)
-                return s
-
-            href = to_str(href)
-
-            if 'params' in args:
-                args['params'] = [tuple(map(to_str, p))
-                                  for p in args['params']]
-
-            if 'upload_files' in args:
-                args['upload_files'] = [map(to_str, f)
-                                        for f in args['upload_files']]
-
-            if 'content_type' in args:
-                args['content_type'] = to_str(args['content_type'])
-
         if method == 'get':
             method = self.test_app.get
         else:
@@ -315,8 +289,8 @@ class TestResponse(webob.Response):
         """
         if not self.charset:
             raise AttributeError(
-                ("You cannot access Response.unicode_normal_body "
-                 "unless charset is set"))
+                "You cannot access Response.unicode_normal_body "
+                 "unless charset is set")
         if getattr(self, '_unicode_normal_body', None) is None:
             self._unicode_normal_body = self._unicode_normal_body_regex.sub(
                 ' ', self.testbody)
@@ -328,9 +302,9 @@ class TestResponse(webob.Response):
         of the response.  Whitespace is normalized when searching
         for a string.
         """
-        if not self.charset and isinstance(s, text_type):
+        if not self.charset and isinstance(s, str):
             s = s.encode('utf8')
-        if isinstance(s, binary_type):
+        if isinstance(s, bytes):
             return s in self.body or s in self.normal_body
         return s in self.testbody or s in self.unicode_normal_body
 
@@ -350,7 +324,7 @@ class TestResponse(webob.Response):
         if 'no' in kw:
             no = kw['no']
             del kw['no']
-            if isinstance(no, string_types):
+            if isinstance(no, str):
                 no = [no]
         else:
             no = []
@@ -371,25 +345,21 @@ class TestResponse(webob.Response):
                     "Body contains bad string %r" % no_s)
 
     def __str__(self):
-        simple_body = str('\n').join([l for l in self.testbody.splitlines()
+        simple_body = '\n'.join([l for l in self.testbody.splitlines()
                                      if l.strip()])
         headers = [(n.title(), v)
                    for n, v in self.headerlist
                    if n.lower() != 'content-length']
         headers.sort()
-        output = str('Response: %s\n%s\n%s') % (
+        output = 'Response: %s\n%s\n%s' % (
             self.status,
-            str('\n').join([str('%s: %s') % (n, v) for n, v in headers]),
+            '\n'.join(['%s: %s' % (n, v) for n, v in headers]),
             simple_body)
-        if not PY3 and isinstance(output, text_type):
-            output = output.encode(self.charset or 'utf8', 'replace')
         return output
 
     def __unicode__(self):
         output = str(self)
-        if PY3:
-            return output
-        return output.decode(self.charset or 'utf8', 'replace')
+        return output
 
     def __repr__(self):
         # Specifically intended for doctests
@@ -451,8 +421,8 @@ class TestResponse(webob.Response):
                     from elementtree import ElementTree  # NOQA
                 except ImportError:
                     raise ImportError(
-                        ("You must have ElementTree installed "
-                         "(or use Python 2.5) to use response.xml"))
+                        "You must have ElementTree installed "
+                         "(or use Python 2.5) to use response.xml")
         # ElementTree can't parse unicode => use `body` instead of `testbody`
         return ElementTree.XML(self.body)
 
@@ -532,10 +502,7 @@ class TestResponse(webob.Response):
         name = f.name
         f.close()
         f = open(name, 'w')
-        if PY3:
-            f.write(self.body.decode(self.charset or 'ascii', 'replace'))
-        else:
-            f.write(self.body)
+        f.write(self.body.decode(self.charset or 'ascii', 'replace'))
         f.close()
         if name[0] != '/':  # pragma: no cover
             # windows ...

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from webtest.debugapp import DebugApp
 from tests.compat import unittest
 from base64 import b64decode
