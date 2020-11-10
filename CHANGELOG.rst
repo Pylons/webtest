@@ -1,8 +1,8 @@
 News
 ====
 
-2.0.36 (unreleased)
--------------------
+3.0.0 (unreleased)
+------------------
 
 - Dropped support for Python 2.7 and 3.5.
 
@@ -519,7 +519,7 @@ News
 * Fix `#14 and #18 <https://bitbucket.org/ianb/webtest/issues/18>`_ Allow to use
   `.delete(params={})`
 
-* Fix `#12 <https://bitbucket.org/ianb/webtest/issues/12>`_ 
+* Fix `#12 <https://bitbucket.org/ianb/webtest/issues/12>`_
 
 
 1.2.3
