@@ -6,6 +6,8 @@ News
 
 - Dropped support for Python 2.7 and 3.5.
 
+- Added support for Python 3.9.
+
 
 2.0.35 (2020-04-27)
 -------------------
