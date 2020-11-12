@@ -1,11 +1,10 @@
 name: Build and test
 
 on:
-    # Build on pushes to master or github-actions only
+    # Build on pushes to master
     push:
         branches:
             - master
-            - github-actions
         tags:
     # Build pull requests
     pull_request:
