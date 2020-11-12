@@ -57,7 +57,7 @@ jobs:
                   python-version: 3.9
                   architecture: x64
             - run: pip install tox
-            - run: tox -e coverage
+            - run: tox -e py39,coverage
     docs:
         runs-on: ubuntu-latest
         name: Build the documentation
