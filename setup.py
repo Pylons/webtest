@@ -12,14 +12,17 @@ install_requires = [
 ]
 
 tests_require = [
-    'nose<1.3.0', 'coverage',
-    'PasteDeploy', 'WSGIProxy2', 'pyquery'
+    'coverage',
+    'PasteDeploy',
+    'pyquery',
+    'pytest',
+    'WSGIProxy2',
 ]
 
 docs_extras = [
-    'Sphinx >= 1.8.1',
     'docutils',
     'pylons-sphinx-themes >= 1.0.8',
+    'Sphinx >= 1.8.1',
 ]
 
 setup(name='WebTest',
@@ -38,6 +41,7 @@ setup(name='WebTest',
           "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: 3.7",
           "Programming Language :: Python :: 3.8",
+          "Programming Language :: Python :: 3.9",
       ],
       keywords='wsgi test unit tests web',
       author='Ian Bicking',
