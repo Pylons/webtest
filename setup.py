@@ -16,6 +16,7 @@ tests_require = [
     'PasteDeploy',
     'pyquery',
     'pytest',
+    'pytest-cov',
     'WSGIProxy2',
 ]
 
@@ -60,7 +61,6 @@ setup(name='WebTest',
       zip_safe=False,
       python_requires='>=3.6, <4',
       install_requires=install_requires,
-      test_suite='nose.collector',
       tests_require=tests_require,
       extras_require={
           'tests': tests_require,
