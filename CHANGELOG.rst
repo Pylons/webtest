@@ -6,6 +6,12 @@ News
 
 - Dropped support for Python 2.7 and 3.5.
 
+- Added support for Python 3.9.
+
+- Clean up dependencies and requirements.
+
+- Switch from Travis to GitHub Actions for building and testing.
+
 
 2.0.35 (2020-04-27)
 -------------------

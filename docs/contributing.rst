@@ -23,7 +23,7 @@ Execute tests
 
 .. code-block:: bash
 
-    $ bin/nosetests
+    $ bin/pytest
     Doctest: forms.rst ... ok
     Doctest: index.rst ... ok
 

@@ -1,0 +1,72 @@
+name: Build and test
+
+on:
+    # Build on pushes to master
+    push:
+        branches:
+            - master
+        tags:
+    # Build pull requests
+    pull_request:
+
+jobs:
+    test:
+        strategy:
+            matrix:
+                py:
+                    - "3.6"
+                    - "3.7"
+                    - "3.8"
+                    - "3.9"
+                os:
+                    - "ubuntu-latest"
+                    - "macos-latest"
+                    - "windows-latest"
+                architecture:
+                    - x64
+                    - x86
+                exclude:
+                    # Linux and macOS don't have x86 python
+                    - os: "ubuntu-latest"
+                      architecture: x86
+                    - os: "macos-latest"
+                      architecture: x86
+
+        name: "Python: ${{ matrix.py }}-${{ matrix.architecture }} on ${{ matrix.os }}"
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v2
+            - name: Setup python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.py }}
+                  architecture: ${{ matrix.architecture }}
+            - run: pip install tox
+            - name: Running tox
+              run: tox -e py
+    coverage:
+        runs-on: ubuntu-latest
+        name: Validate coverage
+        # Assume coverage is identical across supported versions of Python.
+        # Choose the latest Python.
+        steps:
+            - uses: actions/checkout@v2
+            - name: Setup python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: 3.9
+                  architecture: x64
+            - run: pip install tox
+            - run: tox -e py39,coverage
+    docs:
+        runs-on: ubuntu-latest
+        name: Build the documentation
+        steps:
+            - uses: actions/checkout@v2
+            - name: Setup python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: 3.9
+                  architecture: x64
+            - run: pip install tox
+            - run: tox -e docs
