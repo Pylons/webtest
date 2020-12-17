@@ -1,5 +1,4 @@
 import re
-import six
 from json import dumps
 
 from webtest.compat import urlencode

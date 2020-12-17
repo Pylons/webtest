@@ -3,7 +3,6 @@ TestApp
 
 ..
   >>> import json
-  >>> import six
   >>> import sys
   >>> from webtest.app import TestApp
   >>> from webob import Request
@@ -12,16 +11,16 @@ TestApp
   ...     req = Request(environ)
   ...     if req.path_info.endswith('.html'):
   ...         content_type = 'text/html'
-  ...         body = six.b('<html><body><div id="content">hey!</div></body>')
+  ...         body = '<html><body><div id="content">hey!</div></body>'.encode('latin-1')
   ...     elif req.path_info.endswith('.xml'):
   ...         content_type = 'text/xml'
-  ...         body = six.b('<xml><message>hey!</message></xml>')
+  ...         body = '<xml><message>hey!</message></xml>'.encode('latin-1')
   ...     elif req.path_info.endswith('.json'):
   ...         content_type = 'application/json'
-  ...         body = six.b(json.dumps({"a": 1, "b": 2}))
+  ...         body = json.dumps({"a": 1, "b": 2}).encode('latin-1')
   ...     elif '/resource/' in req.path_info:
   ...         content_type = 'application/json'
-  ...         body = six.b(json.dumps(dict(id=1, value='value')))
+  ...         body = json.dumps(dict(id=1, value='value')).encode('latin-1')
   ...     resp = Response(body, content_type=content_type)
   ...     return resp(environ, start_response)
   >>> app = TestApp(application)
