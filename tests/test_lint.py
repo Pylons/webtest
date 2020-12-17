@@ -19,7 +19,7 @@ from webtest.lint import to_string
 from webtest.lint import middleware
 from webtest.lint import _assert_latin1_str
 
-from six import BytesIO
+from io import BytesIO
 
 
 def application(environ, start_response):
