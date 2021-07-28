@@ -529,7 +529,7 @@ def check_content_type(status, headers):
                 return
             elif not length:
                 warnings.warn(("Content-Type header found in a %s response, "
-                               "which not return content.") % code,
+                               "which should not return content.") % code,
                               WSGIWarning)
                 return
             else:
