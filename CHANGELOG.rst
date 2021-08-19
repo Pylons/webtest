@@ -1,7 +1,7 @@
 News
 ====
 
-3.0.0 (unreleased)
+3.0.0 (2021-08-19)
 ------------------
 
 - Dropped support for Python 2.7 and 3.5.

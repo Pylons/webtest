@@ -3,7 +3,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-version = '3.0.0.dev0'
+version = '3.0.0'
 
 install_requires = [
     'WebOb>=1.2',
