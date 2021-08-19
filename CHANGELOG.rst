@@ -12,6 +12,8 @@ News
 
 - Switch from Travis to GitHub Actions for building and testing.
 
+- Prevent PytestCollectionWarning for TestApp
+
 
 2.0.35 (2020-04-27)
 -------------------
