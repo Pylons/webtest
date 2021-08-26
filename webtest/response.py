@@ -455,7 +455,19 @@ class TestResponse(webob.Response):
         if self.content_type == 'text/html':
             return fromstring(self.testbody, base_url=self.request.url)
         else:
-            return etree.XML(self.testbody, base_url=self.request.url)
+            try:
+                return etree.XML(self.testbody, base_url=self.request.url)
+            except ValueError as e:
+                # Encoding may be declared in xml. Check the error
+                error = ' '.join(e.args)
+                expected_error = (
+                    'Unicode strings with encoding declaration '
+                    'are not supported.'
+                )
+                if error.startswith(expected_error):
+                    # Use bytes
+                    return etree.XML(self.body, base_url=self.request.url)
+                raise
 
     @property
     def json(self):

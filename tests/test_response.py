@@ -1,6 +1,3 @@
-import sys
-
-
 import webtest
 from webtest.debugapp import debug_app
 from webob import Request
@@ -115,6 +112,17 @@ def links_app(environ, start_response):
     headers = [(str(k), str(v)) for k, v in headers]
     start_response(str(status), headers)
     return [body]
+
+
+def svg_application(env, start_response):
+    start_response('200 OK', [('Content-Type', 'image/svg+xml')])
+    return [
+        b"""<?xml version="1.0" encoding="UTF-8" standalone="no"?>"""
+        b"""<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" """
+        b""" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">"""
+        b"""<svg xmlns="http://www.w3.org/2000/svg" """
+        b"""xmlns:xlink="http://www.w3.org/1999/xlink"></svg>"""
+    ]
 
 
 def gzipped_app(environ, start_response):
@@ -279,11 +287,16 @@ class TestResponse(unittest.TestCase):
         resp.content_type = 'text/xml'
         resp.xml
 
-    @unittest.skipIf('PyPy' in sys.version, 'skip lxml tests on pypy')
     def test_lxml_attribute(self):
         app = webtest.TestApp(links_app)
         resp = app.post('/')
         resp.content_type = 'text/xml'
+        print(resp.body)
+        print(resp.lxml)
+
+    def test_lxml_attribute_with_encoding_declaration(self):
+        app = webtest.TestApp(svg_application)
+        resp = app.get('/')
         print(resp.body)
         print(resp.lxml)
 
