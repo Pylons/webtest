@@ -19,7 +19,8 @@ If you have a single html form in your page, just use the ``.form`` attribute:
     >>> res = app.get('/form.html')
     >>> form = res.form
 
-You can use the form index if your html contains more than one form:
+If you have more then one html form in your page use the ``.forms`` property and
+access via the form index:
 
 .. code-block:: python
 
