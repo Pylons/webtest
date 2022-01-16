@@ -90,7 +90,7 @@ class Field:
         self._value = value
 
     def __repr__(self):
-        value = '<%s name="%s"' % (self.__class__.__name__, self.name)
+        value = f'<{self.__class__.__name__} name="{self.name}"'
         if self.id:
             value += ' id="%s"' % self.id
         return value + '>'

@@ -210,7 +210,7 @@ class TestApp:
                     val = val.strip()
                 else:
                     raise ValueError(invalid_value)
-                value = str('%s %s' % (authtype, val))
+                value = str(f'{authtype} {val}')
             else:
                 raise ValueError(invalid_value)
             self.extra_environ.update({
