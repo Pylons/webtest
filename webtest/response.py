@@ -351,9 +351,9 @@ class TestResponse(webob.Response):
                    for n, v in self.headerlist
                    if n.lower() != 'content-length']
         headers.sort()
-        output = 'Response: %s\n%s\n%s' % (
+        output = 'Response: {}\n{}\n{}'.format(
             self.status,
-            '\n'.join(['%s: %s' % (n, v) for n, v in headers]),
+            '\n'.join([f'{n}: {v}' for n, v in headers]),
             simple_body)
         return output
 

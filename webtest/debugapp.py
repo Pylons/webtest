@@ -39,7 +39,7 @@ class DebugApp:
             for name, value in sorted(environ.items()):
                 if name.upper() != name:
                     value = repr(value)
-                parts.append('%s: %s\n' % (name, value))
+                parts.append(f'{name}: {value}\n')
 
             body = ''.join(parts)
             if not isinstance(body, bytes):
@@ -51,7 +51,7 @@ class DebugApp:
         else:
             body = ''
             for name, value in req.POST.items():
-                body += '%s=%s\n' % (name, value)
+                body += f'{name}={value}\n'
 
         if status[:3] in ('204', '304') and not req.content_length:
             body = ''

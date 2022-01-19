@@ -55,7 +55,7 @@ class StopableWSGIServer(TcpWSGIServer):
         super().__init__(self.wrapper, *args, **kwargs)
         self.runner = None
         self.test_app = application
-        self.application_url = 'http://%s:%s/' % (self.adj.host, self.adj.port)
+        self.application_url = f'http://{self.adj.host}:{self.adj.port}/'
 
     def wrapper(self, environ, start_response):
         """Wrap the wsgi application to override some path:

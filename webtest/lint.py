@@ -417,7 +417,7 @@ def check_errors(wsgi_errors):
 
 def check_status(status):
     if type(status) not in METADATA_TYPE:
-        raise AssertionError("Status must be a %s (not %r)" % (METADATA_TYPE, status))
+        raise AssertionError(f"Status must be a {METADATA_TYPE} (not {status!r})")
 
     status = to_string(status)
 
@@ -461,7 +461,7 @@ def _assert_latin1_str(string, message):
 def check_headers(headers):
     if type(headers) is not list:
         raise AssertionError(
-            "Headers (%r) must be of type list: %r" % (headers, type(headers))
+            f"Headers ({headers!r}) must be of type list: {type(headers)!r}"
         )
 
     for item in headers:
@@ -547,7 +547,7 @@ def check_content_type(status, headers):
 def check_exc_info(exc_info):
     if exc_info is not None and type(exc_info) is not tuple:
         raise AssertionError(
-            "exc_info (%r) is not a tuple: %r" % (exc_info, type(exc_info))
+            f"exc_info ({exc_info!r}) is not a tuple: {type(exc_info)!r}"
         )
     # More exc_info checks?
 
