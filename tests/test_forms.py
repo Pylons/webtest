@@ -829,7 +829,6 @@ class SingleUploadFileApp:
     def get_files_page(self, req):
         file_parts = []
         uploaded_files = [(k, v) for k, v in req.POST.items() if 'file' in k]
-        uploaded_files = sorted(uploaded_files)
         for name, uploaded_file in uploaded_files:
             if isinstance(uploaded_file, cgi.FieldStorage):
                 filename = to_bytes(uploaded_file.filename)
@@ -854,7 +853,7 @@ class UploadBinaryApp(SingleUploadFileApp):
         return b','.join([to_bytes(str(i)) for i in data])
 
 
-class MultipleUploadFileApp(SingleUploadFileApp):
+class SeveralSingleFileApp(SingleUploadFileApp):
     body = b"""
 <html>
     <head><title>form page</title></head>
@@ -863,6 +862,23 @@ class MultipleUploadFileApp(SingleUploadFileApp):
               enctype="multipart/form-data">
             <input name="file-field-1" type="file" />
             <input name="file-field-2" type="file" />
+            <input name="button" type="submit" value="single">
+        </form>
+    </body>
+</html>
+"""
+
+
+class MultipleUploadFileApp(SingleUploadFileApp):
+
+    body = b"""
+<html>
+    <head><title>form page</title></head>
+    <body>
+        <form method="POST" id="file_upload_form"
+              enctype="multipart/form-data">
+            <input name="files-field" type="file" value="some/path/file.txt" multiple="" />
+            <input name="int-field" type="text" value="" />
             <input name="button" type="submit" value="single">
         </form>
     </body>
@@ -960,7 +976,7 @@ class TestFileUpload(unittest.TestCase):
         display = single_form.submit("button")
         self.assertIn(','.join([str(n) for n in range(0, 255)]), display)
 
-    def test_multiple_file_uploads_with_filename_and_contents(self):
+    def test_several_file_uploads_with_filename_and_contents(self):
         uploaded_file1_name = os.path.join(os.path.dirname(__file__),
                                            "__init__.py")
         uploaded_file1_contents = open(uploaded_file1_name).read()
@@ -971,7 +987,7 @@ class TestFileUpload(unittest.TestCase):
         uploaded_file2_contents = open(uploaded_file2_name).read()
         uploaded_file2_contents = to_bytes(uploaded_file2_contents)
 
-        app = webtest.TestApp(MultipleUploadFileApp())
+        app = webtest.TestApp(SeveralSingleFileApp())
         res = app.get('/')
         self.assertEqual(res.status_int, 200)
         self.assertEqual(res.headers['content-type'],
@@ -1063,3 +1079,31 @@ class TestFileUpload(unittest.TestCase):
         resp = form.submit()
         resp.mustcontain("<p>You selected 'filename'</p>",
                          "<p>with contents: ''</p>")
+
+    def test_multiple_file(self):
+        uploaded_file_name_1 = os.path.join(os.path.dirname(__file__),
+                                          "__init__.py")
+        uploaded_file_contents_1 = open(uploaded_file_name_1).read()
+        uploaded_file_contents_1 = to_bytes(uploaded_file_contents_1)
+
+        uploaded_file_name_2 = os.path.join(os.path.dirname(__file__),
+                                          os.path.basename(__file__))
+        uploaded_file_contents_2 = open(uploaded_file_name_1).read()
+        uploaded_file_contents_2 = to_bytes(uploaded_file_contents_2)
+
+        app = webtest.TestApp(MultipleUploadFileApp())
+        res = app.get('/')
+        self.assertEqual(res.status_int, 200)
+        self.assertEqual(res.headers['content-type'],
+                         'text/html; charset=utf-8')
+        self.assertEqual(res.content_type, 'text/html')
+
+        single_form = res.forms["file_upload_form"]
+        single_form.set("files-field", [
+            (uploaded_file_name_1, uploaded_file_contents_1),
+            (uploaded_file_name_2, uploaded_file_contents_2),
+        ])
+
+        display = single_form.submit("button")
+        self.assertFile(uploaded_file_name_1, uploaded_file_contents_1, display)
+        self.assertFile(uploaded_file_name_2, uploaded_file_contents_2, display)

@@ -4,7 +4,7 @@ News
 3.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Multiple file input support.
 
 
 3.0.0 (2021-08-19)

@@ -500,7 +500,10 @@ class TestApp:
                 except:  # pragma: no cover
                     raise  # field name are always ascii
             if isinstance(value, forms.File):
-                if value.value:
+                if "multiple" in value.attrs:
+                    for file in value.value:
+                        _append_file([key] + list(file))
+                elif value.value:
                     _append_file([key] + list(value.value))
                 else:
                     # If no file was uploaded simulate an empty file with no

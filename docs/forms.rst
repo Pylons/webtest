@@ -197,6 +197,17 @@ You can deal with file upload by using the Upload class:
     >>> form['file'] = Upload('README.rst', b'data')
     >>> form['file'] = Upload('README.rst', b'data', 'text/x-rst')
 
+If the file field has a ``multiple`` parameter, you can pass a
+list of :class:`~webtest.forms.Upload`:
+
+.. code-block:: python
+
+    >>> from webtest import Upload
+    >>> form['files'] = [
+    ...    Upload('README.rst'),
+    ...    Upload('LICENSE.rst'),
+    ... ]
+
 Submit a form
 --------------
 
