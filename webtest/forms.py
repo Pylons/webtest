@@ -2,7 +2,6 @@
 
 import operator
 import re
-import sys
 
 from bs4 import BeautifulSoup
 from collections import OrderedDict
@@ -459,11 +458,6 @@ class Form:
 
             FieldClass = self.FieldClass.classes.get(tag_type,
                                                      self.FieldClass)
-
-            # https://github.com/Pylons/webtest/issues/73
-            if sys.version_info[:2] <= (2, 6):
-                attrs = {k.encode('utf-8') if isinstance(k, unicode)
-                              else k: v for k, v in attrs.items()}
 
             # https://github.com/Pylons/webtest/issues/131
             reserved_attributes = ('form', 'tag', 'pos')
