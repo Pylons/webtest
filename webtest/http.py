@@ -45,7 +45,7 @@ class StopableWSGIServer(TcpWSGIServer):
     """StopableWSGIServer is a TcpWSGIServer which run in a separated thread.
     This allow to use tools like casperjs or selenium.
 
-    Server instance have an ``application_url`` attribute formated with the
+    Server instance have an ``application_url`` attribute formatted with the
     server host and port.
     """
 
