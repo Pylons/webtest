@@ -1,10 +1,10 @@
 name: Build and test
 
 on:
-    # Build on pushes to master
+    # Build on pushes to main
     push:
         branches:
-            - master
+            - main
         tags:
     # Build pull requests
     pull_request:

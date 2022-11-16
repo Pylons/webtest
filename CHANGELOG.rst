@@ -5,6 +5,7 @@ News
 ------------------
 
 - Multiple file input support.
+- Rename "master" git branch to "main".
 
 
 3.0.0 (2021-08-19)
