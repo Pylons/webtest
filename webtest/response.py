@@ -499,7 +499,7 @@ class TestResponse(webob.Response):
         except ImportError:  # pragma: no cover
             raise ImportError(
                 "You must have PyQuery installed to use response.pyquery")
-        d = PyQuery(self.testbody)
+        d = PyQuery(self.testbody, parser='html')
         return d
 
     def showbrowser(self):
