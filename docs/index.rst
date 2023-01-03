@@ -34,7 +34,7 @@ Or if you want the development version:
 
 .. code-block:: sh
 
-    $ pip install https://nodeload.github.com/Pylons/webtest/tar.gz/master
+    $ pip install https://nodeload.github.com/Pylons/webtest/tar.gz/main
 
 What This Does
 ==============

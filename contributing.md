@@ -14,8 +14,8 @@ You can contribute to this project in several ways.
 
 Git branches and their purpose and status at the time of this writing are listed below.
 
-*   [master](https://github.com/Pylons/webtest/) - The branch which should always be *deployable*. The default branch on GitHub.
-*   For development, create a new branch. If changes on your new branch are accepted, they will be merged into the master branch and deployed.
+*   [main](https://github.com/Pylons/webtest/) - The branch which should always be *deployable*. The default branch on GitHub.
+*   For development, create a new branch. If changes on your new branch are accepted, they will be merged into the main branch and deployed.
 
 ## Prerequisites
 
