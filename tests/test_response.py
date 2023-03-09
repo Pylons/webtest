@@ -250,6 +250,10 @@ class TestResponse(unittest.TestCase):
             'This is foo.',
             app.get('/').clickbutton(buttonid='button1', verbose=True)
         )
+        self.assertIn(
+            'This is foo.',
+            app.get('/').clickbutton(buttonid='button3', onclick=r".*href='(.*?)'", verbose=True)
+        )
         self.assertRaises(
             IndexError,
             app.get('/').clickbutton, buttonid='button2'

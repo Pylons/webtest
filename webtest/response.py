@@ -159,16 +159,18 @@ class TestResponse(webob.Response):
         return self.goto(str(found_attrs['uri']), extra_environ=extra_environ)
 
     def clickbutton(self, description=None, buttonid=None, href=None,
-                    index=None, verbose=False):
+                    onclick=None, index=None, verbose=False):
         """
         Like :meth:`~webtest.response.TestResponse.click`, except looks
         for link-like buttons.
         This kind of button should look like
         ``<button onclick="...location.href='url'...">``.
         """
+        href_extract = re.compile(onclick) if onclick else re.compile(r"location\.href='(.*?)'")
+
         found_html, found_desc, found_attrs = self._find_element(
             tag='button', href_attr='onclick',
-            href_extract=re.compile(r"location\.href='(.*?)'"),
+            href_extract=href_extract,
             content=description,
             id=buttonid,
             href_pattern=href,
