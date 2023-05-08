@@ -633,11 +633,12 @@ class Form:
 
         """
         fields = self.submit_fields(name, index=index, submit_value=value)
+        action = self._get_action(name=name, index=index, submit_value=value)
         if self.method.upper() != "GET":
             args.setdefault("content_type",  self.enctype)
         extra_environ = args.setdefault('extra_environ', {})
         extra_environ.setdefault('HTTP_REFERER', str(self.response.request.url))
-        return self.response.goto(self.action, method=self.method,
+        return self.response.goto(action, method=self.method,
                                   params=fields, **args)
 
     def upload_fields(self):
@@ -719,6 +720,20 @@ class Form:
                     return field
                 current_index += 1
         return None
+
+    def _get_action(self, name=None, index=None, submit_value=None):
+        """Return the endpoint to submit the form to.
+
+        :param name: Same as for :meth:`submit`
+        :param index: Same as for :meth:`submit`
+
+        """
+        submit_field = self._get_submit_field(name, index=index, submit_value=submit_value)
+        if submit_field:
+            formaction = submit_field.formaction_if_submitted()
+            if formaction:
+                return formaction
+        return self.action
 
     def __repr__(self):
         value = '<Form'

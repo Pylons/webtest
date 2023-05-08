@@ -145,6 +145,12 @@ class TestForms(unittest.TestCase):
                           form.submit, "action", value="activate",
                           index=0)
 
+    def test_button_submit_with_formaction(self):
+        form = self.callFUT(formid='simple_form')
+        display = form.submit('submit_with_formaction')
+        self.assertEqual(
+            display.request.path, '/foo',
+            "request should be sent to the formaction")
 
 class TestResponseFormAttribute(unittest.TestCase):
 
