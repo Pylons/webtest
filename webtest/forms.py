@@ -666,6 +666,37 @@ class Form:
 
         """
         submit = []
+        submit_field = self._get_submit_field(name, index=index, submit_value=submit_value)
+        if submit_field:
+            submit.append((submit_field.pos, submit_field.name, submit_field.value_if_submitted()))
+
+        for name, field in self.field_order:
+            value = field.value
+            if value is None:
+                continue
+            if isinstance(field, File):
+                submit.append((field.pos, name, field))
+                continue
+            if isinstance(field, Radio):
+                if field.selectedIndex is not None:
+                    submit.append((field.optionPositions[field.selectedIndex], name, value))
+                    continue
+            if isinstance(value, list):
+                for item in value:
+                    submit.append((field.pos, name, item))
+            else:
+                submit.append((field.pos, name, value))
+        submit.sort(key=operator.itemgetter(0))
+        return [x[1:] for x in submit]
+
+    def _get_submit_field(self, name=None, index=None, submit_value=None):
+        """Return the `Submit` field that should be used to submit the form,
+        or None if no name was given.
+
+        :param name: Same as for :meth:`submit`
+        :param index: Same as for :meth:`submit`
+
+        """
         # Use another name here so we can keep function param the same for BWC.
         submit_name = name
         if index is not None and submit_value is not None:
@@ -682,29 +713,12 @@ class Form:
                 continue
             if submit_name is not None and name == submit_name:
                 if index is not None and current_index == index:
-                    submit.append((field.pos, name, field.value_if_submitted()))
+                    return field
                 if submit_value is not None and \
-                   field.value_if_submitted() == submit_value:
-                    submit.append((field.pos, name, field.value_if_submitted()))
+                        field.value_if_submitted() == submit_value:
+                    return field
                 current_index += 1
-            else:
-                value = field.value
-                if value is None:
-                    continue
-                if isinstance(field, File):
-                    submit.append((field.pos, name, field))
-                    continue
-                if isinstance(field, Radio):
-                    if field.selectedIndex is not None:
-                        submit.append((field.optionPositions[field.selectedIndex], name, value))
-                        continue
-                if isinstance(value, list):
-                    for item in value:
-                        submit.append((field.pos, name, item))
-                else:
-                    submit.append((field.pos, name, value))
-        submit.sort(key=operator.itemgetter(0))
-        return [x[1:] for x in submit]
+        return None
 
     def __repr__(self):
         value = '<Form'
