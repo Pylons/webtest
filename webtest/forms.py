@@ -323,6 +323,10 @@ class Hidden(Text):
 class Submit(Field):
     """Field representing ``<input type="submit">`` and ``<button>``"""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._formaction = self.attrs.get("formaction")
+
     def value__get(self):
         return None
 
@@ -336,6 +340,19 @@ class Submit(Field):
     def value_if_submitted(self):
         # parsed value of the empty string
         return self._value or ''
+
+    def formaction__get(self):
+        return self._formaction
+
+    def formaction__set(self, value):
+        raise AttributeError(
+            "You cannot set the formaction of the <%s> field %r"
+            % (self.tag, self.name))
+
+    formaction = property(formaction__get, formaction__set)
+
+    def formaction_if_submitted(self):
+        return self._formaction or ''
 
 
 Field.classes['submit'] = Submit

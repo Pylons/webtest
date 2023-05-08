@@ -45,6 +45,17 @@ class TestForms(unittest.TestCase):
             button.value_if_submitted(), '',
             "submit default value is ''")
 
+    def test_submit_formaction_if_submitted(self):
+        form = self.callFUT()
+        submit_with_formaction = form['submit_with_formaction']
+        self.assertEqual(
+            submit_with_formaction.formaction_if_submitted(), '/foo',
+            "formaction should be set")
+        submit_without_formaction = form['submit']
+        self.assertEqual(
+            submit_without_formaction.formaction_if_submitted(), '',
+            "formaction should not be set")
+
     def test_force_select(self):
         form = self.callFUT()
         form['select'].force_value('notavalue')
