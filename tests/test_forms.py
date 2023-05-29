@@ -1031,7 +1031,7 @@ class TestFileUpload(unittest.TestCase):
             single_form.submit("button")
         except ValueError:
             e = sys.exc_info()[1]
-            self.assertEquals(
+            self.assertEqual(
                 str(e),
                 u('File content must be %s not %s' % (bytes, int))
             )

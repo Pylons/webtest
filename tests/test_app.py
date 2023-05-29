@@ -221,7 +221,7 @@ class TestCookies(unittest.TestCase):
                     ('Set-Cookie', 'foo=bar;baz'),
                 ])
             else:
-                self.assertEquals(dict(req.cookies),
+                self.assertEqual(dict(req.cookies),
                                   {'spam': 'eggs', 'foo': 'bar'})
                 self.assertIn('foo=bar', environ['HTTP_COOKIE'])
                 self.assertIn('spam=eggs', environ['HTTP_COOKIE'])
@@ -258,7 +258,7 @@ class TestCookies(unittest.TestCase):
                     ('Set-Cookie', 'foo=bar;baz; secure'),
                 ])
             else:
-                self.assertEquals(dict(req.cookies),
+                self.assertEqual(dict(req.cookies),
                                   {'spam': 'eggs', 'foo': 'bar'})
                 self.assertIn('foo=bar', environ['HTTP_COOKIE'])
                 self.assertIn('spam=eggs', environ['HTTP_COOKIE'])
