@@ -62,15 +62,15 @@ class TestMiddleware(unittest.TestCase):
     @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_lint_too_few_args(self):
         linter = middleware(application)
-        with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
+        with self.assertRaisesRegex(AssertionError, "Two arguments required"):
             linter()
-        with self.assertRaisesRegexp(AssertionError, "Two arguments required"):
+        with self.assertRaisesRegex(AssertionError, "Two arguments required"):
             linter({})
 
     @unittest.skipIf(sys.flags.optimize > 0, "skip assert tests if optimize is enabled")
     def test_lint_no_keyword_args(self):
         linter = middleware(application)
-        with self.assertRaisesRegexp(AssertionError, "No keyword arguments "
+        with self.assertRaisesRegex(AssertionError, "No keyword arguments "
                                                      "allowed"):
             linter({}, 'foo', baz='baz')
 
@@ -82,7 +82,7 @@ class TestMiddleware(unittest.TestCase):
     def test_lint_iterator_returned(self):
         linter = middleware(lambda x, y: None)  # None is not an iterator
         msg = "The application must return an iterator, if only an empty list"
-        with self.assertRaisesRegexp(AssertionError, msg):
+        with self.assertRaisesRegex(AssertionError, msg):
             linter({'wsgi.input': 'foo', 'wsgi.errors': 'foo'}, 'foo')
 
 
@@ -109,13 +109,13 @@ class TestInputWrapper(unittest.TestCase):
     def test_iter(self):
         data = to_bytes("A line\nAnother line\nA final line\n")
         input_wrapper = InputWrapper(BytesIO(data))
-        self.assertEquals(to_bytes("").join(input_wrapper), data, '')
+        self.assertEqual(to_bytes("").join(input_wrapper), data, '')
 
     def test_seek(self):
         data = to_bytes("A line\nAnother line\nA final line\n")
         input_wrapper = InputWrapper(BytesIO(data))
         input_wrapper.seek(0)
-        self.assertEquals(to_bytes("").join(input_wrapper), data, '')
+        self.assertEqual(to_bytes("").join(input_wrapper), data, '')
 
 
 class TestMiddleware2(unittest.TestCase):

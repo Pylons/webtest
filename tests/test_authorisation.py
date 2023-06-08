@@ -17,7 +17,7 @@ class TestAuthorization(unittest.TestCase):
         app.authorization = authorization
 
         self.assertIn('HTTP_AUTHORIZATION', app.extra_environ)
-        self.assertEquals(app.authorization, authorization)
+        self.assertEqual(app.authorization, authorization)
 
         resp = app.get('/')
         resp.mustcontain('HTTP_AUTHORIZATION: Basic Z2F3ZWw6cGFzc3dk')
@@ -26,7 +26,7 @@ class TestAuthorization(unittest.TestCase):
         authtype, value = header.split(' ')
         auth = (authtype,
                 b64decode(to_bytes(value)).decode('latin1').split(':'))
-        self.assertEquals(authorization, auth)
+        self.assertEqual(authorization, auth)
 
         app.authorization = None
         self.assertNotIn('HTTP_AUTHORIZATION', app.extra_environ)
@@ -37,7 +37,7 @@ class TestAuthorization(unittest.TestCase):
         app.authorization = authorization
 
         self.assertIn('HTTP_AUTHORIZATION', app.extra_environ)
-        self.assertEquals(app.authorization, authorization)
+        self.assertEqual(app.authorization, authorization)
 
         resp = app.get('/')
         resp.mustcontain('HTTP_AUTHORIZATION: Bearer 2588409761fcfa3e378bff4fb766e2e2')
