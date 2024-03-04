@@ -76,6 +76,10 @@ class CookiePolicy(http_cookiejar.DefaultCookiePolicy):
 
 class TestRequest(webob.BaseRequest):
     """A subclass of webob.Request"""
+
+    # Tell pytest not to collect this class as tests
+    __test__ = False
+
     ResponseClass = TestResponse
 
 

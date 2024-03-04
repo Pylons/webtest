@@ -698,3 +698,9 @@ class TestAppXhrParam(unittest.TestCase):
             resp.charset = 'ascii'
             self.assertIn('HTTP_X_REQUESTED_WITH: XMLHttpRequest',
                           resp.text)
+
+
+class TestRequest(unittest.TestCase):
+
+    def test_pytest_collection_disabled(self):
+        self.assertFalse(webtest.TestRequest.__test__)

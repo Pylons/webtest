@@ -492,3 +492,6 @@ class TestFollow(unittest.TestCase):
     def test_maybe_follow_infinite(self):
         app = self.get_redirects_app(100000)
         self.assertRaises(AssertionError, app.get('/').maybe_follow)
+
+    def test_pytest_collection_disabled(self):
+        self.assertFalse(webtest.TestResponse.__test__)
