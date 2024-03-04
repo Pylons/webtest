@@ -22,6 +22,9 @@ class TestResponse(webob.Response):
     _forms_indexed = None
     parser_features = 'html.parser'
 
+    # Tell pytest not to collect this class as tests
+    __test__ = False
+
     @property
     def forms(self):
         """
