@@ -53,7 +53,7 @@ object:
 
     >>> # dict of fields
     >>> form.fields.items() #doctest: +SKIP
-    [(u'text', [<Text name="text">]), ..., (u'submit', [<Submit name="submit">])]
+    [('text', [<Text name="text">]), ..., ('submit', [<Submit name="submit">])]
 
 You can check the current value:
 
