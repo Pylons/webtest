@@ -5,8 +5,16 @@ News
 ------------------
 
 - Multiple file input support.
-- Rename "master" git branch to "main".
 
+- Drop support for Python 3.8 and bellow
+
+- Allows the TestResponse to follow customised onclick buttons
+
+- PyQuery object now use the html parser
+
+- Various docs / testing improvments
+
+- Rename "master" git branch to "main".
 
 3.0.0 (2021-08-19)
 ------------------
