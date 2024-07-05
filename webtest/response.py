@@ -1,5 +1,4 @@
 import re
-from json import loads
 
 from webtest import forms
 from webtest import utils
@@ -495,6 +494,16 @@ class TestResponse(webob.Response):
         Only works with HTML and XML responses; other content-types raise
         AttributeError.
         """
+        return self.PyQuery(parser='html')
+
+    def PyQuery(self, **kwargs):
+        """
+        Same as `pyquery` but allow to pass arguments to initialize the
+        `PyQuery` instance::
+
+            pq = resp.PyQuery(parser='xml', remove_namespaces=True)
+
+        """
         if 'html' not in self.content_type and 'xml' not in self.content_type:
             raise AttributeError(
                 "Not an HTML or XML response body (content-type: %s)"
@@ -504,7 +513,15 @@ class TestResponse(webob.Response):
         except ImportError:  # pragma: no cover
             raise ImportError(
                 "You must have PyQuery installed to use response.pyquery")
-        d = PyQuery(self.testbody, parser='html')
+        remove_namespaces = kwargs.pop('remove_namespaces', False)
+        parser = kwargs.get('parser', 'html')
+        if parser == 'xml':
+            body = self.body
+        else:
+            body = self.testbody
+        d = PyQuery(body, **kwargs)
+        if remove_namespaces:
+            d.remove_namespaces()
         return d
 
     def showbrowser(self):

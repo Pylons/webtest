@@ -304,6 +304,15 @@ class TestResponse(unittest.TestCase):
         print(resp.body)
         print(resp.lxml)
 
+    def test_pyquery(self):
+        app = webtest.TestApp(svg_application)
+        resp = app.get('/')
+        self.assertRaises(ValueError, lambda: resp.pyquery)
+        pq = resp.PyQuery(parser='xml', remove_namespaces=True)
+        assert len(pq('svg')) == 1
+        pq = resp.PyQuery(parser='xml')
+        assert len(pq('svg')) == 0
+
     def test_html_attribute(self):
         app = webtest.TestApp(links_app)
         res = app.post('/')

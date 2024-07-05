@@ -10,7 +10,9 @@ News
 
 - Allows the TestResponse to follow customised onclick buttons
 
-- PyQuery object now use the html parser
+- Response.pyquery object now use the html parser.
+
+- You can use the Response.PyQuery method to customize pyquery init.
 
 - Various docs / testing improvments
 
