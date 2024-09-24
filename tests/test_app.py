@@ -10,6 +10,7 @@ import os
 from unittest import mock
 import webtest
 print('hello')
+print('hello2')
 
 class TestApp(unittest.TestCase):
 
