@@ -9,7 +9,7 @@ from tests.compat import unittest
 import os
 from unittest import mock
 import webtest
-
+print('hello')
 
 class TestApp(unittest.TestCase):
 
@@ -21,7 +21,7 @@ class TestApp(unittest.TestCase):
 
     def test_encode_multipart_relative_to(self):
         app = webtest.TestApp(debug_app,
-                              relative_to=os.path.dirname(__file__))
+                                relative_to=os.path.dirname(__file__))
         data = app.encode_multipart(
             [], [('file', 'html%s404.html' % os.sep)])
         self.assertIn(to_bytes('404.html'), data[-1])
