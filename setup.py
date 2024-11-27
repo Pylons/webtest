@@ -7,7 +7,7 @@ version = '3.0.2.dev0'
 
 install_requires = [
     'WebOb>=1.2',
-    'waitress>=0.8.5',
+    'waitress>=3.0.2',
     'beautifulsoup4',
 ]
 
