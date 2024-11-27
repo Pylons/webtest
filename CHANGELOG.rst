@@ -1,7 +1,7 @@
 News
 ====
 
-3.0.2 (unreleased)
+3.0.2 (2024-11-27)
 ------------------
 
 - Bump waitress min version to 3.0.2
