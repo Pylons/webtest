@@ -1,7 +1,7 @@
 News
 ====
 
-3.0.3 (unreleased)
+3.0.3 (2025-01-16)
 ------------------
 
 - Minor release to fix metadata on pypi
