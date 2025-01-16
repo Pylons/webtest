@@ -4,7 +4,7 @@ News
 3.0.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Minor release to fix metadata on pypi
 
 
 3.0.2 (2024-11-27)
