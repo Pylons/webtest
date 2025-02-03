@@ -4,7 +4,7 @@ News
 3.0.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Ensure BeautifulSoup 4.13+ compatibility
 
 
 3.0.3 (2025-01-16)
