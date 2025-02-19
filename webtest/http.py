@@ -8,6 +8,7 @@ import logging
 import select
 import socket
 import time
+from typing import Literal
 import os
 
 from http import client
@@ -89,11 +90,12 @@ class StopableWSGIServer(TcpWSGIServer):
             if not self.was_shutdown:
                 raise
 
-    def shutdown(self):
+    def shutdown(self, debug:bool=False) -> Literal[True]:
         """Shutdown the server"""
         # avoid showing traceback related to asyncore
         self.was_shutdown = True
-        self.logger.setLevel(logging.FATAL)
+        if not debug:
+            self.logger.setLevel(logging.FATAL)
         while self._map:
             triggers = list(self._map.values())
             for trigger in triggers:
