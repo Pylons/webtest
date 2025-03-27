@@ -432,7 +432,14 @@ class Form:
         fields = OrderedDict()
         field_order = []
         tags = ('input', 'select', 'textarea', 'button')
-        for pos, node in enumerate(self.html.find_all(tags)):
+        elements = self.html.find_all(tags)
+        if self.response:
+            elements.extend(
+                elt for elt in self.response.html.find_all(
+                    tags, attrs={'form': self.id})
+                if elt not in elements
+            )
+        for pos, node in enumerate(elements):
             attrs = dict(node.attrs)
             tag = node.name
             name = None
