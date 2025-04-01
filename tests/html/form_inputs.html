@@ -55,5 +55,11 @@ aaa</textarea>
             <button name="action" type="submit" value="activate">Activate</button>
         </form>
 
+        <input name="foo" type="text" value="early" form="outer_inputs_form">
+        <form method="POST" id="outer_inputs_form">
+            <input name="bar" type="text" value="bar">
+        </form>
+        <input name="button" type="submit" value="text" form="outer_inputs_form">
+
     </body>
 </html>

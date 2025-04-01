@@ -134,6 +134,9 @@ class TestForms(unittest.TestCase):
                           form.submit, "action", value="activate",
                           index=0)
 
+    def test_outer_inputs(self):
+        form = self.callFUT(formid='outer_inputs_form')
+        self.assertEqual(('foo', 'bar', 'button'), tuple(form.fields))
 
 class TestResponseFormAttribute(unittest.TestCase):
 
