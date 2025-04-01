@@ -432,13 +432,13 @@ class Form:
         fields = OrderedDict()
         field_order = []
         tags = ('input', 'select', 'textarea', 'button')
-        elements = self.html.find_all(tags)
+        inner_elts = self.html.find_all(tags)
         if self.response:
-            elements.extend(
-                elt for elt in self.response.html.find_all(
-                    tags, attrs={'form': self.id})
-                if elt not in elements
-            )
+            def _form_elt_filter(tag):
+                return tag in inner_elts or tag.attrs.get('form') == self.id
+            elements = self.response.html.find_all(_form_elt_filter)
+        else:
+            elements = inner_elts
         for pos, node in enumerate(elements):
             attrs = dict(node.attrs)
             tag = node.name
