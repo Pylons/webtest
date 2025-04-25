@@ -134,6 +134,9 @@ class TestForms(unittest.TestCase):
                           form.submit, "action", value="activate",
                           index=0)
 
+    def test_outer_inputs(self):
+        form = self.callFUT(formid='outer_inputs_form')
+        self.assertEqual(('foo', 'bar', 'button'), tuple(form.fields))
 
 class TestResponseFormAttribute(unittest.TestCase):
 
@@ -285,26 +288,33 @@ class TestInput(unittest.TestCase):
 class TestFormLint(unittest.TestCase):
 
     def test_form_lint(self):
-        form = webtest.Form(None, '''<form>
+        def _build_response(html):
+            return webtest.TestResponse('<body>{}</body>'.format(html))
+
+        html = '''<form>
         <input type="text" name="field"/>
-        </form>''')
+        </form>'''
+        form = webtest.Form(_build_response(html), html)
         self.assertRaises(AttributeError, form.lint)
 
-        form = webtest.Form(None, '''<form>
+        html = '''<form>
         <input type="text" id="myfield" name="field"/>
-        </form>''')
+        </form>'''
+        form = webtest.Form(_build_response(html), html)
         self.assertRaises(AttributeError, form.lint)
 
-        form = webtest.Form(None, '''<form>
+        html = '''<form>
         <label for="myfield">my field</label>
         <input type="text" id="myfield" name="field"/>
-        </form>''')
+        </form>'''
+        form = webtest.Form(_build_response(html), html)
         form.lint()
 
-        form = webtest.Form(None, '''<form>
+        html = '''<form>
         <label class="field" for="myfield" role="r">my field</label>
         <input type="text" id="myfield" name="field"/>
-        </form>''')
+        </form>'''
+        form = webtest.Form(_build_response(html), html)
         form.lint()
 
 
