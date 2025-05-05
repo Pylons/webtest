@@ -4,7 +4,7 @@ News
 3.0.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Strip ``<option>`` text.
 
 
 3.0.4 (2025-02-03)
