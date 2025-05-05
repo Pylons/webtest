@@ -501,7 +501,7 @@ class Form:
                     field.options.append(
                         (option.attrs.get('value', option.text),
                          'selected' in option.attrs,
-                         option.text))
+                         option.text.strip()))
 
         self.field_order = field_order
         self.fields = fields

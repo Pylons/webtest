@@ -67,7 +67,7 @@ class TestForms(unittest.TestCase):
         self.assertEqual(form['select'].options, [
             ('value1', False, 'Value 1'),
             ('value2', True, 'Value 2'),
-            ('value3', False, '\n                    Value 3\n                ')
+            ('value3', False, 'Value 3')
         ])
         form.select('select', 'value1')
 
