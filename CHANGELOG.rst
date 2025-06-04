@@ -6,6 +6,8 @@ News
 
 - Strip ``<option>`` text.
 
+- Detect form fields outside of ``<form>`` tag associated via HTML5 ``form`` attribute.
+
 
 3.0.4 (2025-02-03)
 ------------------
