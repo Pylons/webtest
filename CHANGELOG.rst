@@ -1,7 +1,7 @@
 News
 ====
 
-3.0.6 (unreleased)
+3.0.6 (2025-06-04)
 ------------------
 
 - Fix a bug that inputs outside of a ``<form>`` tag were considered
