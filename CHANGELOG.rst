@@ -4,7 +4,9 @@ News
 3.0.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix a bug that inputs outside of a ``<form>`` tag were considered
+  belonging to that form because they had a HTML representation identical
+  to some input inside that ``<form>``.
 
 
 3.0.5 (2025-06-04)

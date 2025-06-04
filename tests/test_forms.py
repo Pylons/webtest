@@ -143,6 +143,8 @@ class TestForms(unittest.TestCase):
     def test_outer_inputs(self):
         form = self.callFUT(formid='outer_inputs_form')
         self.assertEqual(('foo', 'bar', 'button'), tuple(form.fields))
+        # check that identical input is not considered belonging to this form
+        self.assertTrue(all(len(itm) == 1 for itm in form.fields.values()))
 
 class TestResponseFormAttribute(unittest.TestCase):
 
