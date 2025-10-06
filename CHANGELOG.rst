@@ -4,7 +4,7 @@ News
 3.0.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Response.html is now a cached property to improve form parsing performance
 
 
 3.0.6 (2025-06-04)
