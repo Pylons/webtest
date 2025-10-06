@@ -1,7 +1,7 @@
 News
 ====
 
-3.0.7 (unreleased)
+3.0.7 (2025-10-06)
 ------------------
 
 - Response.html is now a cached property to improve form parsing performance
