@@ -1,3 +1,4 @@
+from functools import cached_property
 import re
 
 from webtest import forms
@@ -385,7 +386,7 @@ class TestResponse(webob.Response):
             location = ''
         return ('<' + self.status + ct + location + body + '>')
 
-    @property
+    @cached_property
     def html(self):
         """
         Returns the response as a `BeautifulSoup
