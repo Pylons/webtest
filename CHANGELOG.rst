@@ -5,6 +5,7 @@ News
 ------------------
 
 - Nothing changed yet.
+- Migrate the project to uv.
 
 
 3.0.7 (2025-10-06)
