@@ -1,0 +1,132 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "WebTest"
+version = "3.0.8.dev0"
+description = "Helper to test WSGI applications"
+readme = "README.rst"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [
+    { name = "Ian Bicking" },
+]
+maintainers = [
+    { name = "Gael Pasgrimaud", email = "gael@gawel.org" },
+]
+keywords = ["wsgi", "test", "unit", "tests", "web"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: Paste",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Internet :: WWW/HTTP :: WSGI",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Server",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "WebOb>=1.2",
+    "waitress>=3.0.2",
+    "beautifulsoup4",
+]
+
+[project.urls]
+Homepage = "https://docs.pylonsproject.org/projects/webtest/en/latest/"
+
+[dependency-groups]
+dev = [
+    "coverage",
+    "PasteDeploy",
+    "pyquery",
+    "pytest",
+    "pytest-cov",
+    "WSGIProxy2",
+]
+docs = [
+    "docutils",
+    "pylons-sphinx-themes>=1.0.8",
+    "Sphinx>=3.0.0",
+]
+
+[project.entry-points."paste.app_factory"]
+debug = "webtest.debugapp:make_debug_app"
+
+[tool.pytest.ini_options]
+addopts = [
+    "-p", "no:warnings",
+    "--doctest-modules",
+    "--doctest-glob=*.rst",
+    "--ignore=docs/",
+    "--ignore=CHANGES.rst",
+    "--ignore=setup.py",
+    "--ignore=bootstrap.py",
+    "--ignore=examples/",
+    "--ignore=docs/conf.py",
+    "-W", "always",
+]
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "ELLIPSIS"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "webtest/",
+    "tests/",
+    "docs/",
+    "pyproject.toml",
+    "README.rst",
+    "CHANGELOG.rst",
+    "license.rst",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["webtest"]
+
+[tool.coverage.run]
+source_pkgs = ["webtest"]
+branch = true
+relative_files = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "def parse_args",
+]
+
+[tool.tox]
+env_list = ["py39", "py310", "py311", "py312", "coverage", "docs"]
+skip_missing_interpreters = true
+
+[tool.tox.env_run_base]
+dependency_groups = ["dev"]
+set_env = { LC_ALL = "C", LANG = "C", COVERAGE_FILE = ".coverage.{env_name}" }
+commands = [
+    ["python", "--version"],
+    ["pytest", "--cov", "{posargs}"],
+]
+
+[tool.tox.env.coverage]
+depends = ["py39", "py310", "py311", "py312"]
+skip_install = true
+deps = ["coverage"]
+set_env = { COVERAGE_FILE = ".coverage" }
+commands = [
+    ["coverage", "combine"],
+    ["coverage", "xml"],
+    ["coverage", "report", "--show-missing", "--fail-under=95"],
+]
+
+[tool.tox.env.docs]
+base_python = ["python3.12"]
+dependency_groups = ["docs"]
+allowlist_externals = ["make"]
+commands = [
+    ["make", "-C", "docs", "html", "BUILDDIR={env_dir}", "SPHINXOPTS=-W -E"],
+]

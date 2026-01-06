@@ -1,9 +1,0 @@
-graft docs
-prune docs/_build
-graft webtest
-graft tests
-graft .github
-include *.md *.txt *.rst *.cfg *.ini .coveragerc
-global-exclude *.pyc
-global-exclude *.swp
-global-exclude __pycache__

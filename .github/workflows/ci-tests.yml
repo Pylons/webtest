@@ -36,14 +36,14 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
-            - name: Setup python
-              uses: actions/setup-python@v5
+            - name: Install uv
+              uses: astral-sh/setup-uv@v5
               with:
                   python-version: ${{ matrix.py }}
-                  architecture: ${{ matrix.architecture }}
-            - run: pip install tox
-            - name: Running tox
-              run: tox -e py
+                  enable-cache: true
+            - name: Run tests
+              run: uv run pytest
+
     coverage:
         runs-on: ubuntu-latest
         name: Validate coverage
@@ -51,22 +51,25 @@ jobs:
         # Choose the latest Python.
         steps:
             - uses: actions/checkout@v4
-            - name: Setup python
-              uses: actions/setup-python@v5
+            - name: Install uv
+              uses: astral-sh/setup-uv@v5
               with:
-                  python-version: 3.12
-                  architecture: x64
-            - run: pip install tox
-            - run: tox -e py312,coverage
+                  python-version: "3.12"
+                  enable-cache: true
+            - name: Run tests with coverage
+              run: uv run pytest --cov
+            - name: Check coverage
+              run: uv run coverage report --show-missing --fail-under=95
+
     docs:
         runs-on: ubuntu-latest
         name: Build the documentation
         steps:
             - uses: actions/checkout@v4
-            - name: Setup python
-              uses: actions/setup-python@v5
+            - name: Install uv
+              uses: astral-sh/setup-uv@v5
               with:
-                  python-version: 3.12
-                  architecture: x64
-            - run: pip install tox
-            - run: tox -e docs
+                  python-version: "3.12"
+                  enable-cache: true
+            - name: Build docs
+              run: uv run --group docs sphinx-build -W -E -b html docs docs/_build/html
