@@ -109,7 +109,7 @@ dependency_groups = ["dev"]
 set_env = { LC_ALL = "C", LANG = "C", COVERAGE_FILE = ".coverage.{env_name}" }
 commands = [
     ["python", "--version"],
-    ["pytest", "--cov", "{posargs}"],
+    ["pytest", "--cov", { replace = "posargs", default = ["tests/"], extend = true } ],
 ]
 
 [tool.tox.env.coverage]
