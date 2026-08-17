@@ -22,6 +22,7 @@ from io import BytesIO, StringIO
 from webtest.compat import urlparse
 from webtest.compat import to_bytes
 from webtest.compat import escape_cookie_value
+from webtest.compat import unescape_cookie_value
 from webtest.response import TestResponse
 from webtest import forms
 from webtest import lint
@@ -228,7 +229,10 @@ class TestApp:
 
     @property
     def cookies(self):
-        return {cookie.name: cookie.value for cookie in self.cookiejar}
+        return {
+            cookie.name: unescape_cookie_value(cookie.value)
+            for cookie in self.cookiejar
+        }
 
     def set_cookie(self, name, value):
         """
