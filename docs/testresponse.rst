@@ -50,6 +50,16 @@ The inherited attributes that are most interesting:
     The :class:`webob.request.BaseRequest` object used to generate
     this response.
 
+``response.location``
+    The `Location` header URL of a redirect as a :class:`webtest.utils.URL` object or
+    None. You can easily test properties of the URL using its
+    :meth:`webtest.utils.URL.match` and :meth:`webtest.utils.URL.loose_match`
+    methods.
+
+``response.content_location``
+    The `Content-Location` header URL of a redirect as a :class:`webtest.utils.URL` object or
+    None.
+
 The added methods:
 
 ``response.follow(**kw)``:
@@ -95,6 +105,10 @@ The added methods:
 ``response.form``:
     If there is just a single form, this returns that.  It is an error
     if you use this and there are multiple forms.
+
+``response.url``
+    The URL of the request as a :class:`webtest.utils.URL` object or None.
+
 
 
 .. rubric:: Footnotes

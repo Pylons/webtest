@@ -416,6 +416,15 @@ class TestResponse(unittest.TestCase):
         resp = app.get('/')
         self.assertEqual(resp.body, b'test')
 
+    def test_urls(self):
+        app = webtest.TestApp(debug_app)
+        res = app.post('/')
+        res.location = 'http://pylons.org'
+        res.content_location = 'https://example.org/a/b/c'
+        self.assertTrue(res.location.loose_match('http://'))
+        self.assertTrue(res.content_location.match('https://example.org/a/b/c'))
+        self.assertTrue(res.url.match('http://localhost/'))
+
 
 class TestFollow(unittest.TestCase):
 

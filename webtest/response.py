@@ -545,3 +545,19 @@ class TestResponse(webob.Response):
         else:
             url = 'file://' + name
         webbrowser.open_new(url)
+
+    @webob.Response.location.getter
+    def location(self):
+        value = webob.Response.location.fget(self)
+        if value is not None:
+            return utils.URL(value)
+
+    @webob.Response.content_location.getter
+    def content_location(self):
+        value = webob.Response.content_location.fget(self)
+        if value is not None:
+            return utils.URL(value)
+
+    @property
+    def url(self):
+        return utils.URL(self.request.url)

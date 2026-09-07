@@ -55,3 +55,10 @@
 .. automodule:: webtest.debugapp
    :members:
    :show-inheritance:
+
+:class:`webtest.utils.URL`
+--------------------------------------
+
+.. autoclass:: webtest.utils.URL
+   :member-order: bysource
+   :members:

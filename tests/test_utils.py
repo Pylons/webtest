@@ -5,6 +5,7 @@ import sys
 from .compat import unittest
 from webtest import utils
 
+import pytest
 
 class NoDefaultTest(unittest.TestCase):
 
@@ -117,3 +118,124 @@ class json_methodTest(unittest.TestCase):
 
     def test_json_method_name(self):
         self.assertEqual(self.mock.foo_json.__name__, 'foo_json')
+
+class TestURL:
+    @property
+    def url(self):
+        return utils.URL('https://example.com/a/b/c?foo=bar&foo=barbar&bar=foo')
+
+    def test_str(self):
+        assert (
+            str(self.url)
+            == 'https://example.com/a/b/c?foo=bar&foo=barbar&bar=foo'
+        )
+
+    def test_repr(self):
+        assert (
+            repr(self.url)
+            == "<URL 'https://example.com/a/b/c?foo=bar&foo=barbar&bar=foo'>"
+        )
+
+    def test_scheme(self):
+        assert self.url.scheme == 'https'
+
+    def test_domain(self):
+        assert self.url.domain == 'example.com'
+
+    def test_host(self):
+        # webob.Response is wrong in environ_from_url(), here it should be
+        # example.com
+        assert self.url.host == 'example.com:443'
+
+    def test_netloc(self):
+        # so netloc was implemented to replace it
+        assert self.url.netloc == 'example.com'
+
+    def test_host_url(self):
+        assert self.url.host_url == 'https://example.com'
+
+    def test_path(self):
+        assert self.url.path == '/a/b/c'
+
+    def test_path_url(self):
+        assert self.url.path_url == 'https://example.com/a/b/c'
+
+    def test_path_qs(self):
+        assert self.url.path_qs == '/a/b/c?foo=bar&foo=barbar&bar=foo'
+
+    def test_params(self):
+        assert list(self.url.params.items()) == [
+            ('foo', 'bar'), ('foo', 'barbar'), ('bar', 'foo')]
+        assert self.url.params['foo'] == 'barbar'
+        assert self.url.query_string == 'foo=bar&foo=barbar&bar=foo'
+
+    def test_join(self):
+        assert (self.url.join('x/y?foofo=bar')
+                == 'https://example.com/a/b/x/y?foofo=bar')
+
+    @pytest.mark.parametrize('other', [
+        'https://example.com/a/b/c?foo=bar&foo=barbar&bar=foo',
+        'https://example.com/a/b/c?foo=*&bar=?&!foobar',
+    ])
+    def test_do_match(self, other):
+        assert self.url.match(other)
+
+    @pytest.mark.parametrize('other', [
+        'https://example.com/a/b/c?foo=bar',
+    ])
+    def test_do_not_match(self, other):
+        assert not self.url.match(other)
+
+    @pytest.mark.parametrize('other,_repr', [
+        ('https://example.com/a/b/c?foo=bar&bar=foo',
+         '?foo=barbar was not expected.'),
+        # multiple errors
+        ('https://example.com/a/b/c?foo=bar',
+         '?foo=barbar was not expected.\n?bar=foo was not expected.'),
+    ])
+    def test_do_not_match_repr(self, other, _repr):
+        assert repr(self.url.match(other)) == _repr
+
+    @pytest.mark.parametrize('other', [
+        'https://',
+        '//example.com',
+        'https://example.com',
+        '/a/b/c',
+        'https://example.com/a/b/c',
+        'https://example.com/a/b/c?foo=bar&foo=barbar&bar=foo',
+        'https://example.com/a/b/c?foo=bar',
+        'https://example.com/a/b/c?foo=barbar',
+        '?!foobar',
+        '?bar=?',
+        '?bar=?&foo=*',
+    ])
+    def test_do_loose_match(self, other):
+        assert self.url.loose_match(other)
+
+    @pytest.mark.parametrize('other', [
+        'http://',
+        '//a.example.com',
+        '/a/b/c/',
+        '/x',
+        'https://example.com/a/b/c/',
+        'https://example.com/x',
+    ])
+    def test_do_not_loose_match(self, other):
+        assert not self.url.loose_match(other)
+
+    @pytest.mark.parametrize('other,_repr', [
+        ('http://', 'scheme differs https != http'),
+        ('//a.example.com', 'netloc differs example.com != a.example.com'),
+        ('/a/b/c/', 'path differs /a/b/c != /a/b/c/'),
+
+        ('?!foo', 'foo should be absent, but ?foo=bar&foo=barbar found.'),
+        ('?foo=?',
+         'foo should have only one value but ?foo=bar&foo=barbar found.'),
+        ('?foobar=?', 'foobar should have only one value but is absent.'),
+        ('?foo=barfoo',
+         'foo should have value \'barfoo\' but ?foo=bar&foo=barbar found.'),
+        ('?foobar=barfoo',
+         'foobar should have value \'barfoo\' but is absent.'),
+    ])
+    def test_do_not_loose_match_repr(self, other, _repr):
+        assert repr(self.url.loose_match(other)) == _repr
