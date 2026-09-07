@@ -4,7 +4,8 @@ News
 3.0.8 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Don't re-decode PATH_INFO when extracting cookies after the app has
+  rewritten the WSGI environ (Django).
 - Migrate the project to uv.
 
 

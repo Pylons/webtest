@@ -618,7 +618,8 @@ class TestApp:
         req.environ['paste.testing_variables'] = {}
 
         # set request cookies
-        self.cookiejar.add_cookie_header(utils._RequestCookieAdapter(req))
+        cookie_req = utils._RequestCookieAdapter(req)
+        self.cookiejar.add_cookie_header(cookie_req)
 
         # verify wsgi compatibility
         app = lint.middleware(self.app) if self.lint else self.app
@@ -655,7 +656,7 @@ class TestApp:
 
         # merge cookies back in
         self.cookiejar.extract_cookies(utils._ResponseCookieAdapter(res),
-                                       utils._RequestCookieAdapter(req))
+                                       cookie_req)
 
         return res
 

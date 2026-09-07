@@ -243,6 +243,30 @@ class TestCookies(unittest.TestCase):
         app.reset()
         self.assertFalse(bool(app.cookies))
 
+    def test_cookies_survive_path_info_rewrite(self):
+        # Django re-decodes PATH_INFO in-place. cookielib used to see the
+        # rewritten path and warn about a double decode.
+        def cookie_app(environ, start_response):
+            path = environ['PATH_INFO']
+            environ['PATH_INFO'] = path.encode('latin-1').decode('utf-8')
+            headers = [
+                ('Content-Type', 'text/html'),
+                ('Content-Length', '0'),
+                ('Set-Cookie', 'x=y; Path=/'),
+            ]
+            start_response('200 OK', headers)
+            return [b'']
+
+        app = webtest.TestApp(cookie_app)
+        import warnings
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            app.get('/caf%C3%A9')
+        self.assertEqual(app.cookies['x'], 'y')
+        self.assertFalse(
+            any('cookiejar' in str(w.message).lower() for w in caught)
+        )
+
     def test_secure_cookies(self):
         def cookie_app(environ, start_response):
             req = Request(environ)

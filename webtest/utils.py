@@ -116,6 +116,9 @@ class _RequestCookieAdapter:
     def __init__(self, request):
         self._request = request
         self.origin_req_host = request.host
+        # Snapshot the URL before the WSGI app runs. Django rewrites PATH_INFO
+        # in-place, and cookielib will warn (or fail) if we re-decode it later.
+        self._full_url = request.url
 
     def is_unverifiable(self):
         return True  # sure? Why not?
@@ -126,7 +129,7 @@ class _RequestCookieAdapter:
         return True
 
     def get_full_url(self):
-        return self._request.url
+        return self._full_url
 
     @property
     def host(self):
