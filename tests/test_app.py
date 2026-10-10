@@ -206,6 +206,13 @@ class TestCookies(unittest.TestCase):
         app.get('/')
         app.reset()
 
+    def test_set_cookie_value_is_unescaped_in_cookies_property(self):
+        app = webtest.TestApp(debug_app)
+        app.set_cookie('foo', 'bar')
+        app.set_cookie('fizz', ';bar=baz')  # Make sure we're unescaping.
+        self.assertEqual(app.cookies.get('foo'), 'bar')
+        self.assertEqual(app.cookies.get('fizz'), ';bar=baz')
+
     def test_preserves_cookies(self):
         def cookie_app(environ, start_response):
             req = Request(environ)

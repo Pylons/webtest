@@ -1,3 +1,4 @@
+import re
 import sys
 from http import cookies
 
@@ -29,6 +30,43 @@ def escape_cookie_value(value):
     return '"' + ''.join(
         COOKIE_ESCAPE_CHAR_MAP.get(x, x) for x in value
     ) + '"'
+
+
+_OCTAL_ESCAPE_RE = re.compile(r'\\[0-3][0-7][0-7]')
+_QUOTED_PAIR_RE = re.compile(r'\\.')
+
+
+def unescape_cookie_value(value):
+    """
+    Reverses the transformation performed by ``escape_cookie_value``.
+
+    If the value isn't wrapped in double quotes it is returned unchanged,
+    since it can't have been produced by ``escape_cookie_value`` (this also
+    covers values that a cookiejar has already unquoted for us).
+
+    """
+    if value is None or len(value) < 2 or value[0] != '"' or value[-1] != '"':
+        return value
+
+    value = value[1:-1]
+
+    result = []
+    i = 0
+    length = len(value)
+    while i < length:
+        octal_match = _OCTAL_ESCAPE_RE.match(value, i)
+        if octal_match:
+            result.append(chr(int(value[i + 1:i + 4], 8)))
+            i += 4
+            continue
+        quoted_pair_match = _QUOTED_PAIR_RE.match(value, i)
+        if quoted_pair_match:
+            result.append(value[i + 1])
+            i += 2
+            continue
+        result.append(value[i])
+        i += 1
+    return ''.join(result)
 
 
 # A list of illegal characters in a cookie and the escaped equivalent.
