@@ -6,6 +6,10 @@ News
 
 - Nothing changed yet.
 - Migrate the project to uv.
+- Fix ``<input type="reset">`` being submitted as a regular form field.  It is
+  now parsed as a ``Submit`` field, like ``<input type="submit">`` and
+  ``<button type="reset">`` already were, so it no longer adds a value to the
+  form data.
 
 
 3.0.7 (2025-10-06)
