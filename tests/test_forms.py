@@ -45,6 +45,24 @@ class TestForms(unittest.TestCase):
             button.value_if_submitted(), '',
             "submit default value is ''")
 
+    def test_reset_input_is_a_submit_button(self):
+        html = '''<form>
+        <input type="text" name="field" value="value"/>
+        <input type="reset" name="reset" value="Clear"/>
+        </form>'''
+        form = webtest.Form(webtest.TestResponse(html), html)
+        self.assertTrue(
+            isinstance(form['reset'], Submit),
+            '<input type="reset"> is a button, not a data field')
+
+    def test_reset_input_is_not_submitted(self):
+        html = '''<form>
+        <input type="text" name="field" value="value"/>
+        <input type="reset" name="reset" value="Clear"/>
+        </form>'''
+        form = webtest.Form(webtest.TestResponse(html), html)
+        self.assertEqual(form.submit_fields(), [('field', 'value')])
+
     def test_force_select(self):
         form = self.callFUT()
         form['select'].force_value('notavalue')

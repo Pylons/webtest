@@ -321,7 +321,8 @@ class Hidden(Text):
 
 
 class Submit(Field):
-    """Field representing ``<input type="submit">`` and ``<button>``"""
+    """Field representing ``<input type="submit">``, ``<input type="reset">``
+    and ``<button>``"""
 
     def value__get(self):
         return None
@@ -343,6 +344,8 @@ Field.classes['submit'] = Submit
 Field.classes['button'] = Submit
 
 Field.classes['image'] = Submit
+
+Field.classes['reset'] = Submit
 
 Field.classes['multiple_select'] = MultipleSelect
 
